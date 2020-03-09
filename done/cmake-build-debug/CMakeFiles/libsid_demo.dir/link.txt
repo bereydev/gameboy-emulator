@@ -1,1 +1,0 @@
-/usr/bin/cc -g   CMakeFiles/libsid_demo.dir/libsid_demo.c.o  -o libsid_demo 

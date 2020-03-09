@@ -1,1 +1,0 @@
-/usr/bin/cc -g   CMakeFiles/unit-test-bus.dir/unit-test-bus.c.o  -o unit-test-bus 

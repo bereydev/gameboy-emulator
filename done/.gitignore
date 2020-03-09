@@ -9,3 +9,5 @@
 /unit-test-component
 /unit-test-memory
 CMakeList.txt
+.idea/
+done/cmake-build-debug/

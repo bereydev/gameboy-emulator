@@ -1,1 +1,0 @@
-/usr/bin/cc -g   CMakeFiles/unit-test-memory.dir/unit-test-memory.c.o  -o unit-test-memory 
