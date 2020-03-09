@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jon/Documents/prog/epfl/pps20-projet-c-la-vie/done/bit.c
+stdint.h
+-
+bit.h
+/home/jon/Documents/prog/epfl/pps20-projet-c-la-vie/done/bit.h
+
+/home/jon/Documents/prog/epfl/pps20-projet-c-la-vie/done/bit.h
+stdint.h
+-
+

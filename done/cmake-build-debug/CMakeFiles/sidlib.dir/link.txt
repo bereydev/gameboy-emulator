@@ -1,0 +1,1 @@
+/usr/bin/cc -g   CMakeFiles/sidlib.dir/sidlib.c.o  -o sidlib 
