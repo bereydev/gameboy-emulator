@@ -10,10 +10,8 @@
  */
 typedef uint8_t bit_t;
 
-#define BYTE_SIZE 8
-#define INT_SIZE sizeof(int)
-//number of bits in an integer -1
-#define INT_BITS INT_SIZE * BYTE_SIZE
+//longueur d'un uint8_t
+#define UINT8_T_SIZE 8
 
 
 const uint8_t mask_lsb4 = 0x0f;
@@ -61,12 +59,7 @@ uint16_t merge8(uint8_t value, uint8_t value2){
  * @rotation    Number of times to rotate left.
  */
 void rotateLeft(uint8_t* num, int rotation){
-    //in case of rotating more than one time over the binary string
-    rotation %= INT_BITS;
-
-    while(rotation--)
-        //saving the dropped msb and concatenating with the shifted binary string
-        *num = (1 & ((*num) >> INT_BITS)) | ((*num) << 1);
+    *num = ((*num) >> UINT8_T_SIZE-rotation) | ((*num) << rotation);
 }
 
 /**
@@ -75,18 +68,12 @@ void rotateLeft(uint8_t* num, int rotation){
  * @num         Number to rotate.
  * @rotation    Number of times to rotate right.
  */
-void rotateRight(uint8_t* num, int rotation)
-{
-    //in case of rotating more than one time over the binary string
-    rotation %= INT_BITS;
-
-    while(rotation--)
-        //saving the dropped lsb shifting it as the new msb, shift num and clear the msb
-        *num = (((*num) >> 1) & (~(1 << INT_BITS)) | (((*num) & 1) << INT_BITS));
-
+void rotateRight(uint8_t* num, int rotation){
+        *num = ((*num) << UINT8_T_SIZE-rotation) | ((*num) >> rotation);
 }
 
 void bit_rotate(uint8_t* value, rot_dir_t dir, int d){
+    d = CLAMP07(d);
     if (dir == LEFT)
         rotateLeft(value, d);
     if (dir == RIGHT)
