@@ -32,15 +32,14 @@ typedef enum {
     FLAG_C = 0x10, // Carry 8bit
 } flag_bit_t;
 
-
 /**
  * @brief type alu_output_t holds a structure with a 16bit value field (usualy using only the 8 lsb),
  *        and a flags_t flag field holding the various flags
  */
-/* TODO WEEK 04:
- * Définir ici le type alu_output_t
- * (et supprimer ces quatre lignes de commentaire).
- */
+typedef struct {
+	uint16_t value;
+	flags_t fanions;
+	}alu_output_t;
 
 
 /**
@@ -50,7 +49,7 @@ typedef enum {
  * @param flag flag value to get
  * @return flag value
  */
-bit_t get_flag(flags_t flags, flag_bit_t flag);
+flag_bit_t get_flag(flags_t flags, flag_bit_t flag);
 
 #define get_C(X) get_flag(X, FLAG_C)
 #define get_H(X) get_flag(X, FLAG_H)
