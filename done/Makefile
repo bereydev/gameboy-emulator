@@ -97,6 +97,6 @@ unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
  component.h
 util.o: util.c
 
-unit-test-bit: unit-test-bit.o bit.o error.o
-	gcc -o unit-test-bit unit-test-bit.o bit.o error.o
+unit-test-bit: unit-test-bit.o bit.o
+
 
