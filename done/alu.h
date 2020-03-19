@@ -37,8 +37,8 @@ typedef enum {
  *        and a flags_t flag field holding the various flags
  */
 typedef struct {
-	uint16_t value;
-	flags_t fanions;
+	uint16_t value ;
+	flags_t flags;
 	}alu_output_t;
 
 

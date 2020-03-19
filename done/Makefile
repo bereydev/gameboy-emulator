@@ -98,5 +98,6 @@ unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
 util.o: util.c
 
 unit-test-bit: unit-test-bit.o bit.o
+unit-test-alu: unit-test-alu.o alu.o bit.o error.o
 
 
