@@ -58,7 +58,7 @@ void set_flag(flags_t* flags, flag_bit_t flag) {
  * @param carry
  * @param indicate either its a subtraction or not
  */
-void handle_flag_setting(alu_output_t* result, bit_t half_carry, bit_t carry, int subtraction){
+void handle_flag_setting(alu_output_t* result, bit_t half_carry, bit_t carry, int subtraction) {
     if(half_carry !=0) set_flag(&result->flags, FLAG_H);
     if(carry !=0) set_flag(&result->flags, FLAG_C);
     if(result->value == 0) set_flag(&result->flags, FLAG_Z);
@@ -75,7 +75,7 @@ void handle_flag_setting(alu_output_t* result, bit_t half_carry, bit_t carry, in
  * @return error code
  */
 int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0) {
-	M_REQUIRE_NON_NULL(result);
+    M_REQUIRE_NON_NULL(result);
     uint8_t sum_lsb = lsb4(x) + lsb4(y) + c0;
     uint8_t c4 = msb4(sum_lsb);
     uint8_t sum_msb = msb4(x) + msb4(y) + c4;
@@ -95,40 +95,34 @@ int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0) {
  * @return error code
  */
 int alu_sub8(alu_output_t* result, uint8_t x, uint8_t y, bit_t b0) {
-	M_REQUIRE_NON_NULL(result);
+    M_REQUIRE_NON_NULL(result);
     uint8_t sub_lsb = lsb4(x) - lsb4(y) - b0;
     uint8_t b4 = msb4(sub_lsb);
     uint8_t sub_msb = msb4(x) - msb4(y) + b4;
-    uint8_t b8 = msb4(sub_msb);
+    uint8_t b8 = lsb4(sub_msb);
     result->value = merge4(sub_lsb, sub_msb);
     handle_flag_setting(result, b4, b8, 1);
-   // printf("x : %u, y: %u , b0: %u , ",x,y,b0);
-   //printf("sub_lsb : %x sub_msb: %x b4 : %x b8: %x , value: %x \n",sub_lsb,sub_msb, b4, b8,result->value );
-    
     return ERR_NONE;
-    
 }
 
-void alu_add16_option(alu_output_t* result, uint16_t x, uint16_t y, add_flag_option opt){
+void alu_add16_option(alu_output_t* result, uint16_t x, uint16_t y, add_flag_option opt) {
     alu_output_t result_low;
     alu_output_t result_high;
     alu_add8(&result_low, lsb8(x), lsb8(y), 0);
     bit_t carry = get_C(result_low.flags) != 0 ? 1 : 0;
     alu_add8(&result_high, msb8(x), msb8(y),carry );
     result->value = merge8(result_low.value,result_high.value);
-    switch (opt){
-        case LOW:
-            if(get_H(result_low.flags) !=0) set_flag(&result->flags, FLAG_H);
-			if(get_C(result_low.flags) !=0) set_flag(&result->flags, FLAG_C);
-            break;
-        case HIGH:
-            if(get_H(result_high.flags) !=0) set_flag(&result->flags, FLAG_H);
-			if(get_C(result_high.flags) !=0) set_flag(&result->flags, FLAG_C);
-            break;
+    switch (opt) {
+    case LOW:
+        if(get_H(result_low.flags) !=0) set_flag(&result->flags, FLAG_H);
+        if(get_C(result_low.flags) !=0) set_flag(&result->flags, FLAG_C);
+        break;
+    case HIGH:
+        if(get_H(result_high.flags) !=0) set_flag(&result->flags, FLAG_H);
+        if(get_C(result_high.flags) !=0) set_flag(&result->flags, FLAG_C);
+        break;
     }
-    if(result->value == 0) set_flag(&result->flags, FLAG_Z); //flag Z corresponds to result 
-    
-    
+    if(result->value == 0) set_flag(&result->flags, FLAG_Z); //flag Z corresponds to result
 }
 
 /**
@@ -170,8 +164,8 @@ int alu_add16_high(alu_output_t* result, uint16_t x, uint16_t y) {
  * @return error code
  */
 int alu_shift(alu_output_t* result, uint8_t x, rot_dir_t dir) {
-	M_REQUIRE_NON_NULL(result);
-	M_REQUIRE(dir == LEFT | dir==RIGHT, ERR_BAD_PARAMETER, "input value dir (%u) is not LEFT or RIGHT",dir);
+    M_REQUIRE_NON_NULL(result);
+    M_REQUIRE(dir == LEFT | dir==RIGHT, ERR_BAD_PARAMETER, "input value dir (%u) is not LEFT or RIGHT",dir);
     if(dir == LEFT) {
         result->value = (uint8_t)(x << 1);
         if(bit_get(x, 7) !=0) set_flag(&result->flags, FLAG_C);
@@ -191,7 +185,7 @@ int alu_shift(alu_output_t* result, uint8_t x, rot_dir_t dir) {
  * @return error code
  */
 int alu_shiftR_A(alu_output_t* result, uint8_t x) {
-	M_REQUIRE_NON_NULL(result);
+    M_REQUIRE_NON_NULL(result);
     bit_t ejected_bit = bit_get(x,0);
     if(ejected_bit!=0) set_flag(&result->flags, FLAG_C);
     uint8_t mask_sign_bit = x & 0x80;
@@ -210,8 +204,8 @@ int alu_shiftR_A(alu_output_t* result, uint8_t x) {
  * @return error code
  */
 int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir) {
-	M_REQUIRE_NON_NULL(result);
-	M_REQUIRE(dir == LEFT | dir==RIGHT, ERR_BAD_PARAMETER, "input value dir (%u) is not LEFT or RIGHT",dir);
+    M_REQUIRE_NON_NULL(result);
+    M_REQUIRE(dir == LEFT | dir==RIGHT, ERR_BAD_PARAMETER, "input value dir (%u) is not LEFT or RIGHT",dir);
     bit_t msb = x & 0x80;
     bit_t lsb = x & 0x01;
     if(dir==LEFT && msb!=0) set_flag(&result->flags, FLAG_C);
@@ -221,7 +215,6 @@ int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir) {
     if(result->value == 0) set_flag(&result->flags, FLAG_Z);
     return ERR_NONE;
 }
-
 
 /**
  * @brief logic rotate with carry taken into account
@@ -233,8 +226,8 @@ int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir) {
  * @return error code
  */
 int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t flags) {
-	M_REQUIRE_NON_NULL(result);
-	M_REQUIRE(dir == LEFT | dir==RIGHT, ERR_BAD_PARAMETER, "input value dir (%u) is not LEFT or RIGHT",dir);
+    M_REQUIRE_NON_NULL(result);
+    M_REQUIRE(dir == LEFT | dir==RIGHT, ERR_BAD_PARAMETER, "input value dir (%u) is not LEFT or RIGHT",dir);
     bit_t newCarry = (dir == RIGHT) ? (x & 0x01) : (x & 0x80);
     if(newCarry !=0) set_flag(&result->flags, FLAG_C);
     x = (dir == RIGHT) ? (x>>1) : (x<<1);
