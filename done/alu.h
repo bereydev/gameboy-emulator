@@ -41,11 +41,22 @@ typedef struct {
 	flags_t flags;
 	}alu_output_t;
 
+/**
+ * @brief type add_flag_option allow to chose the functions between alu_add16_low and alu_add16_high
+ */
 typedef enum {
     LOW,
     HIGH
 } add_flag_option;
 
+
+/**
+ * @brief type define the boolean values in a simple way
+ */
+typedef enum {
+    TRUE = 1,
+    FALSE = 0
+}bool;
 
 /**
  * @brief get flag value
@@ -60,6 +71,8 @@ flag_bit_t get_flag(flags_t flags, flag_bit_t flag);
 #define get_H(X) get_flag(X, FLAG_H)
 #define get_N(X) get_flag(X, FLAG_N)
 #define get_Z(X) get_flag(X, FLAG_Z)
+
+#define FLAGS_MASK = 0xF0
 
 
 /**
