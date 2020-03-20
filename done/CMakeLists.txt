@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(gameboy_emul C)
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 11)
 
 add_executable(error error.c)
 add_executable( libsid_demo libsid_demo.c)

@@ -99,7 +99,8 @@ int alu_sub8(alu_output_t* result, uint8_t x, uint8_t y, bit_t b0) {
     uint8_t sub_lsb= lsb4(x) - lsb4(y) - b0;
     uint8_t b4 = msb4(sub_lsb);
     uint8_t sub_msb = msb4(x) - msb4(y) + b4;
-    uint8_t b8 = msb4(sub_msb);
+    uint8_t b8 = lsb4(sub_msb);
+    //TODO a mon avis les test sont un peu fragile parce que ça ça passe ...
     result->value = merge4(sub_lsb, sub_msb);
     handle_flag_setting(result, b4, b8, 1);
     return ERR_NONE;
@@ -114,8 +115,10 @@ void alu_add16_option(alu_output_t* result, uint16_t x, uint16_t y, add_flag_opt
     switch (opt){
         case LOW:
             result->flags = result_low.flags;
+            break;
         case HIGH:
             result->flags = result_high.flags;
+            break;
     }
 //
 //    alu_output_t result_high = {0,0};

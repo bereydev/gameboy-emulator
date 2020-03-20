@@ -46,7 +46,7 @@ uint8_t msb8(uint16_t value){
     return (value & mask_msb8) >> 8;
 }
 uint8_t merge4(uint8_t value, uint8_t value2){
-    return lsb4(value) | (lsb4(value2)<<4);
+    return lsb4(value) | (value2<<4);
 }
 uint16_t merge8(uint8_t value, uint8_t value2){
     return value | (value2 << 8);

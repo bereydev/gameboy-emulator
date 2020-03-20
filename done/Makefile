@@ -77,6 +77,8 @@ libsid_demo: libsid_demo.o libsid.so
 
 
 #Rajouté par moi
+alu: alu.o
+bit: bit.o
 alu.o: alu.c alu.h bit.h
 bit.o: bit.c bit.h
 error.o: error.c
