@@ -5,17 +5,9 @@ GTK_LIBS := `pkg-config --libs gtk+-3.0`
 
 CFLAGS += -std=c11 -Wall -pedantic -g
 
-# a bit more checks if you'## ======================================================================
-                                                                ## partial Makefile provided to students
-                                                                ##
+CFLAGS += -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code
 
-                                                                GTK_INCLUDE := `pkg-config --cflags gtk+-3.0`d like to (uncomment
-# CFLAGS += -Wextra -Wfloat-equal -Wshadow                         \
-# -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings \
-# -Wconversion -Wunreachable-code
-
-# uncomment if you want to add DEBUG flag
-# CPPFLAGS += -DDEBUG
+CPPFLAGS += -DDEBUG
 
 # ----------------------------------------------------------------------
 # feel free to update/modifiy this part as you wish
@@ -82,3 +74,25 @@ libsid_demo.o: CFLAGS += $(GTK_INCLUDE)
 libsid_demo: LDFLAGS += -L.
 libsid_demo: LDLIBS += $(GTK_LIBS) -lsid
 libsid_demo: libsid_demo.o libsid.so
+
+
+#Rajouté par moi
+alu.o: alu.c alu.h bit.h
+bit.o: bit.c bit.h
+error.o: error.c
+libsid_demo.o: libsid_demo.c sidlib.h
+sidlib.o: sidlib.c sidlib.h
+unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h
+unit-test-bit.o: unit-test-bit.c tests.h error.h bit.h
+unit-test-bus.o: unit-test-bus.c tests.h error.h bus.h memory.h \
+ component.h util.h
+unit-test-component.o: unit-test-component.c tests.h error.h bus.h \
+ memory.h component.h
+unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
+ component.h
+util.o: util.c
+
+unit-test-bit: unit-test-bit.o bit.o
+unit-test-alu: unit-test-alu.o alu.o bit.o error.o
+
+
