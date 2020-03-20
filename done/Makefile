@@ -1,15 +1,15 @@
-## ======================================================================
-## partial Makefile provided to students
-##
 
-GTK_INCLUDE := `pkg-config --cflags gtk+-3.0`
 GTK_LIBS := `pkg-config --libs gtk+-3.0`
 
 .PHONY: clean new style feedback submit1 submit2 submit
 
 CFLAGS += -std=c11 -Wall -pedantic -g
 
-# a bit more checks if you'd like to (uncomment
+# a bit more checks if you'## ======================================================================
+                                                                ## partial Makefile provided to students
+                                                                ##
+
+                                                                GTK_INCLUDE := `pkg-config --cflags gtk+-3.0`d like to (uncomment
 # CFLAGS += -Wextra -Wfloat-equal -Wshadow                         \
 # -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings \
 # -Wconversion -Wunreachable-code

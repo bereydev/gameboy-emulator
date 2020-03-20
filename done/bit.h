@@ -25,7 +25,10 @@ typedef uint8_t bit_t;
  * @brief Enumeration type of rotation directions: either LEFT or RIGHT
  */
 
-typedef enum rot_dir_t{LEFT, RIGHT} rot_dir_t;
+typedef enum {
+    LEFT,
+    RIGHT
+} rot_dir_t;
 //TODO check if the implementation is good
 
 
