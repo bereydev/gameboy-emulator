@@ -96,45 +96,39 @@ int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0) {
  */
 int alu_sub8(alu_output_t* result, uint8_t x, uint8_t y, bit_t b0) {
 	M_REQUIRE_NON_NULL(result);
-    uint8_t sub_lsb= lsb4(x) - lsb4(y) - b0;
+    uint8_t sub_lsb = lsb4(x) - lsb4(y) - b0;
     uint8_t b4 = msb4(sub_lsb);
     uint8_t sub_msb = msb4(x) - msb4(y) + b4;
     uint8_t b8 = msb4(sub_msb);
     result->value = merge4(sub_lsb, sub_msb);
     handle_flag_setting(result, b4, b8, 1);
+   // printf("x : %u, y: %u , b0: %u , ",x,y,b0);
+   //printf("sub_lsb : %x sub_msb: %x b4 : %x b8: %x , value: %x \n",sub_lsb,sub_msb, b4, b8,result->value );
+    
     return ERR_NONE;
+    
 }
 
 void alu_add16_option(alu_output_t* result, uint16_t x, uint16_t y, add_flag_option opt){
     alu_output_t result_low;
     alu_output_t result_high;
     alu_add8(&result_low, lsb8(x), lsb8(y), 0);
-    alu_add8(&result_high, msb8(x), msb8(y), msb8(result_low.value));
+    bit_t carry = get_C(result_low.flags) != 0 ? 1 : 0;
+    alu_add8(&result_high, msb8(x), msb8(y),carry );
     result->value = merge8(result_low.value,result_high.value);
     switch (opt){
         case LOW:
-            result->flags = result_low.flags;
+            if(get_H(result_low.flags) !=0) set_flag(&result->flags, FLAG_H);
+			if(get_C(result_low.flags) !=0) set_flag(&result->flags, FLAG_C);
+            break;
         case HIGH:
-            result->flags = result_high.flags;
+            if(get_H(result_high.flags) !=0) set_flag(&result->flags, FLAG_H);
+			if(get_C(result_high.flags) !=0) set_flag(&result->flags, FLAG_C);
+            break;
     }
-//
-//    alu_output_t result_high = {0,0};
-//    alu_add8(result, lsb8(x), lsb8(y), 0);
-//    uint16_t sum8lsb = result->value;
-//    bit_t carry = bit_get(msb8(sum8lsb),0);
-//    alu_add8(&result_high, msb8(x), msb8(y),carry );
-//    uint16_t sum8msb = result_high.value;
-//    printf("sumlsb = %x and summsb = %x ++++ carry %d \n", sum8lsb, sum8msb,carry);
-//    result->value= merge8(sum8lsb,sum8msb);
-//    if(result->value==0)  set_flag(&(result->flags), FLAG_Z);
-//    return ERR_NONE;
-//
-//    M_REQUIRE_NON_NULL(result);
-//    alu_output_t result_low;
-//    uint16_t sum8lsb = alu_add8(&result_low, lsb8(x), lsb8(y), 0);
-//    uint16_t sum8msb = alu_add8(&result, msb8(x), msb8(y), msb8(sum8lsb));
-//    result->value= merge8(sum8lsb,sum8msb);
-//    if(result->value==0)  set_flag(&result->flags, FLAG_Z);
+    if(result->value == 0) set_flag(&result->flags, FLAG_Z); //flag Z corresponds to result 
+    
+    
 }
 
 /**
@@ -179,10 +173,10 @@ int alu_shift(alu_output_t* result, uint8_t x, rot_dir_t dir) {
 	M_REQUIRE_NON_NULL(result);
 	M_REQUIRE(dir == LEFT | dir==RIGHT, ERR_BAD_PARAMETER, "input value dir (%u) is not LEFT or RIGHT",dir);
     if(dir == LEFT) {
-        result->value = x << 1;
+        result->value = (uint8_t)(x << 1);
         if(bit_get(x, 7) !=0) set_flag(&result->flags, FLAG_C);
     } else if(dir == RIGHT) {
-        result->value = x >> 1;
+        result->value = (uint8_t) x >> 1;
         if(bit_get(x, 0) !=0) set_flag(&result->flags, FLAG_C);
     }
     if (result->value ==0) set_flag(&result->flags, FLAG_Z);
@@ -198,7 +192,7 @@ int alu_shift(alu_output_t* result, uint8_t x, rot_dir_t dir) {
  */
 int alu_shiftR_A(alu_output_t* result, uint8_t x) {
 	M_REQUIRE_NON_NULL(result);
-    bit_t ejected_bit = bit_get(x,7);
+    bit_t ejected_bit = bit_get(x,0);
     if(ejected_bit!=0) set_flag(&result->flags, FLAG_C);
     uint8_t mask_sign_bit = x & 0x80;
     result->value = x >> 1;
@@ -244,7 +238,7 @@ int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t fla
     bit_t newCarry = (dir == RIGHT) ? (x & 0x01) : (x & 0x80);
     if(newCarry !=0) set_flag(&result->flags, FLAG_C);
     x = (dir == RIGHT) ? (x>>1) : (x<<1);
-    if(newCarry!=0) x = (dir == RIGHT) ? (x | 0x80) : (x | 0x10);
+    if(get_C(flags)!=0) x = (dir == RIGHT) ? (x | 0x80) : (x | 0x01);
     result->value = x;
     if(result->value == 0) set_flag(&result->flags, FLAG_Z);
     return ERR_NONE;
