@@ -59,7 +59,7 @@ uint16_t merge8(uint8_t value, uint8_t value2){
  * @rotation    Number of times to rotate left.
  */
 void rotateLeft(uint8_t* num, int rotation){
-    *num = ((*num) >> UINT8_T_SIZE-rotation) | ((*num) << rotation);
+    *num = ((*num) >> (UINT8_T_SIZE-rotation)) | ((*num) << rotation);
 }
 
 /**
@@ -72,15 +72,22 @@ void rotateRight(uint8_t* num, int rotation){
         *num = ((*num) << UINT8_T_SIZE-rotation) | ((*num) >> rotation);
 }
 
-void bit_rotate(uint8_t* value, rot_dir_t dir, int d){
+void bit_rotate(uint8_t* value, rot_dir_t dir, int d) {
     d = CLAMP07(d);
-    if (dir == LEFT)
-        rotateLeft(value, d);
-    if (dir == RIGHT)
-        rotateRight(value, d);
-    //do we have to consider a default/error case ? do we have to check the validity of the different parameters
+    switch (dir) {
+        case LEFT:
+            rotateLeft(value, d);
+            break;
+        case RIGHT:
+            rotateRight(value, d);
+            break;
+    }
+    //do we have to consider a default/error case ?
 }
 
 void bit_edit(uint8_t* value, int index, uint8_t v){
-    //TODO
+    if (v==0)
+        bit_unset(value, index);
+    else
+        bit_set(value, index);
 }

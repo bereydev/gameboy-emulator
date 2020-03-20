@@ -41,6 +41,11 @@ typedef struct {
 	flags_t flags;
 	}alu_output_t;
 
+typedef enum {
+    LOW,
+    HIGH
+} add_flag_option;
+
 
 /**
  * @brief get flag value
