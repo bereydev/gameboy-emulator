@@ -1,6 +1,5 @@
 #include <stdint.h>   // for uint8_t and uint16_t types
 #include "alu.h"
-#include "bit.h"
 #include "error.h"
 // ======================================================================
 /**
