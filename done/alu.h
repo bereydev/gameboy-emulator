@@ -8,7 +8,6 @@
  * @date 2019
  */
 
-#include <stdint.h>
 #include <stdlib.h>
 
 #include "bit.h"
@@ -71,8 +70,6 @@ flag_bit_t get_flag(flags_t flags, flag_bit_t flag);
 #define get_H(X) get_flag(X, FLAG_H)
 #define get_N(X) get_flag(X, FLAG_N)
 #define get_Z(X) get_flag(X, FLAG_Z)
-
-#define FLAGS_MASK = 0xF0
 
 
 /**

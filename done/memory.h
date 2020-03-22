@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+// j'ai du importer ça pour qu'il reconnaisse size_t
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {

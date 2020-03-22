@@ -1,4 +1,3 @@
-#include <stdint.h>   // for uint8_t and uint16_t types
 #include "alu.h"
 #include "error.h"
 // ======================================================================

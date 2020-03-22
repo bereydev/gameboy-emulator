@@ -29,7 +29,6 @@ typedef enum {
     LEFT,
     RIGHT
 } rot_dir_t;
-//TODO check if the implementation is good
 
 
 /**
@@ -110,7 +109,7 @@ uint8_t merge4(uint8_t v1, uint8_t v2);
 * @brief Extends an unsigned value from 8 to 16 bits
 */
 #define extend_u_16(v) merge8(0,v)
-
+//TODO find where to use this ...
 
 /**
  * @brief Gets the bit at a given index

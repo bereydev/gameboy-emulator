@@ -75,13 +75,16 @@ libsid_demo: LDFLAGS += -L.
 libsid_demo: LDLIBS += $(GTK_LIBS) -lsid
 libsid_demo: libsid_demo.o libsid.so
 
-
-#Rajouté par moi
+#TODO check le makefile avec un assistant (obligé de mettre les .h ?)
+#Erreur référence indéfinie vers « main »
+#Est-ce qu'il faut déjà compléter la règle all ?
 alu: alu.o
 bit: bit.o
-alu.o: alu.c alu.h bit.h
+alu.o: alu.c bit.h error.h
 bit.o: bit.c bit.h
-error.o: error.c
+component.o: component.c component.h error.h
+bus.o: bus.c bus.h memory.h component.h error.h
+error.o: error.c error.h
 libsid_demo.o: libsid_demo.c sidlib.h
 sidlib.o: sidlib.c sidlib.h
 unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h

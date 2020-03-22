@@ -11,6 +11,7 @@ int component_create(component_t* c, size_t mem_size){
     c->start = 0;
     c->end = 0;
     c->mem.size = mem_size;
+    return ERR_NONE;
 }
 
 void component_free(component_t* c){
