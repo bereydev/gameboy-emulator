@@ -15,6 +15,16 @@
 extern "C" {
 #endif
 
+typedef uint16_t addr_t;
+typedef uint8_t data_t;
+
+#define MAX_MEM_SIZE 256
+
+typedef struct{
+    data_t memory[MAX_MEM_SIZE] ;
+    size_t size;
+}memory_t;
+
 
 
 /**

@@ -10,12 +10,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <inttypes.h>
 
 #include "memory.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct{
+    memory_t mem;
+    addr_t start;
+    addr_t end;
+}component_t;
 
 
 /**
