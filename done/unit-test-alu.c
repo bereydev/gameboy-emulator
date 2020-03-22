@@ -143,12 +143,12 @@ START_TEST(alu_add8_exec)
     printf("=== %s:\n", __func__);
 #endif
 
-    const uint8_t input_x[] = {0x10, 0x08, 0x80, 0xF0};
-    const uint8_t input_y[] = {0x15, 0x08, 0x7F, 0x10};
-    const uint8_t input_c[] = {0x00, 0x00, 0x01, 0x01};
+    const uint8_t input_x[] = {0x10, 0x08, 0x80, 0xF0, 0xFF, 0xF0};
+    const uint8_t input_y[] = {0x15, 0x08, 0x7F, 0x10, 0x00, 0x10};
+    const uint8_t input_c[] = {0x00, 0x00, 0x01, 0x01, 0x01, 0x00};
 
-    const uint16_t expected_v[] = {0x0025, 0x0010, 0x000, 0x0001};
-    const flags_t  expected_f[] = {0x00, 0x20, 0xB0, 0x10};
+    const uint16_t expected_v[] = {0x0025, 0x0010, 0x000, 0x0001, 0x0000, 0x0000};
+    const flags_t  expected_f[] = {0x00, 0x20, 0xB0, 0x10, 0xB0, 0x90};
 
     ASSERT_EQ_NB_EL(input_x, input_y);
     ASSERT_EQ_NB_EL(input_y, input_c);
@@ -197,11 +197,11 @@ START_TEST(alu_add16_low_exec)
     printf("=== %s:\n", __func__);
 #endif
 
-    const uint16_t input_x[] = {0x11FF};
-    const uint16_t input_y[] = {0x0001};
+    const uint16_t input_x[] = {0x11FF, 0x000F, 0xFFFF};
+    const uint16_t input_y[] = {0x0001, 0x0001, 0x0001};
 
-    const uint16_t expected_v[] = {0x1200};
-    const flags_t  expected_f[] = {0x30};
+    const uint16_t expected_v[] = {0x1200, 0x0010, 0x0000};
+    const flags_t  expected_f[] = {0x30, 0x20, 0xB0 };
 
     ASSERT_EQ_NB_EL(input_x, input_y);
     ASSERT_EQ_NB_EL(input_y, expected_v);
@@ -357,11 +357,11 @@ START_TEST(alu_shift_exec)
     printf("=== %s:\n", __func__);
 #endif
 
-    const uint8_t   input_x[] = {0x80, 0x80 };
-    const rot_dir_t input_d[] = {LEFT, RIGHT};
+    const uint8_t   input_x[] = {0x80, 0x80, 0xC0, 0x01,0x03};
+    const rot_dir_t input_d[] = {LEFT, RIGHT, LEFT, RIGHT, RIGHT};
 
-    const uint16_t expected_v[] = {0x00, 0x40};
-    const flags_t  expected_f[] = {0x90, 0x00};
+    const uint16_t expected_v[] = {0x00, 0x40, 0x80, 0x00, 0x01};
+    const flags_t  expected_f[] = {0x90, 0x00, 0x10, 0x90, 0x10};
 
     ASSERT_EQ_NB_EL(input_x, input_d);
     ASSERT_EQ_NB_EL(input_d, expected_v);
@@ -409,10 +409,10 @@ START_TEST(alu_shiftRA_exec)
     printf("=== %s:\n", __func__);
 #endif
 
-    const uint8_t input_x[] = {0x80, 0x00};
+    const uint8_t input_x[] = {0x80, 0x00, 0x81, 0x01};
 
-    const uint16_t expected_v[] = {0xC0, 0x00};
-    const flags_t  expected_f[] = {0x00, 0x80};
+    const uint16_t expected_v[] = {0xC0, 0x00, 0xC0, 0x00};
+    const flags_t  expected_f[] = {0x00, 0x80, 0x10, 0x90};
 
     ASSERT_EQ_NB_EL(input_x, expected_v);
     ASSERT_EQ_NB_EL(expected_v, expected_f);
@@ -461,11 +461,11 @@ START_TEST(alu_rotate_exec)
     printf("=== %s:\n", __func__);
 #endif
 
-    const uint8_t input_x[] = {0x80, 0x00};
-    const uint8_t input_d[] = {LEFT, LEFT};
+    const uint8_t input_x[] = {0x80, 0x00, 0x01};
+    const uint8_t input_d[] = {LEFT, LEFT, RIGHT};
 
-    const uint16_t expected_v[] = {0x01, 0x00};
-    const flags_t  expected_f[] = {0x10, 0x80};
+    const uint16_t expected_v[] = {0x01, 0x00, 0x80};
+    const flags_t  expected_f[] = {0x10, 0x80, 0x10};
 
     ASSERT_EQ_NB_EL(input_x, input_d);
     ASSERT_EQ_NB_EL(input_d, expected_v);
@@ -515,12 +515,12 @@ START_TEST(alu_carryrotate_exec)
     printf("=== %s:\n", __func__);
 #endif
 
-    const uint8_t input_x[] = {0x80, 0x00, 0x01, 0x00};
-    const uint8_t input_d[] = {LEFT, LEFT, RIGHT, LEFT};
-    const uint8_t input_f[] = {0, 0x10, 0x00, 0x00};
+    const uint8_t input_x[] = {0x80, 0x00, 0x01, 0x00, 0x01};
+    const uint8_t input_d[] = {LEFT, LEFT, RIGHT, LEFT, RIGHT};
+    const uint8_t input_f[] = {0, 0x10, 0x00, 0x00, 0x10};
 
-    const uint16_t expected_v[] = {0x00, 0x01, 0x00, 0x00};
-    const flags_t expected_f [] = {0x90, 0x00, 0x90, 0x80};
+    const uint16_t expected_v[] = {0x00, 0x01, 0x00, 0x00, 0x80};
+    const flags_t expected_f [] = {0x90, 0x00, 0x90, 0x80, 0x10};
 
     ASSERT_EQ_NB_EL(input_x, input_d);
     ASSERT_EQ_NB_EL(input_d, input_f);
@@ -533,7 +533,7 @@ START_TEST(alu_carryrotate_exec)
         ck_assert_int_eq(alu_carry_rotate(&result, input_x[i_], input_d[i_], input_f[i_]), ERR_NONE);
 
         ck_assert_msg(result.value == expected_v[i_],
-                      "alu_shift() failed on 0x%" PRIX8 " (dir = 0x%" PRIX8 ", flag = 0x%" PRIX8 ") :got value 0x%"
+                      "alu_carry_rotate() failed on 0x%" PRIX8 " (dir = 0x%" PRIX8 ", flag = 0x%" PRIX8 ") :got value 0x%"
                       PRIX8 " instead of 0x%" PRIX8,
                       input_x[i_], input_d[i_], input_f[i_], result.value, expected_v[i_]);
 
