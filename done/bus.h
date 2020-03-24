@@ -20,15 +20,11 @@ extern "C" {
 
 #define BUS_SIZE 65536
 
-    typedef memory_t* bus_t[BUS_SIZE];
 
 /**
  * @ brief Bus Type, a table of memory pointer pointing to the various component memories
  */
-/* TODO WEEK 05:
- * Définir ici le type bus_t
- * (et supprimer ces quatre lignes de commentaire).
- */
+typedef data_t* bus_t[BUS_SIZE]; //j'ai changé memory_t* en data_t* parce que ça ne faisait pas sens sinon
 
 /**
  * @brief Plug a component into the bus

@@ -17,21 +17,15 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Component data structure.
+ *        Holds a pointer to its memory and start/end addresses
+ */
 typedef struct{
     memory_t mem;
     addr_t start;
     addr_t end;
 }component_t;
-
-
-/**
- * @brief Component data structure.
- *        Holds a pointer to its memory and start/end addresses
- */
-/* TODO WEEK 05:
- * Définir ici le type component_t
- * (et supprimer ces quatre lignes de commentaire).
- */
 
 /**
  * @brief Creates a component given various arguments
