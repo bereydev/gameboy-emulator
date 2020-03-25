@@ -14,15 +14,11 @@
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
     M_REQUIRE_NON_NULL(bus);
     M_REQUIRE_NON_NULL(c);
-    M_REQUIRE( (c->end - c->start + offset) <= c->mem.size, ERR_ADDRESS, "input offset (%x) is incorrect",offset);
-    // l'adresse start du bus pointera sur l'adresse offset de la mémoire du composant (il s'agit bien de l'adresse d'une data_t pas de memory_t)
-    //bus[c->start] = &c->mem.memory[offset];
-    
-    
-    //il faut faire le mapping entier (de taille size), pas seulement pour le premier
+    M_REQUIRE( (c->end - c->start + offset) <= c->mem->size, ERR_ADDRESS, "input offset (%x) is incorrect",offset);
+
 	size_t s = c->end - c->start + 1;
 	for(size_t i = 0; i<s;++i) {
-		bus[c->start + i] = &c->mem.memory[offset + i];
+		bus[c->start + i] = &c->mem->memory[offset + i];
 		}
    
     return ERR_NONE;
@@ -44,7 +40,7 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
     M_REQUIRE(0x0000 <= start && start <= 0xFFFF, ERR_BAD_PARAMETER, "input start (%x) is not between %x and %x",start,0x0000,0xFFFF);
     M_REQUIRE(0x0000 <= end && end <= 0xFFFF, ERR_BAD_PARAMETER, "input end (%x) is not between %x and %x",end,0x0000,0xFFFF); 						//si start = end = 0xFFFF
 	M_REQUIRE(start!=end, ERR_BAD_PARAMETER, "inputs start(%x) and end(%x) are equal", start, end);
-    M_REQUIRE( end - start + offset <= c->mem.size, ERR_ADDRESS, "input offset (%x) is incorrect",offset);
+    M_REQUIRE( end - start + offset <= c->mem->size, ERR_ADDRESS, "input offset (%x) is incorrect",offset);
     
     c->start = start;
     c->end = end;   

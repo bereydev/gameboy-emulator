@@ -78,11 +78,12 @@ libsid_demo: libsid_demo.o libsid.so
 #TODO check le makefile avec un assistant (obligé de mettre les .h ?)
 #Erreur référence indéfinie vers « main »
 #Est-ce qu'il faut déjà compléter la règle all ?
+error.o: error.c error.h
 alu.o: alu.c alu.h bit.h error.h
 bit.o: bit.c bit.h
-bus.o: bus.c bus.h memory.h component.h error.h bit.h
+bus.o: bus.c bus.h component.h memory.h error.h bit.h
+memory.o: memory.c memory.h error.h
 component.o: component.c component.h memory.h error.h
-error.o: error.c
 libsid_demo.o: libsid_demo.c sidlib.h
 sidlib.o: sidlib.c sidlib.h
 unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h

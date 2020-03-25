@@ -17,7 +17,6 @@
 extern "C" {
 #endif
 
-#define MAX_MEM_SIZE 256
 /**
  * @brief types for Game Boy data (8 bits) and addresses (16 bits)
  */
@@ -29,9 +28,10 @@ typedef uint8_t data_t;
  *        Holds a pointer to the memory, its size and if it is writable
  */
 typedef struct{
-    data_t memory[MAX_MEM_SIZE] ;
-    size_t size;
-}memory_t;
+    size_t size; /* nombre de zone de taille sizeof(data_t) alloué */
+    //TODO est-ce que allocated c'est utile ?
+    data_t* memory; /* tableau contenant les pointeurs vers les données */
+} memory_t;
 
 /**
  * @brief Creates memory structure
