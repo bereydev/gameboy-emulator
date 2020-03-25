@@ -27,6 +27,7 @@ typedef uint8_t data_t;
 /**
  * @brief Structure for memory,
  *        Holds a pointer to the memory, its size and if it is writable
+ *        // TODO if it is writable ?
  */
 typedef struct{
     data_t memory[MAX_MEM_SIZE] ;

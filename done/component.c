@@ -17,6 +17,7 @@ int component_create(component_t* c, size_t mem_size){
     */
     c->start = 0;
     c->end = 0;
+    //initialiser la mémoire ici ?
     c->mem.size = mem_size;
     return ERR_NONE;
 }
