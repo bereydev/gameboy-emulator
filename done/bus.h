@@ -24,8 +24,8 @@ extern "C" {
 /**
  * @ brief Bus Type, a table of memory pointer pointing to the various component memories
  */
-typedef data_t * bus_t[BUS_SIZE]; //j'ai changé memory_t* en data_t* parce que ça ne faisait pas sens sinon
-// pourquoi data_t alors que c'est le bus des adresse ...
+typedef data_t * bus_t[BUS_SIZE];
+
 /**
  * @brief Plug a component into the bus
  *

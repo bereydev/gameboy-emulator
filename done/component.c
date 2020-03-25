@@ -17,7 +17,9 @@ int component_create(component_t* c, size_t mem_size){
     */
     c->start = 0;
     c->end = 0;
-    //initialiser la mémoire ici ?
+//    if (mem_create(&c->mem, mem_size) != ERR_NONE)
+//        mem_free(&c->mem);
+    //TODO initialiser la mémoire ici
     c->mem.size = mem_size;
     return ERR_NONE;
 }
@@ -28,8 +30,8 @@ int component_create(component_t* c, size_t mem_size){
  * @param c component pointer to destroy
  */
 void component_free(component_t* c){
-    //TODO valider les arguments cause une erreur de type de retour (à cause du message d'erreur...)
-//    M_REQUIRE_NON_NULL(c);
-    c->start = 0;
-    c->end = 0;
+    if (c != NULL){
+        c->start = 0;
+        c->end = 0;
+    }
 }

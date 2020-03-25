@@ -10,8 +10,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-// j'ai du importer ça pour qu'il reconnaisse size_t
-#include <stdio.h>
+#include <stddef.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,7 +27,6 @@ typedef uint8_t data_t;
 /**
  * @brief Structure for memory,
  *        Holds a pointer to the memory, its size and if it is writable
- *        // TODO if it is writable ?
  */
 typedef struct{
     data_t memory[MAX_MEM_SIZE] ;
