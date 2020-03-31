@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include "memory.h"
 #include "error.h"
+#include <stdint.h> // pour SIZE_MAX
 
 
 int mem_create(memory_t* mem, size_t size){
     M_REQUIRE_NON_NULL(mem);
-    M_REQUIRE(size >= 0, ERR_BAD_PARAMETER, "\"input size (%u) is incorrect\"", size);
+    //il faut empecher la création d'une mémoire de taille null. Borne supérieure nécessaire?
+    M_REQUIRE(0 < size && size<=SIZE_MAX , ERR_BAD_PARAMETER, "\"input size (%u) is incorrect\"", size);
     memory_t result = {0, NULL};
     result.memory = calloc(size, sizeof(data_t));
     if (result.memory != NULL)
