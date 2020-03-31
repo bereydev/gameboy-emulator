@@ -46,7 +46,7 @@ int component_create(component_t* c, size_t mem_size);
 int component_shared(component_t* c, component_t* c_old);
 
 /**
- * @brief Destroy's a component
+ * @brief Destroys a component
  *
  * @param c component pointer to destroy
  */

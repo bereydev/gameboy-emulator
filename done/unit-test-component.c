@@ -56,8 +56,9 @@ START_TEST(component_create_free_exec)
     ck_assert(c.mem != NULL);
     ck_assert(c.start == 0);
     ck_assert(c.end == 0);
-    ck_assert(c.mem->size == s);
     ck_assert(c.mem->memory != NULL);
+    ck_assert(c.mem->size == s);
+    
 
     c.start = 42;
     c.end = (addr_t)(c.start + s - 1);

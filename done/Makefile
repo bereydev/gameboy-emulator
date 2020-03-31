@@ -18,7 +18,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := unit-test-bus
+CHECK_TARGETS := unit-test-component
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -78,13 +78,13 @@ libsid_demo: libsid_demo.o libsid.so
 #TODO check le makefile avec un assistant (obligé de mettre les .h ?)
 #Erreur référence indéfinie vers « main »
 #Est-ce qu'il faut déjà compléter la règle all ?
-error.o: error.c error.h
 alu.o: alu.c alu.h bit.h error.h
 bit.o: bit.c bit.h
-bus.o: bus.c bus.h component.h memory.h error.h bit.h
-memory.o: memory.c memory.h error.h
+bus.o: bus.c bus.h memory.h component.h error.h bit.h
 component.o: component.c component.h memory.h error.h
+error.o: error.c
 libsid_demo.o: libsid_demo.c sidlib.h
+memory.o: memory.c memory.h error.h
 sidlib.o: sidlib.c sidlib.h
 unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h
 unit-test-bit.o: unit-test-bit.c tests.h error.h bit.h
@@ -98,9 +98,11 @@ util.o: util.c
 
 
 
+
 unit-test-bit: unit-test-bit.o bit.o
 unit-test-alu: unit-test-alu.o alu.o bit.o error.o
 unit-test-component: unit-test-component.o error.o component.o memory.o
+unit-test-memory: unit-test-memory.o error.o bus.o memory.o component.o bit.o
 unit-test-bus: unit-test-bus.o error.o bus.o component.o bit.o
 
 
