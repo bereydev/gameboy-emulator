@@ -30,7 +30,7 @@ int mem_create(memory_t* mem, size_t size){
 }
 
 void mem_free(memory_t* mem){
-    if (mem != NULL && mem->memory) {
+    if (mem != NULL && mem->memory!=NULL) {
         free(mem->memory);
         mem->memory = NULL;
         mem->size = 0;

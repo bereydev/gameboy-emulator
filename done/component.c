@@ -16,14 +16,9 @@ int component_create(component_t *c, size_t mem_size) {
 		c->mem = NULL;
 		return ERR_NONE;
 		}
+    c->mem = malloc(sizeof(memory_t));
+    mem_create(c->mem, mem_size);
     
-    //on ne peut pas passer un pointeur NULL à mem_create
-    memory_t memory_c; 
-    int err = mem_create(&memory_c, mem_size);
-    if ( err  == ERR_NONE){
-		c->mem = &memory_c;
-		return ERR_NONE;
-	}else { return err;} 
     
 }
 
@@ -32,6 +27,7 @@ int component_create(component_t *c, size_t mem_size) {
 void component_free(component_t *c) {
     if (c != NULL) {
         mem_free(c->mem);
+        c->mem = NULL;
         c->start = 0;
         c->end = 0;
     }
