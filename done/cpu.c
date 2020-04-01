@@ -22,6 +22,12 @@ int cpu_init(cpu_t* cpu){
     //set everything to 0
     cpu->alu.flags = 0u;
     cpu->idle_time = 0u;
+    cpu->PC = 0u;
+    cpu->SP = 0u;
+    cpu->bus = NULL;
+    cpu->F = 0u;
+    cpu->alu.value = 0u;
+    cpu->alu.flags = 0u;
     
     for (int i = REG_B_CODE; i <= REG_A_CODE; ++i) {
         cpu_reg_set(cpu, i, 0u);

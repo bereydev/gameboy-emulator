@@ -55,7 +55,7 @@ typedef enum {
 typedef enum {
     TRUE = 1,
     FALSE = 0
-} bool;
+} boolean;
 
 /**
  * @brief get flag value

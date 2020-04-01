@@ -29,6 +29,7 @@
 #include "cpu-storage.h"
 #include "cpu-alu.h"
 
+
 // ------------------------------------------------------------
 #define LOOP_ON(T) const size_t s_ = sizeof(T) / sizeof(*T);  \
   for(size_t i_ = 0; i_ < s_; ++i_)

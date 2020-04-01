@@ -89,7 +89,7 @@ int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
 	int first_error_code = bus_read(bus, address, &ls_byte);
 	data_t ms_byte = 0;
 	int second_error_code = bus_read(bus, address+1, &ms_byte);
-	if(first_error_code!=ERR_NONE && second_error_code!=ERR_NONE) *data16 = merge8(ls_byte, ms_byte);
+	if(first_error_code == ERR_NONE && second_error_code == ERR_NONE) *data16 = merge8(ls_byte, ms_byte);
 	else *data16 = 0xFF;
 	return ERR_NONE;
 	}
