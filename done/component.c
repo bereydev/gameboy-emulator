@@ -18,8 +18,7 @@ int component_create(component_t *c, size_t mem_size) {
 		}
     c->mem = malloc(sizeof(memory_t));
     mem_create(c->mem, mem_size);
-    
-    
+    return ERR_NONE;
 }
 
 // ======================================================================
@@ -42,6 +41,7 @@ int component_shared(component_t* c, component_t* c_old){
     c->start = 0;
     c->end = 0;
     c->mem = c_old->mem;
+    return ERR_NONE;
 }
 
 

@@ -35,7 +35,8 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
 
 // ======================================================================
 
-int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){	
+int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
+    M_REQUIRE_NON_NULL(c);
 	
 	for(size_t i = start; i <= end; ++i){
 		if(bus[i]!=NULL) return ERR_ADDRESS;
