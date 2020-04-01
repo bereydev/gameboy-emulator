@@ -8,6 +8,7 @@
 /unit-test-bus
 /unit-test-component
 /unit-test-memory
-CMakeList.txt
+/done/CMakeList.txt
+/done/brouillon.c
 .idea/
 done/cmake-build-debug/

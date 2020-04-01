@@ -83,6 +83,8 @@ bit.o: bit.c bit.h
 bus.o: bus.c bus.h memory.h component.h error.h bit.h
 component.o: component.c component.h memory.h error.h
 error.o: error.c
+cpu.o: cpu.c cpu.h bus.h alu.h
+cpu-registers.o: cpu-registers.h cpu-registers.c cpu.h error.h
 libsid_demo.o: libsid_demo.c sidlib.h
 memory.o: memory.c memory.h error.h
 sidlib.o: sidlib.c sidlib.h
@@ -90,6 +92,8 @@ unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h
 unit-test-bit.o: unit-test-bit.c tests.h error.h bit.h
 unit-test-bus.o: unit-test-bus.c tests.h error.h bus.h memory.h \
  component.h util.h
+unit-test-cpu.o: unit-test-cpu.c tests.h alu.h opcode.h bit.h util.h error.h \
+cpu.h cpu-registers.h cpu-storage.h cpu-alu.h
 unit-test-component.o: unit-test-component.c tests.h error.h bus.h \
  memory.h component.h
 unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \

@@ -18,7 +18,18 @@ add_executable(done
         error.c
         error.h
         gameboy.h
+        unit-test-cpu.c
+        opcode.c
+        opcode.h
+        cpu-alu.c
+        cpu-alu.h
+        cpu-registers.h
+        cpu-registers.c
+        cpu-storage.c
+        cpu-storage.h
         gameboy.c
+        cpu.c
+        cpu.h
         libsid_demo.c
         memory.c
         memory.h
