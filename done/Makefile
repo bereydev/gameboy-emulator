@@ -18,7 +18,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := unit-test-bus
+CHECK_TARGETS := unit-test-cpu
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -80,25 +80,36 @@ libsid_demo: libsid_demo.o libsid.so
 #Est-ce qu'il faut déjà compléter la règle all ?
 alu.o: alu.c alu.h bit.h error.h
 bit.o: bit.c bit.h
+brouillon.o: brouillon.c
 bus.o: bus.c bus.h memory.h component.h error.h bit.h
 component.o: component.c component.h memory.h error.h
+cpu-alu.o: cpu-alu.c error.h bit.h alu.h cpu-alu.h opcode.h cpu.h bus.h \
+ memory.h component.h cpu-storage.h cpu-registers.h
+cpu.o: cpu.c error.h opcode.h bit.h cpu.h alu.h bus.h memory.h \
+ component.h cpu-alu.h cpu-registers.h cpu-storage.h util.h
+cpu-registers.o: cpu-registers.c cpu-registers.h cpu.h alu.h bit.h bus.h \
+ memory.h component.h error.h
+cpu-storage.o: cpu-storage.c error.h cpu-storage.h memory.h opcode.h \
+ bit.h cpu.h alu.h bus.h component.h cpu-registers.h gameboy.h util.h
 error.o: error.c
-cpu.o: cpu.c cpu.h bus.h alu.h
-cpu-registers.o: cpu-registers.h cpu-registers.c cpu.h error.h
+gameboy.o: gameboy.c gameboy.h bus.h memory.h component.h error.h
 libsid_demo.o: libsid_demo.c sidlib.h
 memory.o: memory.c memory.h error.h
+opcode.o: opcode.c opcode.h bit.h
 sidlib.o: sidlib.c sidlib.h
 unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h
 unit-test-bit.o: unit-test-bit.c tests.h error.h bit.h
 unit-test-bus.o: unit-test-bus.c tests.h error.h bus.h memory.h \
  component.h util.h
-unit-test-cpu.o: unit-test-cpu.c tests.h alu.h opcode.h bit.h util.h error.h \
-cpu.h cpu-registers.h cpu-storage.h cpu-alu.h
 unit-test-component.o: unit-test-component.c tests.h error.h bus.h \
  memory.h component.h
+unit-test-cpu.o: unit-test-cpu.c tests.h error.h alu.h bit.h opcode.h \
+ util.h cpu.h bus.h memory.h component.h cpu-registers.h cpu-storage.h \
+ cpu-alu.h
 unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
  component.h
 util.o: util.c
+
 
 
 
@@ -108,6 +119,7 @@ unit-test-alu: unit-test-alu.o alu.o bit.o error.o
 unit-test-component: unit-test-component.o error.o component.o memory.o
 unit-test-memory: unit-test-memory.o error.o bus.o memory.o component.o bit.o
 unit-test-bus: unit-test-bus.o error.o bus.o component.o bit.o memory.o
+unit-test-cpu: unit-test-cpu.o alu.o bit.o error.o cpu.o cpu-registers.o cpu-storage.o cpu-alu.o
 
 
 

@@ -19,6 +19,7 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
      * la même mémoire que work_ram cela permet d'eviter de free deux fois
      * la même zone mémoire dans gameboy_free */
     component_shared(&echo_ram, &work_ram);
+    //sous-entendu qu'il faut le plug?
     bus_plug(gameboy->bus, &echo_ram, ECHO_RAM_START, ECHO_RAM_END);
     return ERR_NONE;
 }

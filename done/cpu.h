@@ -67,6 +67,8 @@ typedef struct{
     };
     uint16_t SP;
     uint16_t PC;
+    bus_t* bus;
+    uint8_t idle_time;
 } cpu_t;
 
 //=========================================================================

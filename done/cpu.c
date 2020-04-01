@@ -17,8 +17,18 @@
 #include <stdio.h> // fprintf
 
 // ======================================================================
-int cpu_init(cpu_t* cpu)
-{
+int cpu_init(cpu_t* cpu){
+	M_REQUIRE_NON_NULL(cpu);
+    //set everything to 0
+    cpu->alu.flags = 0u;
+    cpu->idle_time = 0u;
+    
+    for (int i = REG_B_CODE; i <= REG_A_CODE; ++i) {
+        cpu_reg_set(cpu, i, 0u);
+    }
+    for (int i = REG_BC_CODE; i <= REG_AF_CODE; ++i){
+        cpu_reg_pair_set(cpu, i, 0u);
+    }
 
     return ERR_NONE;
 }
@@ -26,13 +36,17 @@ int cpu_init(cpu_t* cpu)
 // ======================================================================
 int cpu_plug(cpu_t* cpu, bus_t* bus)
 {
-
-    return ERR_NONE;
+	M_REQUIRE_NON_NULL(cpu);
+	M_REQUIRE_NON_NULL(bus);
+	cpu->bus = bus;
+	return ERR_NONE;
 }
 
 // ======================================================================
 void cpu_free(cpu_t* cpu)
 {
+	M_REQUIRE_NON_NULL(cpu);
+	cpu->bus = NULL;
 }
 
 //=========================================================================
@@ -206,6 +220,7 @@ int cpu_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
+    if(cpu->idle_time != 0u) cpu->idle_time--;
 
-        return ERR_NONE;
+    return ERR_NONE;
 }

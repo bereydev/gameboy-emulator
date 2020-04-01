@@ -2,6 +2,7 @@
 #include "error.h"
 
 uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
+	M_REQUIRE_NON_NULL(cpu);
     switch (reg) {
         case REG_AF_CODE:
             return cpu->AF;
@@ -16,8 +17,8 @@ uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
     }
 }
 
-
 uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
+	M_REQUIRE_NON_NULL(cpu);
     switch (reg){
         case REG_B_CODE:
             return cpu->B;
@@ -41,6 +42,7 @@ uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
 void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value){
     //TODO what is the default case ?
     //TODO do we have to update the individual register along with the pair ?
+    M_REQUIRE_NON_NULL(cpu);
     switch (reg){
         case REG_BC_CODE:
             cpu->BC = value;
@@ -58,6 +60,7 @@ void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value){
 }
 
 void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
+	M_REQUIRE_NON_NULL(cpu);
     switch (reg){
         case REG_B_CODE:
             cpu->B = value;
@@ -83,16 +86,3 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
     }
 }
 
-int cpu_init(cpu_t* cpu){
-    //set everything to 0
-    cpu->alu.flags = 0u;
-    cpu->alu.flags = 0u;
-    for (int i = REG_B_CODE; i <= REG_A_CODE; ++i) {
-        cpu_reg_set(cpu, i, 0u);
-    }
-    for (int i = REG_BC_CODE; i <= REG_AF_CODE; ++i){
-        cpu_reg_pair_set(cpu, i, 0u);
-    }
-    //TODO Pas sur que ce soit ça qu'il faut retourner
-    return ERR_NONE;
-}
