@@ -37,6 +37,4 @@ void mem_free(memory_t* mem){
         mem->memory = NULL;
         mem->size = 0;
     }
-
-
 }

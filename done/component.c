@@ -32,3 +32,19 @@ void component_free(component_t *c) {
         c->end = 0;
     }
 }
+
+// ======================================================================
+
+int component_shared(component_t* c, component_t* c_old){
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(c_old);
+
+    //Débranche ici veux dire qu'on doit aussi liberer la mémoire ? i.e. faire
+    //un mem_free ?
+    c->start = 0;
+    c->end = 0;
+    c->mem = c_old->mem;
+    //pareil ici il faut que les start et end de c soient les mêmes que c_old ou on laisse à 0 ?
+}
+
+
