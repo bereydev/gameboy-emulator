@@ -21,11 +21,13 @@ int mem_create(memory_t* mem, size_t size){
     return ERR_NONE;*/
     
     memory_t* result = mem;
-    if (result!= NULL){
-		result->memory = calloc(size, sizeof(data_t));
+    //pas besoin de checker ça étant donné qu'on utilise une macro plus haut pour mem non NULL
+    //if (result!= NULL){
+    // est-ce que le *8 c'est bien ce que "qui alloue size octets" veut dire dans la consigne
+		result->memory = calloc(size*8, sizeof(data_t));
 		if(result->memory != NULL) result->size = size;
 		else {result->size = 0; result->memory = NULL; return ERR_MEM;}
-		}
+	//	}
     return ERR_NONE;
 }
 
