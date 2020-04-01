@@ -26,9 +26,9 @@ extern "C" {
  */
 typedef struct {
     bus_t bus;
-    //pas sur que ce soit component etant donné qu'ils parlent de mémoire vive
     component_t components[GB_NB_COMPONENTS];
-}gameboy_t;
+    size_t allocated_component;
+} gameboy_t;
 
 // Number of Game Boy cycles per second (= 2^20)
 #define GB_CYCLES_PER_S  (((uint64_t) 1) << 20)

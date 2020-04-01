@@ -7,7 +7,7 @@
 int mem_create(memory_t* mem, size_t size){
     M_REQUIRE_NON_NULL(mem);
     //il faut empecher la création d'une mémoire de taille null. Borne supérieure nécessaire?
-    M_REQUIRE(0 < size && size <= SIZE_MAX , ERR_BAD_PARAMETER, "\"input size (%lu) is incorrect\"", size);
+    M_REQUIRE(0 < size, ERR_BAD_PARAMETER, "\"input size (%lu) is incorrect \"", size);
     //TO DO Est-ce que c'est mieux d'éviter de créer result mais de travailler sur le pointeur?
    
     /*memory_t result = {0, NULL};
@@ -19,15 +19,11 @@ int mem_create(memory_t* mem, size_t size){
         
     *mem = result;
     return ERR_NONE;*/
-    
-    memory_t* result = mem;
-    //pas besoin de checker ça étant donné qu'on utilise une macro plus haut pour mem non NULL
-    //if (result!= NULL){
-    // est-ce que le *8 c'est bien ce que "qui alloue size octets" veut dire dans la consigne
-		result->memory = calloc(size*8, sizeof(data_t));
-		if(result->memory != NULL) result->size = size;
-		else {result->size = 0; result->memory = NULL; return ERR_MEM;}
-	//	}
+    mem->size = 0;
+    mem->memory = calloc(size, sizeof(data_t));
+    M_EXIT_IF_NULL(mem->memory, size);
+    mem->size = size;
+
     return ERR_NONE;
 }
 

@@ -4,7 +4,6 @@
 #include "bit.h"
 
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
-    M_REQUIRE_NON_NULL(bus); //TODO il n'avait pas dit que c'était inutile?
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE( (c->end - c->start + offset) <= c->mem->size, ERR_ADDRESS, "input offset (%x) is incorrect",offset);
 
@@ -48,7 +47,6 @@ int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
 // ======================================================================
 
 int bus_unplug(bus_t bus, component_t* c){
-	M_REQUIRE_NON_NULL(bus);
     M_REQUIRE_NON_NULL(c);
     
     for(size_t i = c->start; i <= c->end; ++i){
