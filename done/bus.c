@@ -19,8 +19,6 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset){
 
 int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t offset){
     M_REQUIRE_NON_NULL_CUSTOM_ERR(c, ERR_BAD_PARAMETER);
-    M_REQUIRE(0x0000 <= start && start <= 0xFFFF, ERR_BAD_PARAMETER, "input start (%x) is not between %x and %x",start,0x0000,0xFFFF);
-    M_REQUIRE(0x0000 <= end && end <= 0xFFFF, ERR_BAD_PARAMETER, "input end (%x) is not between %x and %x",end,0x0000,0xFFFF); 
 	M_REQUIRE(start!=end, ERR_BAD_PARAMETER, "inputs start(%x) and end(%x) are equal", start, end);
     M_REQUIRE( end - start + offset <= c->mem->size, ERR_ADDRESS, "input offset (%x) is incorrect",offset);
     
@@ -62,7 +60,6 @@ int bus_unplug(bus_t bus, component_t* c){
 
 int bus_read(const bus_t bus, addr_t address, data_t* data){
 	M_REQUIRE_NON_NULL_CUSTOM_ERR(data, ERR_BAD_PARAMETER);
-	M_REQUIRE(0x0000 <= address && address <= 0xFFFF, ERR_BAD_PARAMETER, "input address (%x) is not between %x and %x",address,0x0000,0xFFFF);
 	
 	*data = (bus[address]==NULL) ? 0xFF : *bus[address];
 	
@@ -72,7 +69,6 @@ int bus_read(const bus_t bus, addr_t address, data_t* data){
 // ======================================================================
 
 int bus_write(bus_t bus, addr_t address, data_t data){
-	M_REQUIRE(0x0000 <= address && address <= 0xFFFF, ERR_BAD_PARAMETER, "input address (%x) is not between %x and %x",address,0x0000,0xFFFF);
 	M_REQUIRE_NON_NULL(bus[address]);
 	bus[address] = &data;
 	

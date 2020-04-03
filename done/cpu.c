@@ -28,10 +28,7 @@ int cpu_init(cpu_t* cpu){
     cpu->F = 0u;
     cpu->alu.value = 0u;
     cpu->alu.flags = 0u;
-    
-    for (int i = REG_B_CODE; i <= REG_A_CODE; ++i) {
-        cpu_reg_set(cpu, i, 0u);
-    }
+
     for (int i = REG_BC_CODE; i <= REG_AF_CODE; ++i){
         cpu_reg_pair_set(cpu, i, 0u);
     }
@@ -51,8 +48,12 @@ int cpu_plug(cpu_t* cpu, bus_t* bus)
 // ======================================================================
 void cpu_free(cpu_t* cpu)
 {
-	M_REQUIRE_NON_NULL(cpu);
-	cpu->bus = NULL;
+    //TODO plusieur fonction du projet renvoie void (donc ne laissent pas
+    //utiliser les macros pour tester si les pointeurs utilisé sont NULL
+    //est-ce qu'il est quand même utile de checker ça ou c'est déjà induit par
+    //le contexte d'utilisation de ces fonction ?
+	if (cpu != NULL)
+	    cpu->bus = NULL;
 }
 
 //=========================================================================

@@ -42,7 +42,6 @@ uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
 }
 
 void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
-	M_REQUIRE_NON_NULL(cpu);
     switch (reg){
         case REG_B_CODE:
             cpu->B = value;
@@ -65,36 +64,29 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
         case REG_A_CODE:
             cpu->A = value;
             break;
+        default:
+            //TODO what to do in default
+            break;
     }
 }
 
 void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value){
-    //TODO what is the default case ?
-    //TODO do we have to update the individual register along with the pair ?
-    M_REQUIRE_NON_NULL(cpu);
     switch (reg){
         case REG_BC_CODE:
-			cpu_reg_set(cpu, REG_B_CODE, msb8(value));
-			cpu_reg_set(cpu, REG_C_CODE, lsb8(value));
             cpu->BC = value;
             break;
         case REG_DE_CODE:
-			cpu_reg_set(cpu, REG_D_CODE, msb8(value));
-			cpu_reg_set(cpu, REG_E_CODE, lsb8(value));
             cpu->DE = value;
             break;
         case REG_HL_CODE:
-			cpu_reg_set(cpu, REG_H_CODE, msb8(value));
-			cpu_reg_set(cpu, REG_L_CODE, lsb8(value));
             cpu->HL = value;
             break;
         case REG_AF_CODE:
-			//A changer
-			cpu_reg_set(cpu, REG_A_CODE, msb8(value));
-			printf ("value: %X msb: %X \n",value, cpu->A);
 			value = (value >> 4)<<4; //force the 4 lsb to 0;
-			cpu->F = lsb8(value);
             cpu->AF = value;
+            break;
+        default:
+            //TODO what is the default case ?
             break;
     }
 }

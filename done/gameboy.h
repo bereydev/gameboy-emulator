@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "cpu.h"
 
 #include "bus.h"
 #include "component.h"

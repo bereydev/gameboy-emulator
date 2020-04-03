@@ -16,6 +16,7 @@
 #include <check.h>
 #include <inttypes.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "tests.h"
 #include "alu.h"
@@ -370,7 +371,10 @@ START_TEST(test_cpu_write_at_idx)
 
     for (size_t i = 0; i < size; ++i) {
         ck_assert_int_eq(cpu_write_at_idx(&cpu, (addr_t)i, (data_t)i), ERR_NONE);
-        ck_assert_int_eq(CPU_BUS_V_AT(cpu, i), (data_t)i);
+        fprintf(stderr, "#####################################Debug : %d\n", CPU_BUS_V_AT(cpu, (addr_t)i));
+        fprintf(stderr, "#####################################Debug address of bus : %d\n", cpu.bus);
+        fprintf(stderr, "###################################Value of index : %zu\n", i);
+        ck_assert_int_eq(CPU_BUS_V_AT(cpu, (addr_t)i), (data_t)i);
     }
 
     finish();

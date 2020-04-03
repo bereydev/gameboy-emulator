@@ -29,8 +29,6 @@ typedef uint8_t data_t;
  */
 typedef struct{
     size_t size; /* nombre de zone de taille sizeof(data_t) alloué */
-    //TODO est-ce que allocated c'est utile ?
-    //TODO  dans le brief "if it is writable"
     data_t* memory; /* tableau contenant les pointeurs vers les données */
 } memory_t;
 
