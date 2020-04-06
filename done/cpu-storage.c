@@ -35,10 +35,15 @@ addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr)
 int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data)
 {
 	M_REQUIRE_NON_NULL(cpu);
-	printf("#####################################BEFORE : %d\n", *(*cpu->bus)[addr]);
+	printf("\n");
+	printf("#####################################BEFORE : %d\n", *((*cpu->bus)[addr]));
 	bus_write(*cpu->bus, addr, data);
-    printf("#####################################AFTER : %d\n", *((*cpu->bus)[addr]));
-    fprintf(stderr, "#####################################Function address of bus : %d\n", cpu->bus);
+    printf("#####################################AFTER : %d\n", cpu_read_at_idx(cpu, addr));
+    printf("#####################################ADDRESS OF CPU : %d\n", cpu);
+    printf("#####################################ADDRESS OF BUS : %d\n", cpu->bus);
+    printf("#####################################ADDRESS OF DATA : %d\n", (*cpu->bus) [addr]);
+    printf("\n");
+    //fprintf(stderr, "#####################################Function address of bus : %d\n", cpu->bus);
 
     return ERR_NONE;
 }

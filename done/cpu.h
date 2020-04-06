@@ -37,6 +37,7 @@ typedef enum {
 
 typedef struct{
     alu_output_t alu;
+    
     union {
         struct{
             uint8_t F;
@@ -65,10 +66,14 @@ typedef struct{
         };
         uint16_t HL;
     };
+    
     uint16_t SP;
     uint16_t PC;
+    
     bus_t* bus;
+    
     uint8_t idle_time;
+    
 } cpu_t;
 
 //=========================================================================

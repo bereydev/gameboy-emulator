@@ -207,6 +207,8 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     } break;
 
     } // switch
+    
+    //cpu->idle_time--;
 
     return ERR_NONE;
 }
@@ -215,8 +217,12 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 static int cpu_do_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
-
-    return ERR_NONE;
+    //on obtient la prochaine instruction à exécuter
+    data_t opcode_instruction = cpu_read_at_idx(cpu, cpu->PC);
+    instruction_t instruction = instruction_direct[opcode_instruction];
+    
+    return cpu_dispatch(&instruction, cpu);
+    
 }
 
 // ======================================================================
@@ -227,7 +233,9 @@ int cpu_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
-    if(cpu->idle_time != 0u) cpu->idle_time--;
-
+    if(cpu->idle_time != 0u) {
+		return cpu_do_cycle(cpu);
+		}
+   
     return ERR_NONE;
 }

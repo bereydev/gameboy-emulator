@@ -370,10 +370,14 @@ START_TEST(test_cpu_write_at_idx)
     add_bus(cpu, size);
 
     for (size_t i = 0; i < size; ++i) {
+		fprintf(stderr, "#####################################Debug value before : %d\n", CPU_BUS_V_AT(cpu, (addr_t)i));
         ck_assert_int_eq(cpu_write_at_idx(&cpu, (addr_t)i, (data_t)i), ERR_NONE);
-        fprintf(stderr, "#####################################Debug : %d\n", CPU_BUS_V_AT(cpu, (addr_t)i));
-        fprintf(stderr, "#####################################Debug address of bus : %d\n", cpu.bus);
-        fprintf(stderr, "###################################Value of index : %zu\n", i);
+        fprintf(stderr, "#####################################Debug value after : %d\n", CPU_BUS_V_AT(cpu, (addr_t)i));
+        fprintf(stderr, "#####################################Debug value  of cpu : %d\n", &cpu);
+        fprintf(stderr, "#####################################DEBUG ADDRESS OF BUS : %d\n", cpu.bus);
+		fprintf(stderr, "#####################################DEBUG ADDRESS OF DATA : %d\n", (*(cpu).bus)[(addr_t) i ]);
+		
+		
         ck_assert_int_eq(CPU_BUS_V_AT(cpu, (addr_t)i), (data_t)i);
     }
 
