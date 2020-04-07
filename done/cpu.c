@@ -20,7 +20,6 @@
 int cpu_init(cpu_t* cpu){
 	M_REQUIRE_NON_NULL(cpu);
     //set everything to 0
-    cpu->alu.flags = 0u;
     cpu->idle_time = 0u;
     cpu->PC = 0u;
     cpu->SP = 0u;
@@ -70,6 +69,10 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     M_REQUIRE_NON_NULL(lu);
     M_REQUIRE_NON_NULL(cpu);
 
+	//remet à 0 l'ALU du CPU 
+	cpu->alu.value = 0u;
+    cpu->alu.flags = 0u;
+    
     switch (lu->family) {
 
     // ALU
@@ -208,7 +211,9 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     } // switch
     
-    //cpu->idle_time--;
+    //met à jour l'idle time et le PC
+    cpu->PC += lu->bytes;
+    idle_time = lu->cycles; //TODO pas sûre 
 
     return ERR_NONE;
 }
@@ -233,9 +238,9 @@ int cpu_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
-    if(cpu->idle_time != 0u) {
-		return cpu_do_cycle(cpu);
-		}
-   
-    return ERR_NONE;
+    
+    if(cpu->idle_time != 0u) cpu->idle_time--;
+	else cpu_do_cycle(cpu);
+	
+	return ERR_NONE;
 }

@@ -78,24 +78,36 @@ addr_t cpu_SP_pop(cpu_t* cpu)
 int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
+    
+    //TODO besoin de int opcode_check_integrity() vu qu'on travaille sur opcode?
 
     switch (lu->family) {
+		
+	//les instructions de chargement ont pour but de transférer une valeur depuis
+	//un composant connecté au bus vers un registre du processeur
     case LD_A_BCR:
-        break;
-
+		cpu_reg_set(cpu, REG_A_CODE, cpu_read_at_idx(cpu, cpu_BC_get(cpu)));
+		break;
+    
     case LD_A_CR:
+		cpu_reg_set(cpu, REG_A_CODE, cpu_read_at_idx(cpu, REGISTERS_START + cpu_reg_get(cpu, REG_C_CODE)));
         break;
 
     case LD_A_DER:
+		cpu_reg_set(cpu, REG_A_CODE, cpu_read_at_idx(cpu, cpu_DE_get(cpu)));
         break;
 
     case LD_A_HLRU:
+		cpu_reg_set(cpu, REG_A_CODE, cpu_read_at_HL(cpu));
+		cpu_HL_set(cpu, cpu_HL_get + extract_HL_increment(lu->opcode));
         break;
 
     case LD_A_N16R:
+		cpu_reg_set(cpu, REG_A_CODE, cpu_read_addr_after_opcode(cpu));
         break;
 
     case LD_A_N8R:
+		cpu_reg_set(cpu, REG_A_CODE, cpu_read_at_idx(cpu, REGISTERS_START + cpu_read_data_after_opcode(cpu)));
         break;
 
     case LD_BCR_A:
@@ -126,21 +138,26 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case LD_R16SP_N16:
+		cpu_reg_pair_SP_set(cpu, extract_reg_pair(lu->opcode), cpu_read_addr_after_opcode(cpu));
         break;
 
     case LD_R8_HLR:
+		cpu_reg_pair_set(cpu, extract_reg_pair(lu->opcode), cpu_read_at_HL(cpu));
         break;
 
     case LD_R8_N8:
+		cpu_reg_set(cpu, extract_reg(lu->op, 3), cpu_read_data_after_opcode(cpu));
         break;
 
     case LD_R8_R8: {
+		
     } break;
 
     case LD_SP_HL:
         break;
 
     case POP_R16:
+		cpu_reg_set(cpu, extract_reg(lu->op, 4), cpu_SP_pop(cpu));
         break;
 
     case PUSH_R16:
