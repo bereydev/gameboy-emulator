@@ -99,7 +99,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
 
     case LD_A_HLRU:
 		cpu_reg_set(cpu, REG_A_CODE, cpu_read_at_HL(cpu));
-		cpu_HL_set(cpu, cpu_HL_get + extract_HL_increment(lu->opcode));
+		cpu_HL_set(cpu, cpu_HL_get(cpu) + extract_HL_increment(lu->opcode));
         break;
 
     case LD_A_N16R:
@@ -111,30 +111,40 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case LD_BCR_A:
+		cpu_write_at_idx(cpu, cpu_BC_get(cpu), cpu_reg_get(cpu, REG_A_CODE));
         break;
 
     case LD_CR_A:
+		cpu_write_at_idx(cpu, REGISTERS_START + cpu_reg_get(cpu, REG_C_CODE), cpu_reg_get(cpu, REG_A_CODE));
         break;
 
     case LD_DER_A:
+		cpu_write_at_idx(cpu, cpu_DE_get(cpu), cpu_reg_get(cpu, REG_A_CODE));
         break;
 
     case LD_HLRU_A:
+    	cpu_write_at_HL(cpu, cpu_reg_get(cpu, REG_A_CODE));
+		cpu_HL_set(cpu, cpu_HL_get(cpu) + extract_HL_increment(lu->opcode));
         break;
 
     case LD_HLR_N8:
+		cpu_write_at_HL(cpu, cpu_read_data_after_opcode(cpu));
         break;
 
     case LD_HLR_R8:
+		cpu_write_at_HL(cpu, extract_reg(lu->op, 0));
         break;
 
     case LD_N16R_A:
+		cpu_write_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu_reg_get(cpu, REG_A_CODE));
         break;
 
     case LD_N16R_SP:
+		cpu_write_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu->SP);
         break;
 
     case LD_N8R_A:
+		cpu_write_at_idx(cpu, REGISTERS_START + cpu_read_data_after_opcode(cpu), cpu_reg_get(cpu, REG_A_CODE));
         break;
 
     case LD_R16SP_N16:
@@ -150,10 +160,13 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case LD_R8_R8: {
-		
+		reg_kind s = extract_reg(lu->op, 0);
+		reg_kind r = extract_reg(lu->op, 3);
+		if(r!=s) cpu_reg_set(cpu, r, cpu_reg_get(cpu, s));// TODO le test nécessaire ou on est sûrs qu'ils ne seront pas égaux?
     } break;
 
     case LD_SP_HL:
+		cpu->SP = cpu_HL_get(cpu); 
         break;
 
     case POP_R16:
@@ -161,6 +174,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case PUSH_R16:
+		cpu_SP_push(cpu, cpu_reg_pair_get(cpu, extract_reg_pair(lu->opcode)));
         break;
 
     default:

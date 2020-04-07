@@ -73,6 +73,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 	cpu->alu.value = 0u;
     cpu->alu.flags = 0u;
     
+    //exécution de l'instruction reçue
     switch (lu->family) {
 
     // ALU
@@ -225,8 +226,9 @@ static int cpu_do_cycle(cpu_t* cpu)
     //on obtient la prochaine instruction à exécuter
     data_t opcode_instruction = cpu_read_at_idx(cpu, cpu->PC);
     instruction_t instruction = instruction_direct[opcode_instruction];
+    cpu_dispatch(&instruction, cpu);
     
-    return cpu_dispatch(&instruction, cpu);
+    return ERR_NONE;
     
 }
 
