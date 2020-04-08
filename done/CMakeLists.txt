@@ -10,7 +10,6 @@ add_executable(done
         alu.h
         bit.c
         bit.h
-        brouillon.c
         bus.c
         bus.h
         component.c
@@ -43,5 +42,3 @@ add_executable(done
         unit-test-memory.c
         util.c
         util.h)
-
-add_executable(unit-test-alu unit-test-alu.c)

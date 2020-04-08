@@ -153,7 +153,6 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         M_EXIT_IF_ERR(cpu_dispatch_storage(lu, cpu));
         break;
 
-
     // JUMP
     case JP_CC_N16:
         break;
@@ -214,7 +213,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     
     //met à jour l'idle time et le PC
     cpu->PC += lu->bytes;
-    idle_time = lu->cycles; //TODO pas sûre 
+    cpu->idle_time = lu->cycles; //TODO pas sûre
 
     return ERR_NONE;
 }
@@ -225,7 +224,15 @@ static int cpu_do_cycle(cpu_t* cpu)
     M_REQUIRE_NON_NULL(cpu);
     //on obtient la prochaine instruction à exécuter
     data_t opcode_instruction = cpu_read_at_idx(cpu, cpu->PC);
-    instruction_t instruction = instruction_direct[opcode_instruction];
+    //vérifier si l'instruction est préfixée
+    instruction_t instruction;
+    if (opcode_instruction == PREFIXED) {
+        instruction = instruction_prefixed[cpu_read_addr_after_opcode(cpu)]; //TODO voir si c'est la bonne façon de gérer les instr prefixées
+    } else if (opcode_instruction == DIRECT) {
+        instruction = instruction_direct[opcode_instruction];
+    } else{
+        return ERR_BAD_PARAMETER; // Bonne initiative ?
+    }
     cpu_dispatch(&instruction, cpu);
     
     return ERR_NONE;
@@ -239,10 +246,10 @@ static int cpu_do_cycle(cpu_t* cpu)
 int cpu_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
-    M_REQUIRE_NON_NULL(cpu->bus);
+    M_REQUIRE_NON_NULL(cpu->bus); //TODO est ce que c'est utile ?
     
     if(cpu->idle_time != 0u) cpu->idle_time--;
-	else cpu_do_cycle(cpu);
+    else cpu_do_cycle(cpu);
 	
 	return ERR_NONE;
 }
