@@ -47,10 +47,6 @@ int cpu_plug(cpu_t* cpu, bus_t* bus)
 // ======================================================================
 void cpu_free(cpu_t* cpu)
 {
-    //TODO plusieur fonction du projet renvoie void (donc ne laissent pas
-    //utiliser les macros pour tester si les pointeurs utilisé sont NULL
-    //est-ce qu'il est quand même utile de checker ça ou c'est déjà induit par
-    //le contexte d'utilisation de ces fonction ?
 	if (cpu != NULL)
 	    cpu->bus = NULL;
 }
@@ -213,7 +209,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     
     //met à jour l'idle time et le PC
     cpu->PC += lu->bytes;
-    cpu->idle_time = lu->cycles; //TODO pas sûre
+    cpu->idle_time = lu->cycles;
     return ERR_NONE;
 }
 
@@ -226,11 +222,11 @@ static int cpu_do_cycle(cpu_t* cpu)
     //vérifier si l'instruction est préfixée
     instruction_t instruction;
     if (opcode_instruction == PREFIXED) {
-        instruction = instruction_prefixed[cpu_read_addr_after_opcode(cpu)]; //TODO voir si c'est la bonne façon de gérer les instr prefixées
+        instruction = instruction_prefixed[cpu_read_addr_after_opcode(cpu)];
     } else if (opcode_instruction == DIRECT) {
         instruction = instruction_direct[opcode_instruction];
     } else{
-        return ERR_BAD_PARAMETER; // Bonne initiative ?
+        return ERR_INSTR;
     }
     cpu_dispatch(&instruction, cpu);
     
@@ -245,7 +241,7 @@ static int cpu_do_cycle(cpu_t* cpu)
 int cpu_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
-    M_REQUIRE_NON_NULL(cpu->bus); //TODO est ce que c'est utile ?
+    M_REQUIRE_NON_NULL(cpu->bus);
     
     if(cpu->idle_time != 0u) cpu->idle_time--;
     else cpu_do_cycle(cpu);

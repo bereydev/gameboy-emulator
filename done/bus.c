@@ -70,7 +70,7 @@ int bus_read(const bus_t bus, addr_t address, data_t* data){
 
 int bus_write(bus_t bus, addr_t address, data_t data){
 	M_REQUIRE_NON_NULL(bus[address]);
-	bus[address] = &data;
+	*bus[address] = data;
 	
 	return ERR_NONE;
 	

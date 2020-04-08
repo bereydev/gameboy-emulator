@@ -77,10 +77,10 @@ libsid_demo: libsid_demo.o libsid.so
 
 #TODO check le makefile avec un assistant (obligé de mettre les .h ?)
 #Erreur référence indéfinie vers « main »
+#Ajouter des variables pour simplifier
 #Est-ce qu'il faut déjà compléter la règle all ?
 alu.o: alu.c alu.h bit.h error.h
 bit.o: bit.c bit.h
-brouillon.o: brouillon.c
 bus.o: bus.c bus.h memory.h component.h error.h bit.h
 component.o: component.c component.h memory.h error.h
 cpu-alu.o: cpu-alu.c error.h bit.h alu.h cpu-alu.h opcode.h cpu.h bus.h \

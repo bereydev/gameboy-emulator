@@ -65,7 +65,7 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
             cpu->A = value;
             break;
         default:
-            //TODO what to do in default
+            // Do nothing
             break;
     }
 }
@@ -86,7 +86,7 @@ void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value){
             cpu->AF = value;
             break;
         default:
-            //TODO what is the default case ?
+            // Do nothing
             break;
     }
 }
