@@ -10,8 +10,10 @@
 #include "cpu-registers.h" // cpu_BC_get
 #include "gameboy.h" // REGISTER_START
 #include "util.h"
+#include "opcode.h" //instruction_direct
 #include <inttypes.h> // PRIX8
 #include <stdio.h> // fprintf
+
 
 // ==== see cpu-storage.h ========================================
 data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr)
@@ -132,7 +134,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case LD_HLR_R8:
-		cpu_write_at_HL(cpu, extract_reg(lu->op, 0));
+		cpu_write_at_HL(cpu, extract_reg(lu->opcode, 0));
         break;
 
     case LD_N16R_A:
@@ -156,12 +158,12 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case LD_R8_N8:
-		cpu_reg_set(cpu, extract_reg(lu->op, 3), cpu_read_data_after_opcode(cpu));
+		cpu_reg_set(cpu, extract_reg(lu->opcode, 3), cpu_read_data_after_opcode(cpu));
         break;
 
     case LD_R8_R8: {
-		reg_kind s = extract_reg(lu->op, 0);
-		reg_kind r = extract_reg(lu->op, 3);
+		reg_kind s = extract_reg(lu->opcode, 0);
+		reg_kind r = extract_reg(lu->opcode, 3);
 		if(r!=s) cpu_reg_set(cpu, r, cpu_reg_get(cpu, s));// TODO le test nécessaire ou on est sûrs qu'ils ne seront pas égaux?
     } break;
 
@@ -170,7 +172,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case POP_R16:
-		cpu_reg_set(cpu, extract_reg(lu->op, 4), cpu_SP_pop(cpu));
+		cpu_reg_set(cpu, extract_reg(lu->opcode, 4), cpu_SP_pop(cpu));
         break;
 
     case PUSH_R16:

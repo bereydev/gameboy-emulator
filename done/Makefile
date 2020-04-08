@@ -92,7 +92,8 @@ cpu-registers.o: cpu-registers.c cpu-registers.h cpu.h alu.h bit.h bus.h \
 cpu-storage.o: cpu-storage.c error.h cpu-storage.h memory.h opcode.h \
  bit.h cpu.h alu.h bus.h component.h cpu-registers.h gameboy.h util.h
 error.o: error.c
-gameboy.o: gameboy.c gameboy.h bus.h memory.h component.h error.h
+gameboy.o: gameboy.c gameboy.h cpu.h alu.h bit.h bus.h memory.h \
+ component.h error.h
 libsid_demo.o: libsid_demo.c sidlib.h
 memory.o: memory.c memory.h error.h
 opcode.o: opcode.c opcode.h bit.h
@@ -114,12 +115,13 @@ util.o: util.c
 
 
 
+
 unit-test-bit: unit-test-bit.o bit.o
 unit-test-alu: unit-test-alu.o alu.o bit.o error.o
 unit-test-component: unit-test-component.o error.o component.o memory.o
 unit-test-memory: unit-test-memory.o error.o bus.o memory.o component.o bit.o
 unit-test-bus: unit-test-bus.o error.o bus.o component.o bit.o memory.o
-unit-test-cpu: unit-test-cpu.o alu.o bit.o error.o cpu.o cpu-registers.o cpu-storage.o cpu-alu.o bus.o component.o memory.o
+unit-test-cpu: unit-test-cpu.o alu.o bit.o error.o cpu.o cpu-registers.o cpu-storage.o cpu-alu.o bus.o component.o memory.o opcode.c
 
 
 
