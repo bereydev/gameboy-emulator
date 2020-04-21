@@ -23,14 +23,16 @@ extern "C" {
 typedef uint16_t addr_t;
 typedef uint8_t data_t;
 
+
 /**
  * @brief Structure for memory,
  *        Holds a pointer to the memory, its size and if it is writable
  */
 typedef struct{
-    size_t size; /* nombre de zone de taille sizeof(data_t) alloué */
-    data_t* memory; /* tableau contenant les pointeurs vers les données */
+    size_t size; 
+    data_t* memory; 
 } memory_t;
+
 
 /**
  * @brief Creates memory structure
@@ -40,6 +42,7 @@ typedef struct{
  * @return error code
  */
 int mem_create(memory_t* mem, size_t size);
+
 
 /**
  * @brief Destroys memory structure

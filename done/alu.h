@@ -21,6 +21,7 @@ extern "C" {
  */
 typedef uint8_t flags_t;
 
+
 /**
  * @brief Enum for the various flag values
  */
@@ -31,6 +32,7 @@ typedef enum {
     FLAG_C = 0x10, // Carry 8bit
 } flag_bit_t;
 
+
 /**
  * @brief type alu_output_t holds a structure with a 16bit value field (usualy using only the 8 lsb),
  *        and a flags_t flag field holding the various flags
@@ -38,10 +40,11 @@ typedef enum {
 typedef struct {
 	uint16_t value ;
 	flags_t flags;
-	}alu_output_t;
+} alu_output_t;
+
 
 /**
- * @brief type add_flag_option allow to chose the functions between alu_add16_low and alu_add16_high
+ * @brief type add_flag_option allows to choose the functions between alu_add16_low and alu_add16_high
  */
 typedef enum {
     LOW,
@@ -56,6 +59,7 @@ typedef enum {
     TRUE = 1,
     FALSE = 0
 } boolean;
+
 
 /**
  * @brief get flag value

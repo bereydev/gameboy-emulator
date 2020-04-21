@@ -16,15 +16,16 @@ extern "C" {
 
 typedef uint8_t bit_t;
 
+
 /**
  * @brief clamp a value to be a bit index between 0 and 7
  */
 #define CLAMP07(x) (((x) < 0) || ((x) > 7) ? 0 : (x))
 
+
 /**
  * @brief Enumeration type of rotation directions: either LEFT or RIGHT
  */
-
 typedef enum {
     LEFT,
     RIGHT
@@ -38,7 +39,6 @@ typedef enum {
  * @return 4 LSB of the input
  */
 uint8_t lsb4(uint8_t value);
-
 
 /**
  * @brief returns the 4 MSB of a uint8_t
@@ -96,6 +96,7 @@ uint16_t merge8(uint8_t v1, uint8_t v2);
  */
 uint8_t merge4(uint8_t v1, uint8_t v2);
 
+
 /**
 * @brief Extends the signed value from 8 to 16 bits
 *
@@ -109,7 +110,7 @@ uint8_t merge4(uint8_t v1, uint8_t v2);
 * @brief Extends an unsigned value from 8 to 16 bits
 */
 #define extend_u_16(v) merge8(0,v)
-//TODO find where to use this ...
+
 
 /**
  * @brief Gets the bit at a given index

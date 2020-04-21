@@ -7,6 +7,8 @@ CFLAGS += -std=c11 -Wall -pedantic -g
 
 CFLAGS += -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code
 
+CFLAGS += -Wuninitialized -Wcast-qual -Winit-self -Wmissing-declarations
+
 CPPFLAGS += -DDEBUG
 
 # ----------------------------------------------------------------------
@@ -18,7 +20,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := unit-test-cpu
+CHECK_TARGETS := unit-test-alu unit-test-bit unit-test-bus unit-test-component unit-test-cpu unit-test-memory
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 

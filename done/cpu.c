@@ -1,10 +1,11 @@
 /**
  * @file cpu.c
- * @brief Game Boy CPU simulation
+ * @brief CPU model
  *
- * @date 2019
+ * @author C la vie
+ * @date 2020
  */
-
+ 
 #include "error.h"
 #include "opcode.h"
 #include "cpu.h"
@@ -12,14 +13,11 @@
 #include "cpu-registers.h"
 #include "cpu-storage.h"
 #include "util.h"
-
 #include <inttypes.h> // PRIX8
-#include <stdio.h> // fprintf
 
-// ======================================================================
-int cpu_init(cpu_t* cpu){
-	M_REQUIRE_NON_NULL(cpu);
-    //set everything to 0
+int cpu_init(cpu_t* cpu) {
+    M_REQUIRE_NON_NULL(cpu);
+    
     cpu->idle_time = 0u;
     cpu->PC = 0u;
     cpu->SP = 0u;
@@ -28,30 +26,26 @@ int cpu_init(cpu_t* cpu){
     cpu->alu.value = 0u;
     cpu->alu.flags = 0u;
 
-    for (int i = REG_BC_CODE; i <= REG_AF_CODE; ++i){
+    for (int i = REG_BC_CODE; i <= REG_AF_CODE; ++i) {
         cpu_reg_pair_set(cpu, i, 0u);
     }
 
     return ERR_NONE;
 }
 
-// ======================================================================
-int cpu_plug(cpu_t* cpu, bus_t* bus)
-{
-	M_REQUIRE_NON_NULL(cpu);
-	M_REQUIRE_NON_NULL(bus);
-	cpu->bus = bus;
-	return ERR_NONE;
+int cpu_plug(cpu_t* cpu, bus_t* bus){
+    M_REQUIRE_NON_NULL(cpu);
+    M_REQUIRE_NON_NULL(bus);
+    
+    cpu->bus = bus;
+    
+    return ERR_NONE;
 }
 
-// ======================================================================
-void cpu_free(cpu_t* cpu)
-{
-	if (cpu != NULL)
-	    cpu->bus = NULL;
+void cpu_free(cpu_t* cpu){
+    if (cpu != NULL) cpu->bus = NULL;
 }
 
-//=========================================================================
 /**
  * @brief Executes an instruction
  * @param lu instruction
@@ -65,10 +59,10 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     M_REQUIRE_NON_NULL(lu);
     M_REQUIRE_NON_NULL(cpu);
 
-	//remet à 0 l'ALU du CPU 
-	cpu->alu.value = 0u;
+    //remet à 0 l'ALU du CPU
+    cpu->alu.value = 0u;
     cpu->alu.flags = 0u;
-    
+
     //exécution de l'instruction reçue
     switch (lu->family) {
 
@@ -203,21 +197,27 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     default: {
         fprintf(stderr, "Unknown instruction, Code: 0x%" PRIX8 "\n", cpu_read_at_idx(cpu, cpu->PC));
         return ERR_INSTR;
-    } break;
+    }
+    break;
 
     } // switch
-    
+
     //met à jour l'idle time et le PC
     cpu->PC += lu->bytes;
     cpu->idle_time = lu->cycles;
     return ERR_NONE;
 }
 
-// ----------------------------------------------------------------------
-static int cpu_do_cycle(cpu_t* cpu)
-{
+
+//TODO change comment
+/**
+ * @brief Run one CPU cycle
+ * @param cpu (modified), the CPU which shall run
+ * @param cycle, the cycle number to run, starting from 0
+ * @return error code
+ */
+static int cpu_do_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu);
-    //on obtient la prochaine instruction à exécuter
     data_t opcode_instruction = cpu_read_at_idx(cpu, cpu->PC);
     //vérifier si l'instruction est préfixée
     instruction_t instruction;
@@ -225,26 +225,21 @@ static int cpu_do_cycle(cpu_t* cpu)
         instruction = instruction_prefixed[cpu_read_addr_after_opcode(cpu)];
     } else if (opcode_instruction == DIRECT) {
         instruction = instruction_direct[opcode_instruction];
-    } else{
+    } else {
         return ERR_INSTR;
     }
     cpu_dispatch(&instruction, cpu);
-    
+
     return ERR_NONE;
-    
+
 }
 
-// ======================================================================
-/**
- * See cpu.h
- */
-int cpu_cycle(cpu_t* cpu)
-{
+int cpu_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
-    
+
     if(cpu->idle_time != 0u) cpu->idle_time--;
     else cpu_do_cycle(cpu);
-	
-	return ERR_NONE;
+
+    return ERR_NONE;
 }
