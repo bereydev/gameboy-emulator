@@ -120,29 +120,43 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     // ADD
     case ADD_A_HLR: {
+        do_cpu_arithm(cpu, alu_add8,cpu_HL_get(cpu), ADD_FLAGS_SRC);
     } break;
 
     case ADD_A_N8: {
+        do_cpu_arithm(cpu, alu_add8, cpu_read_data_after_opcode(cpu), ADD_FLAGS_SRC);
     } break;
 
     case ADD_A_R8: {
+        do_cpu_arithm(cpu, alu_add8, extract_reg(lu->opcode, 0), ADD_FLAGS_SRC);
     } break;
 
     case INC_HLR: {
+        do_cpu_arithm(cpu, alu_add8, 1u, INC_FLAGS_SRC);
+        cpu_write_at_HL(cpu, cpu_reg_get(cpu, REG_A_CODE));
+        //TODO est-ce que c'est la bonne façon d'incrémenter A puis de le récuper ?
     } break;
 
     case INC_R8: {
+        do_cpu_arithm(cpu, alu_add8, extract_reg(lu->opcode, 0),INC_FLAGS_SRC);
+        //TODO c'est pas vraiment ça étant donné qu'il faut incrémenter r et non A += r
     } break;
 
     case ADD_HL_R16SP: {
+        cpu_reg_pair_SP_set(cpu, extract_reg_pair(lu->opcode) , cpu_read_data_after_opcode(cpu));
+        //TODO fanion H et C
     } break;
 
     case INC_R16SP: {
+        //TODO même question que pour INC_R8
     } break;
 
 
     // COMPARISONS
     case CP_A_R8: {
+        alu_output_t result; //TODO init this variable ?
+        alu_sub8(&result, cpu_reg_get(cpu, REG_A_CODE), extract_reg(lu->opcode, 0), 0);
+
     } break;
 
 

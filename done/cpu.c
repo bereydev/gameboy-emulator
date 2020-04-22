@@ -10,6 +10,7 @@
 #include "opcode.h"
 #include "cpu.h"
 #include "cpu-alu.h"
+#include <stdio.h>
 #include "cpu-registers.h"
 #include "cpu-storage.h"
 #include "util.h"
@@ -219,7 +220,6 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 static int cpu_do_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu);
     data_t opcode_instruction = cpu_read_at_idx(cpu, cpu->PC);
-    //vérifier si l'instruction est préfixée
     instruction_t instruction;
     if (opcode_instruction == PREFIXED) {
         instruction = instruction_prefixed[cpu_read_addr_after_opcode(cpu)];
