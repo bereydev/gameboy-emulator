@@ -26,6 +26,7 @@ flag_bit_t get_flag(flags_t flags, flag_bit_t flag) {
 }
 
 void set_flag(flags_t* flags, flag_bit_t flag) {
+	M_REQUIRE_NON_NULL(flags);
     switch(flag) {
     case FLAG_Z:
         *flags = *flags | FLAG_Z;

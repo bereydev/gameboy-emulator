@@ -8,6 +8,7 @@
 
 #include <stdint.h>   // for uint8_t and uint16_t types
 #include "bit.h"
+#include "error.h"
 
 /**
  * @brief a type to represent 1 single bit.
@@ -19,46 +20,48 @@ typedef uint8_t bit_t;
 const uint8_t mask_lsb4 = 0x0f;
 const uint8_t mask_msb4 = 0xf0;
 
-uint8_t lsb4(uint8_t value){
+uint8_t lsb4(uint8_t value) {
     return value & mask_lsb4;
 }
 
-uint8_t msb4(uint8_t value){
+uint8_t msb4(uint8_t value) {
     return (value & mask_msb4) >> 4;
 }
 
-bit_t bit_get(uint8_t value, int index){
+bit_t bit_get(uint8_t value, int index) {
     index = CLAMP07(index);
-    return (value & (0x01 << index)) >> index;
+    return (bit_t)((value & (0x01 << index)) >> index);
 }
 
-void bit_set(uint8_t* value, int index){
+void bit_set(uint8_t* value, int index) {
+    M_REQUIRE_NON_NULL(value);
     index = CLAMP07(index);
-    *value = (*value) | (0x01 << index);
+    *value = (uint8_t)((*value) | (0x01 << index));
 }
 
-void bit_unset(uint8_t* value, int index){
+void bit_unset(uint8_t* value, int index) {
+    M_REQUIRE_NON_NULL(value);
     index = CLAMP07(index);
-    *value = (*value) & ~(0x01 << index);
+    *value = (uint8_t)((*value) & ~(0x01 << index));
 }
 
 const uint16_t mask_lsb8 = 0x00ff;
 const uint16_t mask_msb8 = 0xff00;
 
-uint8_t lsb8(uint16_t value){
-    return value & mask_lsb8;
+uint8_t lsb8(uint16_t value) {
+    return (uint8_t)(value & mask_lsb8);
 }
 
-uint8_t msb8(uint16_t value){
-    return (value & mask_msb8) >> 8;
+uint8_t msb8(uint16_t value) {
+    return (uint8_t)((value & mask_msb8) >> 8);
 }
 
-uint8_t merge4(uint8_t value, uint8_t value2){
-    return lsb4(value) | (value2<<4);
+uint8_t merge4(uint8_t value, uint8_t value2) {
+    return (uint8_t)(lsb4(value) | (value2<<4));
 }
 
-uint16_t merge8(uint8_t value, uint8_t value2){
-    return value | (value2 << 8);
+uint16_t merge8(uint8_t value, uint8_t value2) {
+    return (uint8_t)(value | (value2 << 8));
 }
 
 /**
@@ -67,7 +70,7 @@ uint16_t merge8(uint8_t value, uint8_t value2){
  * @param num pointer to the number to rotate
  * @param rotation number of rotation steps to execute
  */
-void rotateLeft(uint8_t* num, int rotation){
+void rotateLeft(uint8_t* num, int rotation) {
     *num = ((*num) >> (UINT8_T_SIZE-rotation)) | ((*num) << rotation);
 }
 
@@ -77,22 +80,22 @@ void rotateLeft(uint8_t* num, int rotation){
  * @param num pointer to the number to rotate
  * @param rotation number of rotation steps to execute
  */
-void rotateRight(uint8_t* num, int rotation){
-    *num = ((*num) << UINT8_T_SIZE-rotation) | ((*num) >> rotation);
+void rotateRight(uint8_t* num, int rotation) {
+    *num = (uint8_t)(((*num) << (UINT8_T_SIZE-rotation)) | ((*num) >> rotation));
 }
 
 void bit_rotate(uint8_t* value, rot_dir_t dir, int d) {
     d = CLAMP07(d);
     switch (dir) {
-        case LEFT:
-            rotateLeft(value, d);
-            break;
-        case RIGHT:
-            rotateRight(value, d);
-            break;
+    case LEFT:
+        rotateLeft(value, d);
+        break;
+    case RIGHT:
+        rotateRight(value, d);
+        break;
     }
 }
 
-void bit_edit(uint8_t* value, int index, uint8_t v){
-   v == 0 ? bit_unset(value, index) :  bit_set(value, index);    
+void bit_edit(uint8_t* value, int index, uint8_t v) {
+    v == 0 ? bit_unset(value, index) :  bit_set(value, index);
 }
