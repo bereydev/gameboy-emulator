@@ -132,47 +132,68 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     } break;
 
     case INC_HLR: {
-        do_cpu_arithm(cpu, alu_add8, 1u, INC_FLAGS_SRC);
-        cpu_write_at_HL(cpu, cpu_reg_get(cpu, REG_A_CODE));
-        //TODO est-ce que c'est la bonne façon d'incrémenter A puis de le récuper ?
+        alu_add8(&cpu->alu, cpu_read_at_HL(cpu), 1u, 0u);
+        cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
+        cpu_write_at_HL(cpu, cpu->alu.value);
     } break;
 
     case INC_R8: {
-        do_cpu_arithm(cpu, alu_add8, extract_reg(lu->opcode, 0),INC_FLAGS_SRC);
-        //TODO c'est pas vraiment ça étant donné qu'il faut incrémenter r et non A += r
+        uint8_t reg_value = extract_reg(lu->opcode, 3);
+        //TODO pas sur de mon cpu_read_at_idx
+        alu_add8(&cpu->alu, cpu_read_at_idx(cpu, reg_value), 1u, 0u);
+        cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
+        cpu_write_at_idx(cpu, reg_value, cpu->alu.value);
     } break;
 
     case ADD_HL_R16SP: {
-        cpu_reg_pair_SP_set(cpu, extract_reg_pair(lu->opcode) , cpu_read_data_after_opcode(cpu));
-        //TODO fanion H et C
+        uint16_t reg_pair_value = extract_reg_pair(lu->opcode);
+        alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_read_at_idx(cpu, reg_pair_value));
+        cpu_reg_pair_SP_set(cpu, reg_pair_value , cpu->alu.value);
+        cpu_combine_alu_flags(cpu, ADD_FLAGS_SRC);
     } break;
 
     case INC_R16SP: {
-        //TODO même question que pour INC_R8
+        uint16_t reg_pair_value = extract_reg_pair(lu->opcode);
+        alu_add16_low(&cpu->alu, cpu_read_at_idx(cpu, reg_pair_value), 1u);
+        cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
     } break;
 
 
     // COMPARISONS
     case CP_A_R8: {
-        alu_output_t result; //TODO init this variable ?
-        alu_sub8(&result, cpu_reg_get(cpu, REG_A_CODE), extract_reg(lu->opcode, 0), 0);
-
+        uint8_t reg_value = extract_reg(lu->opcode, 0);
+        alu_sub8(&cpu->alu, cpu_reg_get(cpu, REG_A_CODE), cpu_read_at_idx(cpu, reg_value), 0);
+        cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC);
     } break;
 
 
     // BIT MOVE (rotate, shift)
     case SLA_R8: {
+        uint8_t reg_value = extract_reg(lu->opcode, 0);
+        alu_shift(&cpu->alu, 1u, LEFT);
+        cpu_reg_set(cpu, cpu_read_at_idx(cpu, reg_value), cpu->alu.value);
+        cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC);
     } break;
 
     case ROT_R8: {
+        rot_dir_t dir = extract_rot_dir(lu->opcode);
+        //TODO est-ce que le uint8_t ici est un address_t ?
+        uint8_t reg_value = extract_reg(lu->opcode, 0);
+        alu_rotate(&cpu->alu, cpu_read_at_idx(cpu, reg_value), dir);
+        cpu_reg_set(cpu, reg_value, cpu->alu.value);
+        cpu_combine_alu_flags(cpu, ROT_FLAGS_SRC);
     } break;
 
 
     // BIT TESTS (and set)
     case BIT_U3_R8: {
+        //TODO je vois pas ce que ça doit faire
     } break;
 
     case CHG_U3_R8: {
+        uint8_t reg_value = extract_reg(lu->opcode, 0);
+        data_t data = cpu_read_at_idx(cpu, reg_value);
+        do_set_or_res(lu, &data);
     } break;
 
     // ---------------------------------------------------------
