@@ -93,10 +93,12 @@ int alu_sub8(alu_output_t* result, uint8_t x, uint8_t y, bit_t b0) {
     M_REQUIRE_NON_NULL(result);
     uint8_t sub_lsb = (uint8_t)(lsb4(x) - lsb4(y) - b0);
     uint8_t b4 = msb4(sub_lsb);
+    bit_t half_carry = bit_get(sub_lsb, 4);
     uint8_t sub_msb = (uint8_t)(msb4(x) - msb4(y) + b4);
-    uint8_t b8 = lsb4(sub_msb);
+    bit_t carry = bit_get((msb4(x) - msb4(y) - half_carry), 4);
+    uint8_t b8 = msb4(sub_msb);
     result->value = merge4(sub_lsb, sub_msb);
-    handle_flag_setting(result, b4, b8, TRUE);
+    handle_flag_setting(result, half_carry, carry, TRUE);
     return ERR_NONE;
 }
 

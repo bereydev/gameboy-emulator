@@ -301,12 +301,12 @@ START_TEST(alu_sub8_exec)
     printf("=== %s:\n", __func__);
 #endif
 
-    const uint8_t input_x[] = {0x10, 0x10, 0x01};
-    const uint8_t input_y[] = {0x10, 0x80, 0x01};
-    const uint8_t input_c[] = {0x00, 0x00, 0x01};
+    const uint8_t input_x[] = {0x10, 0x10, 0x01, 0xEF};
+    const uint8_t input_y[] = {0x10, 0x80, 0x01, 0x01};
+    const uint8_t input_c[] = {0x00, 0x00, 0x01, 0x00};
 
-    const uint16_t expected_v[] = {0x00, 0x90, 0xFF};
-    const flags_t  expected_f[] = {0xC0, 0x50, 0x70};
+    const uint16_t expected_v[] = {0x00, 0x90, 0xFF, 0xEE};
+    const flags_t  expected_f[] = {0xC0, 0x50, 0x70, 0x40};
 
     ASSERT_EQ_NB_EL(input_x, input_y);
     ASSERT_EQ_NB_EL(input_y, input_c);

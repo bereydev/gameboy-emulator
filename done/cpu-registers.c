@@ -91,7 +91,7 @@ void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value) {
         cpu->HL = value;
         break;
     case REG_AF_CODE:
-        value = (value >> 4)<<4; //force the 4 lsb to 0;
+        value = value & 0xFFF0; //force the 4 lsb to 0;
         cpu->AF = value;
         break;
     default:
