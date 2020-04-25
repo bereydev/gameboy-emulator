@@ -209,29 +209,23 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     return ERR_NONE;
 }
 
-
-//TODO change comment
 /**
- * @brief Run one CPU cycle
- * @param cpu (modified), the CPU which shall run
- * @param cycle, the cycle number to run, starting from 0
+ * @brief Obtains the next instruction to execute and calls cpu_dispatch()
+ * 
+ * @param cpu, the CPU which shall run
+ * 
  * @return error code
  */
 static int cpu_do_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu);
-    data_t opcode_instruction = cpu_read_at_idx(cpu, cpu->PC);
-    instruction_t instruction;
-    if (opcode_instruction == PREFIXED) {
-        instruction = instruction_prefixed[cpu_read_addr_after_opcode(cpu)];
-    } else if (opcode_instruction == DIRECT) {
-        instruction = instruction_direct[opcode_instruction];
-    } else {
-        return ERR_INSTR;
-    }
+    
+    data_t byte_at_PC = cpu_read_at_idx(cpu, cpu->PC);
+
+    instruction_t instruction = {0}  ;
+    instruction = byte_at_PC == PREFIXED ? instruction_prefixed[cpu_read_data_after_opcode(cpu)] : instruction_direct[byte_at_PC];
     cpu_dispatch(&instruction, cpu);
 
     return ERR_NONE;
-
 }
 
 int cpu_cycle(cpu_t* cpu){

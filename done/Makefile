@@ -20,7 +20,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := unit-test-alu unit-test-bit unit-test-bus unit-test-component unit-test-cpu unit-test-memory
+CHECK_TARGETS := unit-test-cpu-dispatch-week08
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -82,7 +82,7 @@ libsid_demo: libsid_demo.o libsid.so
 #Ajouter des variables pour simplifier
 #Est-ce qu'il faut déjà compléter la règle all ?
 alu.o: alu.c alu.h bit.h error.h
-bit.o: bit.c bit.h
+bit.o: bit.c bit.h error.h
 bus.o: bus.c bus.h memory.h component.h error.h bit.h
 component.o: component.c component.h memory.h error.h
 cpu-alu.o: cpu-alu.c error.h bit.h alu.h cpu-alu.h opcode.h cpu.h bus.h \
@@ -97,9 +97,13 @@ error.o: error.c
 gameboy.o: gameboy.c gameboy.h cpu.h alu.h bit.h bus.h memory.h \
  component.h error.h
 libsid_demo.o: libsid_demo.c sidlib.h
+main.o: main.c cpu-storage.h memory.h opcode.h bit.h cpu.h alu.h bus.h \
+ component.h util.h
 memory.o: memory.c memory.h error.h
 opcode.o: opcode.c opcode.h bit.h
 sidlib.o: sidlib.c sidlib.h
+test-cpu-week08.o: test-cpu-week08.c opcode.h bit.h cpu.h alu.h bus.h \
+ memory.h component.h cpu-storage.h util.h error.h
 unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h
 unit-test-bit.o: unit-test-bit.c tests.h error.h bit.h
 unit-test-bus.o: unit-test-bus.c tests.h error.h bus.h memory.h \
@@ -109,9 +113,17 @@ unit-test-component.o: unit-test-component.c tests.h error.h bus.h \
 unit-test-cpu.o: unit-test-cpu.c tests.h error.h alu.h bit.h opcode.h \
  util.h cpu.h bus.h memory.h component.h cpu-registers.h cpu-storage.h \
  cpu-alu.h
+unit-test-cpu-dispatch-week08.o: unit-test-cpu-dispatch-week08.c tests.h \
+ error.h alu.h bit.h cpu.h bus.h memory.h component.h opcode.h gameboy.h \
+ util.h unit-test-cpu-dispatch.h cpu.c cpu-alu.h cpu-registers.h \
+ cpu-storage.h
+unit-test-cpu-dispatch-week09.o: unit-test-cpu-dispatch-week09.c tests.h \
+ error.h alu.h bit.h cpu.h bus.h memory.h component.h opcode.h util.h \
+ unit-test-cpu-dispatch.h cpu.c cpu-alu.h cpu-registers.h cpu-storage.h
 unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
  component.h
 util.o: util.c
+
 
 
 
@@ -124,6 +136,6 @@ unit-test-component: unit-test-component.o error.o component.o memory.o
 unit-test-memory: unit-test-memory.o error.o bus.o memory.o component.o bit.o
 unit-test-bus: unit-test-bus.o error.o bus.o component.o bit.o memory.o
 unit-test-cpu: unit-test-cpu.o alu.o bit.o error.o cpu.o cpu-registers.o cpu-storage.o cpu-alu.o bus.o component.o memory.o opcode.c
-
+unit-test-cpu-dispatch-week08: unit-test-cpu-dispatch-week08.o error.o alu.o bit.o  bus.o memory.o component.o opcode.o gameboy.o cpu-alu.o cpu-registers.o cpu-storage.o
 
 

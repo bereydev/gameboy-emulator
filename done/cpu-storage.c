@@ -91,7 +91,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu){
         break;
 
     case LD_A_N16R:
-		cpu_reg_set(cpu, REG_A_CODE, cpu_read_addr_after_opcode(cpu));
+		cpu_reg_set(cpu, REG_A_CODE, cpu_read_at_idx(cpu, cpu_read_addr_after_opcode(cpu)));
         break;
 
     case LD_A_N8R:
@@ -120,7 +120,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu){
         break;
 
     case LD_HLR_R8:
-		cpu_write_at_HL(cpu, extract_reg(lu->opcode, 0));
+		cpu_write_at_HL(cpu, cpu_reg_get(cpu, extract_reg(lu->opcode, 0)));
         break;
 
     case LD_N16R_A:
@@ -128,7 +128,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu){
         break;
 
     case LD_N16R_SP:
-		cpu_write_at_idx(cpu, cpu_read_addr_after_opcode(cpu), (data_t)cpu->SP);
+		cpu_write16_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu->SP); 
         break;
 
     case LD_N8R_A:
@@ -140,7 +140,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu){
         break;
 
     case LD_R8_HLR:
-		cpu_reg_pair_set(cpu, extract_reg_pair(lu->opcode), cpu_read_at_HL(cpu));
+		cpu_reg_set(cpu, extract_reg(lu->opcode, 3), cpu_read_at_HL(cpu));
         break;
 
     case LD_R8_N8:

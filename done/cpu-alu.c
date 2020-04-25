@@ -119,82 +119,89 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     switch (lu->family) {
 
     // ADD
-    case ADD_A_HLR: {
-        do_cpu_arithm(cpu, alu_add8,cpu_HL_get(cpu), ADD_FLAGS_SRC);
-    } break;
+    case ADD_A_HLR:
+        do_cpu_arithm(cpu, alu_add8,cpu_read_at_HL(cpu), ADD_FLAGS_SRC);
+        break;
 
-    case ADD_A_N8: {
+    case ADD_A_N8:
         do_cpu_arithm(cpu, alu_add8, cpu_read_data_after_opcode(cpu), ADD_FLAGS_SRC);
-    } break;
+        break;
 
-    case ADD_A_R8: {
-        do_cpu_arithm(cpu, alu_add8, extract_reg(lu->opcode, 0), ADD_FLAGS_SRC);
-    } break;
+    case ADD_A_R8:
+        do_cpu_arithm(cpu, alu_add8, cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), ADD_FLAGS_SRC);
+        break;
 
     case INC_HLR: {
         alu_add8(&cpu->alu, cpu_read_at_HL(cpu), 1u, 0u);
         cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
-        cpu_write_at_HL(cpu, cpu->alu.value);
-    } break;
+        cpu_write_at_HL(cpu, lsb8(cpu->alu.value));
+    }
+    break;
 
     case INC_R8: {
-        uint8_t reg_value = extract_reg(lu->opcode, 3);
-        //TODO pas sur de mon cpu_read_at_idx
-        alu_add8(&cpu->alu, cpu_read_at_idx(cpu, reg_value), 1u, 0u);
+        uint8_t reg = extract_reg(lu->opcode, 3);
+        alu_add8(&cpu->alu, cpu_reg_get(cpu, reg), 1u, 0u);
         cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
-        cpu_write_at_idx(cpu, reg_value, cpu->alu.value);
-    } break;
+        cpu_reg_set(cpu,reg, lsb8(cpu->alu.value));
+    }
+    break;
 
     case ADD_HL_R16SP: {
         uint16_t reg_pair_value = extract_reg_pair(lu->opcode);
-        alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_read_at_idx(cpu, reg_pair_value));
-        cpu_reg_pair_SP_set(cpu, reg_pair_value , cpu->alu.value);
-        cpu_combine_alu_flags(cpu, ADD_FLAGS_SRC);
-    } break;
+        alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_reg_pair_SP_get(cpu, reg_pair_value));
+        cpu_combine_alu_flags(cpu, CPU, CLEAR, ALU, ALU);
+        cpu_HL_set(cpu, cpu->alu.value);
+    }
+    break;
 
     case INC_R16SP: {
         uint16_t reg_pair_value = extract_reg_pair(lu->opcode);
-        alu_add16_low(&cpu->alu, cpu_read_at_idx(cpu, reg_pair_value), 1u);
-        cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
-    } break;
+        alu_add16_high(&cpu->alu, cpu_reg_pair_SP_get(cpu, reg_pair_value), 1u);
+        cpu_reg_pair_SP_set(cpu, reg_pair_value, cpu->alu.value);
+    }
+    break;
 
 
     // COMPARISONS
     case CP_A_R8: {
-        uint8_t reg_value = extract_reg(lu->opcode, 0);
-        alu_sub8(&cpu->alu, cpu_reg_get(cpu, REG_A_CODE), cpu_read_at_idx(cpu, reg_value), 0);
+        alu_sub8(&cpu->alu, cpu_reg_get(cpu, REG_A_CODE), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), 0);
         cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC);
-    } break;
+    }
+    break;
 
 
     // BIT MOVE (rotate, shift)
     case SLA_R8: {
-        uint8_t reg_value = extract_reg(lu->opcode, 0);
-        alu_shift(&cpu->alu, 1u, LEFT);
-        cpu_reg_set(cpu, cpu_read_at_idx(cpu, reg_value), cpu->alu.value);
-        cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC);
-    } break;
+		uint8_t reg = extract_reg(lu->opcode, 0);
+        alu_shift(&cpu->alu, cpu_reg_get(cpu, reg), LEFT);
+        cpu_reg_set(cpu, reg, lsb8(cpu->alu.value));
+        cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC);
+    }
+    break;
 
     case ROT_R8: {
         rot_dir_t dir = extract_rot_dir(lu->opcode);
         //TODO est-ce que le uint8_t ici est un address_t ?
-        uint8_t reg_value = extract_reg(lu->opcode, 0);
-        alu_rotate(&cpu->alu, cpu_read_at_idx(cpu, reg_value), dir);
-        cpu_reg_set(cpu, reg_value, cpu->alu.value);
-        cpu_combine_alu_flags(cpu, ROT_FLAGS_SRC);
-    } break;
+        uint8_t reg = extract_reg(lu->opcode, 0);
+        alu_carry_rotate(&cpu->alu, cpu_reg_get(cpu, reg),dir, cpu->F);
+        cpu_reg_set(cpu, reg, lsb8(cpu->alu.value));
+        cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC);
+    }
+    break;
 
 
     // BIT TESTS (and set)
     case BIT_U3_R8: {
-        //TODO je vois pas ce que ça doit faire
+		bit_t bit = bit_get(cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), extract_n3(lu->opcode));
+        if (bit == 1u) set_Z(&cpu->F);
+        cpu_combine_alu_flags(cpu, ALU, CLEAR, SET, CPU);
     } break;
 
-    case CHG_U3_R8: {
-        uint8_t reg_value = extract_reg(lu->opcode, 0);
-        data_t data = cpu_read_at_idx(cpu, reg_value);
+    case CHG_U3_R8:{
+		data_t data = cpu_reg_get(cpu, extract_reg(lu->opcode, 0));
         do_set_or_res(lu, &data);
-    } break;
+        //cpu_combine_alu_flags(cpu, CPU, CPU, CPU, CPU);
+    }break;
 
     // ---------------------------------------------------------
     // All the others are handled elsewhere by provided library
