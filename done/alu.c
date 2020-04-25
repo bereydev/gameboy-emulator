@@ -5,7 +5,7 @@
  * @author C la vie
  * @date 2020
  */
- 
+
 #include "alu.h"
 #include "error.h"
 

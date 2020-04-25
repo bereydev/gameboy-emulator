@@ -61,7 +61,7 @@ uint8_t merge4(uint8_t value, uint8_t value2) {
 }
 
 uint16_t merge8(uint8_t value, uint8_t value2) {
-    return (uint8_t)(value | (value2 << 8));
+    return (uint16_t)(value | (value2 << 8));
 }
 
 /**
