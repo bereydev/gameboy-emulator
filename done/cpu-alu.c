@@ -164,7 +164,14 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     // COMPARISONS
     case CP_A_R8: {
+		printf("*****************flags before: 0x%x \n",cpu->alu.flags);
         alu_sub8(&cpu->alu, cpu_reg_get(cpu, REG_A_CODE), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), 0);
+        
+        printf("*****************Opcode 0x%x \n",lu->opcode );
+        printf("*****************A : 0x%x \n",cpu_reg_get(cpu, REG_A_CODE) );
+        printf("*****************r: 0x%x \n",cpu_reg_get(cpu, extract_reg(lu->opcode, 0)) );
+        printf("*****************flags after: 0x%x \n",cpu->alu.flags);
+        printf("\n");
         cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC);
     }
     break;
@@ -181,7 +188,6 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     case ROT_R8: {
         rot_dir_t dir = extract_rot_dir(lu->opcode);
-        //TODO est-ce que le uint8_t ici est un address_t ?
         uint8_t reg = extract_reg(lu->opcode, 0);
         alu_carry_rotate(&cpu->alu, cpu_reg_get(cpu, reg),dir, cpu->F);
         cpu_reg_set(cpu, reg, lsb8(cpu->alu.value));
@@ -193,14 +199,15 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     // BIT TESTS (and set)
     case BIT_U3_R8: {
 		bit_t bit = bit_get(cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), extract_n3(lu->opcode));
-        if (bit == 1u) set_Z(&cpu->F);
+        if (bit == 0u) set_flag(&cpu->alu.flags, FLAG_Z);
         cpu_combine_alu_flags(cpu, ALU, CLEAR, SET, CPU);
     } break;
 
     case CHG_U3_R8:{
-		data_t data = cpu_reg_get(cpu, extract_reg(lu->opcode, 0));
+		uint8_t reg = extract_reg(lu->opcode, 0);
+		data_t data = cpu_reg_get(cpu, reg);
         do_set_or_res(lu, &data);
-        //cpu_combine_alu_flags(cpu, CPU, CPU, CPU, CPU);
+        cpu_reg_set(cpu, reg, data);
     }break;
 
     // ---------------------------------------------------------
