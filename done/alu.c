@@ -93,7 +93,7 @@ void alu_add16_option(alu_output_t* result, uint16_t x, uint16_t y, add_flag_opt
     alu_add8(&result_low, lsb8(x), lsb8(y), 0);
     bit_t c8 = get_C(result_low.flags);
     alu_add8(&result_high, msb8(x), msb8(y),c8 );
-    result->value = merge8((uint8_t)result_low.value, (uint8_t)result_high.value);
+    result->value = merge8(lsb8(result_low.value), lsb8(result_high.value));
     alu_output_t* choice = NULL;
     switch (opt) {
     case LOW:
