@@ -164,14 +164,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     // COMPARISONS
     case CP_A_R8: {
-		printf("*****************flags before: 0x%x \n",cpu->alu.flags);
         alu_sub8(&cpu->alu, cpu_reg_get(cpu, REG_A_CODE), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), 0);
-        
-        printf("*****************Opcode 0x%x \n",lu->opcode );
-        printf("*****************A : 0x%x \n",cpu_reg_get(cpu, REG_A_CODE) );
-        printf("*****************r: 0x%x \n",cpu_reg_get(cpu, extract_reg(lu->opcode, 0)) );
-        printf("*****************flags after: 0x%x \n",cpu->alu.flags);
-        printf("\n");
         cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC);
     }
     break;
