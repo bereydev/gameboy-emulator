@@ -29,7 +29,7 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
 
 void gameboy_free(gameboy_t* gameboy){
     if (gameboy != NULL){
-        for (int i = 0; i < gameboy->nb_allocated_components; ++i) {
+        for (size_t i = 0; i < gameboy->nb_allocated_components; ++i) {
             bus_unplug(gameboy->bus, &gameboy->components[i]);
             component_free(&gameboy->components[i]);
         }
