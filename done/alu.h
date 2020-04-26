@@ -44,24 +44,6 @@ typedef struct {
 
 
 /**
- * @brief type add_flag_option allows to choose the functions between alu_add16_low and alu_add16_high
- */
-typedef enum {
-    LOW,
-    HIGH
-} add_flag_option;
-
-
-/**
- * @brief type define the boolean values in a simple way
- */
-typedef enum {
-    TRUE = 1,
-    FALSE = 0
-} boolean;
-
-
-/**
  * @brief get flag value
  *
  * @param flags flag set to get flag from

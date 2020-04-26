@@ -81,10 +81,12 @@ void rotateLeft(uint8_t* num, int rotation) {
  * @param rotation number of rotation steps to execute
  */
 void rotateRight(uint8_t* num, int rotation) {
+    M_REQUIRE_NON_NULL(num);
     *num = (uint8_t)(((*num) << (UINT8_T_SIZE-rotation)) | ((*num) >> rotation));
 }
 
 void bit_rotate(uint8_t* value, rot_dir_t dir, int d) {
+    M_REQUIRE_NON_NULL(value);
     d = CLAMP07(d);
     switch (dir) {
     case LEFT:
@@ -97,5 +99,6 @@ void bit_rotate(uint8_t* value, rot_dir_t dir, int d) {
 }
 
 void bit_edit(uint8_t* value, int index, uint8_t v) {
+    M_REQUIRE_NON_NULL(value);
     v == 0 ? bit_unset(value, index) :  bit_set(value, index);
 }

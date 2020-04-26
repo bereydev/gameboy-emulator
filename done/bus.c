@@ -61,7 +61,7 @@ int bus_unplug(bus_t bus, component_t* c) {
 int bus_read(const bus_t bus, addr_t address, data_t* data) {
     M_REQUIRE_NON_NULL_CUSTOM_ERR(data, ERR_BAD_PARAMETER);
 
-    *data = (bus[address] == NULL) ? 0xFF : *bus[address];
+    *data = (bus[address] == NULL ) ? 0xFF : *bus[address];
 
     return ERR_NONE;
 }
@@ -76,22 +76,16 @@ int bus_write(bus_t bus, addr_t address, data_t data) {
 
 int bus_read16(const bus_t bus, addr_t address, addr_t* data16) {
     M_REQUIRE_NON_NULL_CUSTOM_ERR(data16, ERR_BAD_PARAMETER);
-
-    data_t ls_byte = 0;
-    int first_error_code = bus_read(bus, address, &ls_byte);
-    data_t ms_byte = 0;
-    int second_error_code = bus_read(bus, (addr_t)(address+1), &ms_byte);
-    if(first_error_code == ERR_NONE && second_error_code == ERR_NONE) *data16 = merge8(ls_byte, ms_byte);
-    else *data16 = 0xFF;
+    // on récupère les deux octets d'un coup en castant la valeur pointée par address
+    // 0xFFFF étant la dernière addresse du bus il n'est pas possible d'y lire 2 octets
+    // sans causer de segmentation fault
+    *data16 = (bus[address] == NULL || address == 0xFFFF) ? 0xFF : *((addr_t*)bus[address]);
     
     return ERR_NONE;
 }
 
 int bus_write16(bus_t bus, addr_t address, addr_t data16) {
-    data_t ls_byte = lsb8(data16);
-    data_t ms_byte = msb8(data16);
-    bus_write(bus, address, ls_byte);
-    bus_write(bus, (addr_t)(address+1), ms_byte);
+    *((addr_t*)bus[address]) = data16;
 
     return ERR_NONE;
 }

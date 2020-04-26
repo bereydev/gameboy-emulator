@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include "cpu-registers.h"
 #include "cpu-storage.h"
-#include "util.h"
 #include <inttypes.h> // PRIX8
 
 int cpu_init(cpu_t* cpu) {
@@ -221,8 +220,7 @@ static int cpu_do_cycle(cpu_t* cpu){
     
     data_t byte_at_PC = cpu_read_at_idx(cpu, cpu->PC);
 
-    instruction_t instruction = {0}  ;
-    instruction = byte_at_PC == PREFIXED ? instruction_prefixed[cpu_read_data_after_opcode(cpu)] : instruction_direct[byte_at_PC];
+    instruction_t instruction = byte_at_PC == PREFIXED ? instruction_prefixed[cpu_read_data_after_opcode(cpu)] : instruction_direct[byte_at_PC];
     cpu_dispatch(&instruction, cpu);
 
     return ERR_NONE;
