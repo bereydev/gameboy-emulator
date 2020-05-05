@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-#define GB_NB_COMPONENTS 5
+#define GB_NB_COMPONENTS 6
 
 /**
  * @brief Game Boy data structure.
@@ -28,7 +28,6 @@ extern "C" {
 typedef struct {
     bus_t bus;
     component_t components[GB_NB_COMPONENTS];
-    size_t nb_allocated_components; //Effective number of components in components
     cpu_t cpu;
 } gameboy_t;
 

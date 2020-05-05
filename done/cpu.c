@@ -15,6 +15,10 @@
 #include "cpu-storage.h"
 #include <inttypes.h> // PRIX8
 
+typedef enum {
+    NZ, Z, NC, C
+} cc_t ;
+
 int cpu_init(cpu_t* cpu) {
     M_REQUIRE_NON_NULL(cpu);
     
@@ -30,6 +34,8 @@ int cpu_init(cpu_t* cpu) {
         cpu_reg_pair_set(cpu, i, 0u);
     }
 
+    component_create(&cpu->high_ram, HIGH_RAM_SIZE);
+
     return ERR_NONE;
 }
 
@@ -38,12 +44,41 @@ int cpu_plug(cpu_t* cpu, bus_t* bus){
     M_REQUIRE_NON_NULL(bus);
     
     cpu->bus = bus;
+    bus_plug(cpu->bus ,&cpu->high_ram ,HIGH_RAM_START, HIGH_RAM_END);
+    (*bus)[REG_IE] = &cpu->IE;
+    (*bus)[REG_IF] = &cpu->IF;
+
     
     return ERR_NONE;
 }
 
 void cpu_free(cpu_t* cpu){
+    bus_unplug(cpu->bus, &cpu->high_ram);
+    component_free(&cpu->high_ram);
     if (cpu != NULL) cpu->bus = NULL;
+}
+
+/**
+ * @brief Executes a jump if the condition is satisfied
+ * @param flags, flags of the cpu you want to compare to
+ * @param opcode, the opcode corresponding to the jump
+ */
+int is_condition(flags_t flags, opcode_t opcode){
+    uint8_t c = get_C(flags);
+    uint8_t z = get_Z(flags);
+    switch (extract_cc(opcode))
+    {
+    case NZ:
+        return ! z;
+    case Z:
+        return z;
+    case NC:
+        return ! c;
+    case C:
+        return c;
+    default:
+        break;
+    }
 }
 
 /**
@@ -145,48 +180,92 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     // JUMP
     case JP_CC_N16:
+    // Etant donné que le CPU est remis à zero rien les flags sont toujours à zero du coup je
+    //ne vois pas bien ce qu'il pourrait arriver ici ou alors je ne vois pas ou récuperer les flags...
+        if (is_condition(cpu->alu.flags, lu->opcode)) {
+            cpu->PC = cpu->HL;
+            cpu->idle_time += lu->xtra_cycles;
+        }
         break;
 
     case JP_HL:
+        cpu->PC = cpu->HL;
         break;
 
     case JP_N16:
+        cpu->PC = cpu_read_addr_after_opcode(cpu);
         break;
 
     case JR_CC_E8:
+        if (is_condition(cpu->alu.flags, lu->opcode)) {
+            cpu->PC += lu->bytes + (signed char)cpu_read_addr_after_opcode(cpu);
+            cpu->idle_time += lu->xtra_cycles;
+        }
         break;
 
     case JR_E8:
+        // TODO check if the cast to interpret the unsigne as two's complement is right
+        cpu->PC = cpu->PC + lu->bytes + (signed char)cpu_read_addr_after_opcode(cpu);
         break;
 
 
     // CALLS
     case CALL_CC_N16:
+    // TODO est-ce que ce serait une bonne pratique d'enlever le break et ne faire que la condition?
+        if(is_condition(cpu->alu.flags, lu->opcode)) {
+            cpu_SP_push(cpu, cpu->PC += lu->bytes);
+            cpu->PC = cpu_read_addr_after_opcode(cpu);
+        }
         break;
 
     case CALL_N16:
+        cpu_SP_push(cpu, cpu->PC += lu->bytes);
+        cpu->PC = cpu_read_addr_after_opcode(cpu);
         break;
 
 
     // RETURN (from call)
     case RET:
+        cpu->PC = cpu_SP_pop(cpu);
         break;
 
     case RET_CC:
+        if(is_condition(cpu->alu.flags, lu->opcode)) {cpu->PC = cpu_SP_pop(cpu);}
         break;
 
     case RST_U3:
+        cpu_SP_push(cpu, cpu->PC += lu->bytes);
+        cpu->PC = extract_n3(lu->opcode) << 3;//n3 * 8
         break;
 
 
     // INTERRUPT & MISC.
     case EDI:
+    //TODO comment faire plus propre ?
+        if (lu->opcode == 0xFB) {
+            //EI
+            cpu->IME = 1;
+        } else if (lu->opcode == 0xF3){
+            //DI
+            cpu->IME = 0;
+        }
         break;
 
     case RETI:
+        cpu->IME = 1;
+        cpu->PC = cpu_SP_pop(cpu);
         break;
 
     case HALT:
+    //Tant qu'il n'y a pas un bit qui vaut 1 dans IE et dans IF simultanément
+    // TODO vérifier si la boucle while est une bonne solution pour stopper le processeur
+        cpu->HALT = 1;
+        while (!(cpu->IE & cpu->IF)){}
+        if (cpu->IME){
+            //TODO set cpu->PC je suppose pour lire les instructions suivantes mais je vois pas bien comment choisir entre la suite ou l'interupt...
+        }
+        cpu->HALT =0;
+        
         break;
 
     case STOP:
@@ -208,6 +287,15 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     return ERR_NONE;
 }
 
+interrupt_t get_interrupt_number(uint8_t active_interrupt){
+    for (size_t i = 0; i < 5; i++)
+    {
+        if (bit_get(active_interrupt, i)){return i;}
+    }
+    return -1;
+}
+
+
 /**
  * @brief Obtains the next instruction to execute and calls cpu_dispatch()
  * 
@@ -217,6 +305,21 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
  */
 static int cpu_do_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu);
+    uint8_t active_interrupts = cpu->IE & cpu->IF;
+    if (cpu->IME && (active_interrupts)) {
+        cpu->IME  = 0;
+        interrupt_t interrupt_to_handle = get_interrupt_number(active_interrupts);
+        if (interrupt_to_handle != -1){
+            bit_unset(&cpu->IF, interrupt_to_handle);
+            cpu_SP_push(cpu, cpu->PC); 
+            cpu->PC = 0x40 + interrupt_to_handle<<3;
+            cpu->idle_time += 5;
+        }
+        //Vérifie quelle interruption est en attente
+
+        //Gère l'interruption
+
+    }
     
     data_t byte_at_PC = cpu_read_at_idx(cpu, cpu->PC);
 
@@ -232,6 +335,16 @@ int cpu_cycle(cpu_t* cpu){
 
     if(cpu->idle_time != 0u) cpu->idle_time--;
     else cpu_do_cycle(cpu);
+    //TODO ici je ne vois pas quoi changer ...
+    //Gestion de Halt mais comment organiser ça ...
+    // if (HALT && (cpu->IF&cpu->IE) && cpu->idle_time == 0u){
+    //     cpu_do_cycle(cpu);
+    // }
 
     return ERR_NONE;
+}
+
+
+void cpu_request_interrupt(cpu_t* cpu, interrupt_t i){
+    bit_set(&cpu->IF, i);
 }

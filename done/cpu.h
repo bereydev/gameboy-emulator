@@ -69,10 +69,17 @@ typedef struct{
     
     uint16_t SP;
     uint16_t PC;
+
+    bit_t IME;
+    uint8_t IE;
+    uint8_t IF;
     
     bus_t* bus;
     
     uint8_t idle_time;
+
+    component_t high_ram;
+    bit_t HALT;
     
 } cpu_t;
 
