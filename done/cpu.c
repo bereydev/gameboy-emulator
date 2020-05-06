@@ -180,9 +180,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     // JUMP
     case JP_CC_N16:
-    // Etant donné que le CPU est remis à zero rien les flags sont toujours à zero du coup je
-    //ne vois pas bien ce qu'il pourrait arriver ici ou alors je ne vois pas ou récuperer les flags...
-        if (is_condition(cpu->alu.flags, lu->opcode)) {
+        if (is_condition(cpu->F, lu->opcode)) {
             cpu->PC = cpu->HL;
             cpu->idle_time += lu->xtra_cycles;
         }
@@ -204,17 +202,16 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case JR_E8:
-        // TODO check if the cast to interpret the unsigne as two's complement is right
         cpu->PC = cpu->PC + lu->bytes + (signed char)cpu_read_addr_after_opcode(cpu);
         break;
 
 
     // CALLS
     case CALL_CC_N16:
-    // TODO est-ce que ce serait une bonne pratique d'enlever le break et ne faire que la condition?
         if(is_condition(cpu->alu.flags, lu->opcode)) {
             cpu_SP_push(cpu, cpu->PC += lu->bytes);
             cpu->PC = cpu_read_addr_after_opcode(cpu);
+            cpu->idle_time += lu->xtra_cycles;
         }
         break;
 
@@ -242,7 +239,9 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     // INTERRUPT & MISC.
     case EDI:
     //TODO comment faire plus propre ?
+    //get the bit
         if (lu->opcode == 0xFB) {
+
             //EI
             cpu->IME = 1;
         } else if (lu->opcode == 0xF3){
@@ -258,14 +257,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     case HALT:
     //Tant qu'il n'y a pas un bit qui vaut 1 dans IE et dans IF simultanément
-    // TODO vérifier si la boucle while est une bonne solution pour stopper le processeur
         cpu->HALT = 1;
-        while (!(cpu->IE & cpu->IF)){}
-        if (cpu->IME){
-            //TODO set cpu->PC je suppose pour lire les instructions suivantes mais je vois pas bien comment choisir entre la suite ou l'interupt...
-        }
-        cpu->HALT =0;
-        
         break;
 
     case STOP:
@@ -334,12 +326,14 @@ int cpu_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu->bus);
 
     if(cpu->idle_time != 0u) cpu->idle_time--;
-    else cpu_do_cycle(cpu);
-    //TODO ici je ne vois pas quoi changer ...
-    //Gestion de Halt mais comment organiser ça ...
-    // if (HALT && (cpu->IF&cpu->IE) && cpu->idle_time == 0u){
-    //     cpu_do_cycle(cpu);
-    // }
+    else {
+        if (cpu->HALT && (cpu->IF&cpu->IE)){
+            cpu->HALT = 0;
+            cpu_do_cycle(cpu);
+        } else if (! cpu->HALT){
+            cpu_do_cycle(cpu);
+        }
+    }
 
     return ERR_NONE;
 }
