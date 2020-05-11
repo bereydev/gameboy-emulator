@@ -9,11 +9,13 @@
 #include "error.h"
 #include "opcode.h"
 #include "cpu.h"
+#include "component.h"
 #include "cpu-alu.h"
 #include <stdio.h>
 #include "cpu-registers.h"
 #include "cpu-storage.h"
 #include <inttypes.h> // PRIX8
+
 
 typedef enum {
     NZ, Z, NC, C
@@ -33,7 +35,6 @@ int cpu_init(cpu_t* cpu) {
     for (int i = REG_BC_CODE; i <= REG_AF_CODE; ++i) {
         cpu_reg_pair_set(cpu, i, 0u);
     }
-
     component_create(&cpu->high_ram, HIGH_RAM_SIZE);
 
     return ERR_NONE;
@@ -77,7 +78,7 @@ int is_condition(flags_t flags, opcode_t opcode){
     case C:
         return c;
     default:
-        break;
+        return ERR_BAD_PARAMETER;
     }
 }
 
@@ -181,58 +182,59 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     // JUMP
     case JP_CC_N16:
         if (is_condition(cpu->F, lu->opcode)) {
-            cpu->PC = cpu->HL;
+            cpu->PC = cpu_read_addr_after_opcode(cpu) - lu->bytes;
             cpu->idle_time += lu->xtra_cycles;
         }
         break;
 
     case JP_HL:
-        cpu->PC = cpu->HL;
+        cpu->PC = cpu->HL - lu->bytes;
         break;
 
     case JP_N16:
-        cpu->PC = cpu_read_addr_after_opcode(cpu);
+        cpu->PC = cpu_read_addr_after_opcode(cpu) - lu->bytes;
         break;
 
     case JR_CC_E8:
-        if (is_condition(cpu->alu.flags, lu->opcode)) {
-            cpu->PC += lu->bytes + (signed char)cpu_read_addr_after_opcode(cpu);
+        if (is_condition(cpu->F, lu->opcode)) {
+            cpu->PC += (signed char)cpu_read_addr_after_opcode(cpu);
             cpu->idle_time += lu->xtra_cycles;
         }
         break;
 
     case JR_E8:
-        cpu->PC = cpu->PC + lu->bytes + (signed char)cpu_read_addr_after_opcode(cpu);
+        cpu->PC = cpu->PC + (signed char)cpu_read_addr_after_opcode(cpu);
         break;
 
 
     // CALLS
     case CALL_CC_N16:
-        if(is_condition(cpu->alu.flags, lu->opcode)) {
-            cpu_SP_push(cpu, cpu->PC += lu->bytes);
-            cpu->PC = cpu_read_addr_after_opcode(cpu);
+        if(is_condition(cpu->F, lu->opcode)) {
+            cpu_SP_push(cpu, cpu->PC + lu->bytes);
+            cpu->PC = cpu_read_addr_after_opcode(cpu) - lu->bytes;
             cpu->idle_time += lu->xtra_cycles;
         }
         break;
 
     case CALL_N16:
-        cpu_SP_push(cpu, cpu->PC += lu->bytes);
-        cpu->PC = cpu_read_addr_after_opcode(cpu);
+        cpu_SP_push(cpu, cpu->PC + lu->bytes);
+        cpu->PC = cpu_read_addr_after_opcode(cpu) - lu->bytes;
         break;
 
 
     // RETURN (from call)
     case RET:
-        cpu->PC = cpu_SP_pop(cpu);
+        cpu->PC = cpu_SP_pop(cpu) - lu->bytes;
         break;
 
     case RET_CC:
-        if(is_condition(cpu->alu.flags, lu->opcode)) {cpu->PC = cpu_SP_pop(cpu);}
+        if(is_condition(cpu->F, lu->opcode)) {cpu->PC = cpu_SP_pop(cpu) - lu->bytes;}
         break;
 
     case RST_U3:
         cpu_SP_push(cpu, cpu->PC += lu->bytes);
-        cpu->PC = extract_n3(lu->opcode) << 3;//n3 * 8
+        cpu->PC = extract_n3(lu->opcode) << 3u;//n3 * 8
+        return ERR_NONE;
         break;
 
 
@@ -248,11 +250,13 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
             //DI
             cpu->IME = 0;
         }
+        return ERR_NONE;
         break;
 
     case RETI:
         cpu->IME = 1;
         cpu->PC = cpu_SP_pop(cpu);
+        return ERR_NONE;
         break;
 
     case HALT:
@@ -304,12 +308,9 @@ static int cpu_do_cycle(cpu_t* cpu){
         if (interrupt_to_handle != -1){
             bit_unset(&cpu->IF, interrupt_to_handle);
             cpu_SP_push(cpu, cpu->PC); 
-            cpu->PC = 0x40 + interrupt_to_handle<<3;
+            cpu->PC = 0x40 + (interrupt_to_handle<<3u);
             cpu->idle_time += 5;
         }
-        //Vérifie quelle interruption est en attente
-
-        //Gère l'interruption
 
     }
     

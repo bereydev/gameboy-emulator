@@ -11,7 +11,8 @@
 #include "memory.h"
 
 int component_create(component_t *c, size_t mem_size) {
-    M_REQUIRE_NON_NULL(c);
+    //TODO est ce 'c' est sensé être null à ce moment là ?
+    //M_REQUIRE_NON_NULL(c);
 
     c->start = 0;
     c->end = 0;

@@ -15,6 +15,7 @@ extern "C" {
 #include "memory.h"
 #include "opcode.h"
 #include "cpu.h"
+#include "util.h"
 
 /**
  * @brief Reads data from the bus at a given adress

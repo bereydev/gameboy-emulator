@@ -61,3 +61,12 @@ void gameboy_free(gameboy_t* gameboy){
         }
     }
 }
+
+int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
+    while (gameboy->cycles < cycle)
+    {
+        // TODO une fois que les autres composant auront XX_cycle implémenté
+        // il faudra les ajouter ici
+        cpu_cycle(&gameboy->cpu);
+    }
+}

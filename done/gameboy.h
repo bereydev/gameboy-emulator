@@ -29,6 +29,8 @@ typedef struct {
     bus_t bus;
     component_t components[GB_NB_COMPONENTS];
     cpu_t cpu;
+    //nombre de cycles déjà exécutés
+    uint64_t cycles;
 } gameboy_t;
 
 // Number of Game Boy cycles per second (= 2^20)
