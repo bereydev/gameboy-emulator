@@ -20,7 +20,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := test-cpu-week08g
+CHECK_TARGETS := test-cpu-week08
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -117,6 +117,8 @@ unit-test-cpu-dispatch-week09.o: unit-test-cpu-dispatch-week09.c tests.h \
 unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
  component.h
 util.o: util.c
+test-cpu-week08.o: test-cpu-week08.c opcode.h bit.h cpu.h alu.h bus.h \
+ memory.h component.h cpu-storage.h util.h error.h
 
 unit-test-bit: unit-test-bit.o bit.o
 unit-test-alu: unit-test-alu.o alu.o bit.o error.o
@@ -126,5 +128,6 @@ unit-test-bus: unit-test-bus.o error.o bus.o component.o bit.o memory.o
 unit-test-cpu: unit-test-cpu.o alu.o bit.o error.o cpu.o cpu-registers.o cpu-storage.o cpu-alu.o bus.o component.o memory.o opcode.c
 unit-test-cpu-dispatch-week08: unit-test-cpu-dispatch-week08.o error.o alu.o bit.o  bus.o memory.o component.o opcode.o gameboy.o cpu-alu.o cpu-registers.o cpu-storage.o
 unit-test-cpu-dispatch-week09: unit-test-cpu-dispatch-week09.o error.o alu.o bit.o  bus.o memory.o component.o opcode.o gameboy.o cpu-alu.o cpu-registers.o cpu-storage.o
+test-cpu-week08: error.o alu.o bit.o  bus.o memory.o component.o opcode.o gameboy.o cpu-alu.o cpu-registers.o cpu-storage.o cpu.o
 
 
