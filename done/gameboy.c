@@ -89,7 +89,7 @@ int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
         // il faudra les ajouter ici
         timer_cycle(&gameboy->timer);
         cpu_cycle(&gameboy->cpu);
-        bootrom_bus_listener(gameboy, gameboy->cpu.write_listener )
+        bootrom_bus_listener(gameboy, gameboy->cpu.write_listener );
         timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener);
     }
 }

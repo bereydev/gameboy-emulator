@@ -14,8 +14,8 @@
 
 #include "bus.h"
 #include "component.h"
-#include "cartridge.h"
 #include "timer.h"
+#include "cartridge.h"
 
 
 
