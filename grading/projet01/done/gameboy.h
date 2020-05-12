@@ -4,7 +4,6 @@
  * @file gameboy.h
  * @brief Gameboy Header for GameBoy Emulator
  *
- * @author C. Hölzl, EPFL
  * @date 2019
  */
 
@@ -19,7 +18,7 @@
 extern "C" {
 #endif
 
-#define GB_NB_COMPONENTS 6
+#define GB_NB_COMPONENTS 5
 
 /**
  * @brief Game Boy data structure.
@@ -28,14 +27,8 @@ extern "C" {
 typedef struct {
     bus_t bus;
     component_t components[GB_NB_COMPONENTS];
+    size_t nb_allocated_components; //Effective number of components in components
     cpu_t cpu;
-    component_t bootrom;
-    bit_t boot;
-    gbtimer_t timer;
-    cartridge_t cartridge;
-    //nombre de cycles déjà exécutés
-    uint64_t cycles;
-
 } gameboy_t;
 
 // Number of Game Boy cycles per second (= 2^20)

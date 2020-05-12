@@ -2,14 +2,12 @@
  * @file bit.c
  * @brief Bit operations for GameBoy Emulator
  *
- * @author C la vie
  * @date 2020
  */
 
 #include <stdint.h>   // for uint8_t and uint16_t types
 #include "bit.h"
 #include "error.h"
-#include <stdio.h>
 
 /**
  * @brief a type to represent 1 single bit.
@@ -35,21 +33,15 @@ bit_t bit_get(uint8_t value, int index) {
 }
 
 void bit_set(uint8_t* value, int index) {
-    if (value != NULL) {
-        index = CLAMP07(index);
-        *value = (uint8_t)((*value) | (0x01 << index));
-    } else {
-        fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
-    }
+    M_REQUIRE_NON_NULL(value);
+    index = CLAMP07(index);
+    *value = (uint8_t)((*value) | (0x01 << index));
 }
 
 void bit_unset(uint8_t* value, int index) {
-    if (value != NULL) {
-        index = CLAMP07(index);
-        *value = (uint8_t)((*value) & ~(0x01 << index));
-    } else {
-        fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
-    }
+    M_REQUIRE_NON_NULL(value);
+    index = CLAMP07(index);
+    *value = (uint8_t)((*value) & ~(0x01 << index));
 }
 
 const uint16_t mask_lsb8 = 0x00ff;
@@ -88,34 +80,24 @@ void rotateLeft(uint8_t* num, int rotation) {
  * @param rotation number of rotation steps to execute
  */
 void rotateRight(uint8_t* num, int rotation) {
-    if (num != NULL) {
-        *num = (uint8_t)(((*num) << (UINT8_T_SIZE-rotation)) | ((*num) >> rotation));
-    } else {
-        fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
-    }
-
+    M_REQUIRE_NON_NULL(num);
+    *num = (uint8_t)(((*num) << (UINT8_T_SIZE-rotation)) | ((*num) >> rotation));
 }
 
 void bit_rotate(uint8_t* value, rot_dir_t dir, int d) {
-    if (value != NULL) {
-        d = CLAMP07(d);
-        switch (dir) {
-            case LEFT:
-                rotateLeft(value, d);
-                break;
-            case RIGHT:
-                rotateRight(value, d);
-                break;
-        }
-    } else {
-        fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
+    M_REQUIRE_NON_NULL(value);
+    d = CLAMP07(d);
+    switch (dir) {
+    case LEFT:
+        rotateLeft(value, d);
+        break;
+    case RIGHT:
+        rotateRight(value, d);
+        break;
     }
 }
 
 void bit_edit(uint8_t* value, int index, uint8_t v) {
-    if (value != NULL) {
-        v == 0 ? bit_unset(value, index) :  bit_set(value, index);
-    } else {
-        fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
-    }
+    M_REQUIRE_NON_NULL(value);
+    v == 0 ? bit_unset(value, index) :  bit_set(value, index);
 }

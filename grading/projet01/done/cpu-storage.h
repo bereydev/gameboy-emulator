@@ -4,7 +4,6 @@
  * @file cpu-storage.h
  * @brief CPU model for PPS-GBemul project, storage part
  *
- * @author J.-C. Chappelier & C. Hölzl, EPFL
  * @date 2019
  */
 
@@ -15,7 +14,6 @@ extern "C" {
 #include "memory.h"
 #include "opcode.h"
 #include "cpu.h"
-#include "util.h"
 
 /**
  * @brief Reads data from the bus at a given adress

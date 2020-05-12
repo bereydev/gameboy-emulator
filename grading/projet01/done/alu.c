@@ -2,13 +2,11 @@
  * @file alu.c
  * @brief ALU for GameBoy Emulator
  *
- * @author C la vie
  * @date 2020
  */
 
 #include "alu.h"
 #include "error.h"
-#include <stdio.h>
 
 
 /**
@@ -46,27 +44,23 @@ flag_bit_t get_flag(flags_t flags, flag_bit_t flag) {
 }
 
 void set_flag(flags_t* flags, flag_bit_t flag) {
-	if (flags != NULL) {
-        switch(flag) {
-            case FLAG_Z:
-                *flags = *flags | FLAG_Z;
-                break;
-            case FLAG_N:
-                *flags = *flags | FLAG_N;
-                break;
-            case FLAG_H:
-                *flags = *flags | FLAG_H;
-                break;
-            case FLAG_C:
-                *flags = *flags |FLAG_C;
-                break;
-            default:
-                fprintf(stderr, "Error - Bad parameter not a flag_bit_t %d", flag);
-                break;
+	M_REQUIRE_NON_NULL(flags);
+    switch(flag) {
+        case FLAG_Z:
+            *flags = *flags | FLAG_Z;
+            break;
+        case FLAG_N:
+            *flags = *flags | FLAG_N;
+            break;
+        case FLAG_H:
+            *flags = *flags | FLAG_H;
+            break;
+        case FLAG_C:
+            *flags = *flags |FLAG_C;
+            break;
+        default:
+            M_EXIT_ERR_NOMSG(ERR_BAD_PARAMETER);
         }
-	} else {
-        fprintf(stderr, "Error - NULLpointer the given flags_t pointer is NULL");
-	}
 }
 /**
  * @brief set the flags of result with respect to a couple of parameters
@@ -131,8 +125,7 @@ void alu_add16_option(alu_output_t* result, uint16_t x, uint16_t y, add_flag_opt
             choice = &result_high;
             break;
         default:
-            fprintf(stderr, "Error - Bad parameter not an add_flag_option%d", opt);
-            break;
+            M_EXIT_ERR_NOMSG(ERR_BAD_PARAMETER);
         }
 
     uint8_t half_carry = get_H(choice->flags);

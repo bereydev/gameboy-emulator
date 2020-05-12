@@ -4,7 +4,6 @@
  * @file cpu.h
  * @brief CPU model for PPS-GBemul project, high level interface
  *
- * @author J.-C. Chappelier & C. Hölzl, EPFL
  * @date 2019
  */
 
@@ -36,6 +35,8 @@ typedef enum {
  */
 
 typedef struct{
+    alu_output_t alu;
+    
     union {
         struct{
             uint8_t F;
@@ -64,18 +65,14 @@ typedef struct{
         };
         uint16_t HL;
     };
-    uint16_t PC;
+    
     uint16_t SP;
-    alu_output_t alu;
+    uint16_t PC;
+    
     bus_t* bus;
-    bit_t IME;
-    uint8_t IE;
-    uint8_t IF;
-    bit_t HALT;
-    component_t high_ram;
+    
     uint8_t idle_time;
-    addr_t write_listener;
-
+    
 } cpu_t;
 
 //=========================================================================
