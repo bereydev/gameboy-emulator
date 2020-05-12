@@ -16,51 +16,46 @@
 #include <stdio.h> // fprintf
 
 data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr){
+     //TODO est-ce qu'il faut un if cpu != NULL ?
      M_REQUIRE_NON_NULL(cpu);
-     
      data_t result = 0;
-     bus_read(*cpu->bus, addr, &result);
+     bus_read(*(cpu->bus), addr, &result);
      
      return result;
 }
 
 addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr){
-	M_REQUIRE_NON_NULL(cpu);
-	
+	//TODO est-ce qu'il faut un if cpu != NULL ?
+    M_REQUIRE_NON_NULL(cpu);
     addr_t result = 0;
-    bus_read16(*cpu->bus, addr, &result);
+    bus_read16(*(cpu->bus), addr, &result);
     
     return result;
 }
 
 int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data){
 	M_REQUIRE_NON_NULL(cpu);
-	
-	bus_write(*(cpu->bus), addr, data);
-
-    return ERR_NONE;
+    return bus_write(*(cpu->bus), addr, data);
 }
 
 int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16){
 	M_REQUIRE_NON_NULL(cpu);
-	
-	bus_write16(*cpu->bus, addr, data16);
-	
-    return ERR_NONE;
+    //test mem 
+	return bus_write16(*(cpu->bus), addr, data16);
 }
 
 int cpu_SP_push(cpu_t* cpu, addr_t data16){
 	M_REQUIRE_NON_NULL(cpu);
 	
 	cpu->SP = (uint16_t) (cpu->SP - 2u);
+    //TODO meme chose que dans les fonction précedente vérifier le code d'erreur ...
 	cpu_write16_at_idx(cpu, cpu->SP,data16);
 	
     return ERR_NONE;
 }
 
 addr_t cpu_SP_pop(cpu_t* cpu){
-	M_REQUIRE_NON_NULL(cpu);
-	
+	//TODO est-ce qu'il faut un if cpu != NULL ?
     addr_t result = cpu_read16_at_idx(cpu, cpu->SP);
 	cpu->SP = (uint16_t) (cpu->SP + 2u);
 	
