@@ -36,6 +36,7 @@ addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr){
 int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data){
 	M_REQUIRE_NON_NULL(cpu);
 	
+	cpu->write_listener = addr;
 	bus_write(*(cpu->bus), addr, data);
 
     return ERR_NONE;
@@ -44,6 +45,7 @@ int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data){
 int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16){
 	M_REQUIRE_NON_NULL(cpu);
 	
+	cpu->write_listener = addr;
 	bus_write16(*cpu->bus, addr, data16);
 	
     return ERR_NONE;

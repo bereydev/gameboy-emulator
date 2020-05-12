@@ -25,6 +25,7 @@ int cpu_init(cpu_t* cpu) {
     cpu->F = 0u;
     cpu->alu.value = 0u;
     cpu->alu.flags = 0u;
+    cpu->write_listener = 0u;
 
     for (int i = REG_BC_CODE; i <= REG_AF_CODE; ++i) {
         cpu_reg_pair_set(cpu, i, 0u);
@@ -229,6 +230,8 @@ static int cpu_do_cycle(cpu_t* cpu){
 int cpu_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
+    
+    cpu->write_listener = 0;
 
     if(cpu->idle_time != 0u) cpu->idle_time--;
     else cpu_do_cycle(cpu);

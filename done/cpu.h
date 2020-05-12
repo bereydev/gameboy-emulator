@@ -74,6 +74,8 @@ typedef struct{
     
     uint8_t idle_time;
     
+    addr_t write_listener;
+    
 } cpu_t;
 
 //=========================================================================

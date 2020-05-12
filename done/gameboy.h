@@ -30,6 +30,11 @@ typedef struct {
     component_t components[GB_NB_COMPONENTS];
     size_t nb_allocated_components; //Effective number of components in components
     cpu_t cpu;
+    //rajouté
+    component_t bootrom;
+    bit_t boot;
+    gbtimer_t timer;
+    cartridge_t cartridge;
 } gameboy_t;
 
 // Number of Game Boy cycles per second (= 2^20)

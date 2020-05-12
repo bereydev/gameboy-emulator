@@ -24,6 +24,14 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
     component_shared(&echo_ram, &work_ram);
     bus_plug(gameboy->bus, &echo_ram, ECHO_RAM_START, ECHO_RAM_END);
     
+    //rajouté
+    gameboy->boot = 1u;
+    bootrom_init(&gameboy->bootrom);
+    bootrom_plug(&gameboy->bootrom, gameboy->bus);
+    timer_init(&gameboy->timer, &gameboy->cpu);
+    cartridge_init(&gameboy->cartridge,filename);
+    cartridge_plug(&gameboy->cartridge, gameboy->bus);
+    
     return ERR_NONE;
 }
 
@@ -34,5 +42,11 @@ void gameboy_free(gameboy_t* gameboy){
             component_free(&gameboy->components[i]);
         }
         gameboy->nb_allocated_components = 0u;
+        
+        bus_unplug(gameboy->bus, &gameboy->bootrom);
+        component_free(&gameboy->bootrom);
+        
+        bus_unplug(gameboy->bus, &gameboy->cartridge);
+        cartridge_free(&gameboy->cartridge);
     }
 }
