@@ -8,17 +8,20 @@
  
 #include "gameboy.h"
 #include "error.h"
+#include "bootrom.h"
 
 
 
 int gameboy_create(gameboy_t* gameboy, const char* filename){
     M_REQUIRE_NON_NULL(gameboy);
+    //TODO mettre le bus à zero  mettre les pointeurs à NULL
 
     component_t work_ram;
     component_create(&work_ram, MEM_SIZE(WORK_RAM));
     gameboy->components[0] = work_ram;
     bus_plug(gameboy->bus, &work_ram, WORK_RAM_START, WORK_RAM_END);
     //TODO voir comment améliorer ces déclaration en boucle avec les macros ?
+    //MEMSIZE macro concatener avec les # pour faire une boucle avec la macro
 
     component_t echo_ram;
     /* On n'ajoute pas echo_ram à la liste components car il partage
@@ -64,6 +67,7 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
 
 void gameboy_free(gameboy_t* gameboy){
     if (gameboy != NULL){
+        // TODO comment unplug quelque chose qui n'est plus accessible ? (créer echo et unplug)
         for (size_t i = 0; i < GB_NB_COMPONENTS; ++i) {
             bus_unplug(gameboy->bus, &gameboy->components[i]);
             component_free(&gameboy->components[i]);
@@ -85,7 +89,7 @@ int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
         // il faudra les ajouter ici
         timer_cycle(&gameboy->timer);
         cpu_cycle(&gameboy->cpu);
-        bootrom_bus_listener(gameboy, gameboy->cpu->write_listener);
-        timer_bus_listener(&gameboy->timer, gameboy->cpu->write_listener);
+        bootrom_bus_listener(gameboy, gameboy->cpu.write_listener )
+        timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener);
     }
 }
