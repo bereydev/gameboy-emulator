@@ -28,10 +28,9 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset) {
 
 int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t offset) {
     M_REQUIRE_NON_NULL(bus);
-    M_REQUIRE_NON_NULL_CUSTOM_ERR(c, ERR_BAD_PARAMETER);
-    M_REQUIRE(start != end, ERR_BAD_PARAMETER, "inputs start(%x) and end(%x) are equal", start, end);
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE(end >= start, ERR_BAD_PARAMETER, "inputs start(%x) is greater or equal to end(%x)", start, end);
     M_REQUIRE((size_t)(end - start + offset) <= c->mem->size, ERR_ADDRESS, "input offset (%x) is incorrect",offset);
-
     c->start = start;
     c->end = end;
     if (bus_remap(bus, c, offset) != ERR_NONE) {

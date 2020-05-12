@@ -29,6 +29,12 @@ add_executable(done
         bus.c
         bus.h
         component.c
+        cartridge.c
+        cartridge.h
+        timer.c
+        timer.h
+        bootrom.c
+        bootrom.h
         component.h
         error.c
         error.h
