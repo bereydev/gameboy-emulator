@@ -14,6 +14,10 @@
 
 #include "bus.h"
 #include "component.h"
+#include "cartridge.h"
+#include "timer.h"
+
+
 
 #ifdef __cplusplus
 extern "C" {

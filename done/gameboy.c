@@ -9,6 +9,8 @@
 #include "gameboy.h"
 #include "error.h"
 
+
+
 int gameboy_create(gameboy_t* gameboy, const char* filename){
     M_REQUIRE_NON_NULL(gameboy);
 
@@ -50,7 +52,6 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
     gameboy->components[5] = useless;
     bus_plug(gameboy->bus, &useless, USELESS_START, USELESS_END);
     
-    //rajouté
     gameboy->boot = 1u;
     bootrom_init(&gameboy->bootrom);
     bootrom_plug(&gameboy->bootrom, gameboy->bus);
@@ -67,8 +68,6 @@ void gameboy_free(gameboy_t* gameboy){
             bus_unplug(gameboy->bus, &gameboy->components[i]);
             component_free(&gameboy->components[i]);
         }
-
-        gameboy->nb_allocated_components = 0u;
         
         bus_unplug(gameboy->bus, &gameboy->bootrom);
         component_free(&gameboy->bootrom);
@@ -84,6 +83,9 @@ int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
     {
         // TODO une fois que les autres composant auront XX_cycle implémenté
         // il faudra les ajouter ici
+        timer_cycle(&gameboy->timer);
         cpu_cycle(&gameboy->cpu);
+        bootrom_bus_listener(gameboy, gameboy->cpu->write_listener);
+        timer_bus_listener(&gameboy->timer, gameboy->cpu->write_listener);
     }
 }

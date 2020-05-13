@@ -5,26 +5,25 @@
  * @author C la vie
  * @date 2020
  */
+ 
+ #include "cartridge.h"
  #include "error.h"
  
  
  //Reads a file into the memory of a component
  int cartridge_init_from_file(component_t* c, const char* filename) {
 	 M_REQUIRE_NON_NULL(c);
-	 M_REQUIRE_NON_NULL(filename);
-	 
 	 //TODO fermer le fichier dans tous les cas d'erreur ou il y a un return
 	 
-	FILE fp* = fopen(filename, "rb");
+	FILE* fp = fopen(filename, "rb");
 	if (fp == NULL) {
-		fclose(fp);
 		return ERR_IO;
-		} 
+	} 
 	
 	//TODO modulariser
 	
 	size_t size_read = fread(c->mem->memory, sizeof(data_t), BANK_ROM_SIZE, fp);
-	if(size_read != nb_el) {
+	if(size_read != BANK_ROM_SIZE) {
 		fclose(fp);
 		return ERR_IO;
 	}else {
@@ -43,20 +42,20 @@
 	}
 	
 int cartridge_init(cartridge_t* ct, const char* filename){
-	component_create(ct, BANK_ROM_SIZE); 
-	cartridge_init_from_file(ct, filename);
+	M_REQUIRE_NON_NULL_CUSTOM_ERR(ct,ERR_BAD_PARAMETER);
+	M_REQUIRE_NON_NULL_CUSTOM_ERR(filename,ERR_BAD_PARAMETER);
 	
-	return ERR_NONE;
+	component_create(&ct->c, BANK_ROM_SIZE); //pb avec cette fonction?
+	cartridge_init_from_file(&ct->c, filename);
+	
 	}
 	
 int cartridge_plug(cartridge_t* ct, bus_t bus){
-	bus_forced_plug(bus,ct, BANK_ROM0_START, BANK_ROM1_END, 0); 
-	
-	return ERR_NONE;
+	M_REQUIRE_NON_NULL(ct);
+	bus_forced_plug(bus,&ct->c, BANK_ROM0_START, BANK_ROM1_END, 0); 
 	}
 	
 void cartridge_free(cartridge_t* ct){
-	component_free(ct);
+	M_REQUIRE_NON_NULL(ct);
+	component_free(&ct->c);
 	}
-	 
-

@@ -11,8 +11,7 @@
 #include "memory.h"
 
 int component_create(component_t *c, size_t mem_size) {
-    //TODO est ce 'c' est sensé être null à ce moment là ?
-    //M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(c);
 
     c->start = 0;
     c->end = 0;
@@ -21,14 +20,13 @@ int component_create(component_t *c, size_t mem_size) {
         return ERR_NONE;
     }
     c->mem = malloc(sizeof(memory_t));
-    mem_create(c->mem, mem_size);
-    
-    return ERR_NONE;
+    return mem_create(c->mem, mem_size); 
 }
 
 void component_free(component_t *c) {
     if (c != NULL) {
         mem_free(c->mem);
+        free(c->mem);
         c->mem = NULL;
         c->start = 0;
         c->end = 0;
