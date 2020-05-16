@@ -73,8 +73,8 @@ typedef struct{
     uint8_t IF;
     bit_t HALT;
     component_t high_ram;
-    uint8_t idle_time;
     addr_t write_listener;
+    uint8_t idle_time;
 
 } cpu_t;
 
