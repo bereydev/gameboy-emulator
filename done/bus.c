@@ -15,6 +15,7 @@
 int bus_remap(bus_t bus, component_t* c, addr_t offset) {
     M_REQUIRE_NON_NULL(bus);
     M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(c->mem);
     M_REQUIRE(c->end >= c->start, ERR_ADDRESS, "input component has a start adress 0x%"PRIX16" biger than end address 0x%"PRIX16, c->start, c->end);
     M_REQUIRE( (size_t)(c->end - c->start + offset) <= c->mem->size, ERR_ADDRESS, "input offset 0x%"PRIX16" is incorrect",offset);
 
@@ -29,6 +30,7 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset) {
 int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t offset) {
     M_REQUIRE_NON_NULL(bus);
     M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(c->mem);
     M_REQUIRE(end >= start, ERR_BAD_PARAMETER, "inputs start(%x) is greater or equal to end(%x)", start, end);
     M_REQUIRE((size_t)(end - start + offset) <= c->mem->size, ERR_ADDRESS, "input offset (%x) is incorrect",offset);
     c->start = start;

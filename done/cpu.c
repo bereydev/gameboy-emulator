@@ -16,6 +16,7 @@
 #include "cpu-storage.h"
 #include <inttypes.h> // PRIX8
 
+#define INTERRUPTS 5
 
 typedef enum {
     NZ, Z, NC, C
@@ -32,6 +33,10 @@ int cpu_init(cpu_t* cpu) {
     cpu->alu.value = 0u;
     cpu->alu.flags = 0u;
     cpu->write_listener = 0u;
+    cpu->IME = 0u;
+    cpu->IE = 0u;
+    cpu->IF = 0u;
+    cpu->HALT = 0u;
 
     for (int i = REG_BC_CODE; i <= REG_AF_CODE; ++i) {
         cpu_reg_pair_set(cpu, i, 0u);
@@ -46,18 +51,20 @@ int cpu_plug(cpu_t* cpu, bus_t* bus){
     M_REQUIRE_NON_NULL(bus);
     
     cpu->bus = bus;
-    bus_plug(cpu->bus ,&cpu->high_ram ,HIGH_RAM_START, HIGH_RAM_END);
-    (*bus)[REG_IE] = &cpu->IE;
-    (*bus)[REG_IF] = &cpu->IF;
+    bus_plug(*cpu->bus ,&cpu->high_ram ,HIGH_RAM_START, HIGH_RAM_END);
 
-    
+    (*cpu->bus)[REG_IE] = &cpu->IE;
+    (*cpu->bus)[REG_IF] = &cpu->IF;
+
     return ERR_NONE;
 }
 
 void cpu_free(cpu_t* cpu){
-    bus_unplug(cpu->bus, &cpu->high_ram);
-    component_free(&cpu->high_ram);
-    if (cpu != NULL) cpu->bus = NULL;
+    if(cpu != NULL) {
+        bus_unplug(*cpu->bus, &cpu->high_ram);
+        component_free(&cpu->high_ram);
+        cpu->bus = NULL;
+    }
 }
 
 /**
@@ -67,16 +74,16 @@ void cpu_free(cpu_t* cpu){
  * @return 
  */
 int is_condition(flags_t flags, opcode_t opcode){
-    uint8_t c = get_C(flags);
-    uint8_t z = get_Z(flags);
+    flag_bit_t c = get_C(flags);
+    flag_bit_t z = get_Z(flags);
     switch (extract_cc(opcode))
     {
     case NZ:
-        return ! z;
+        return !z;
     case Z:
         return z;
     case NC:
-        return ! c;
+        return !c;
     case C:
         return c;
     default:
@@ -190,7 +197,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case JP_HL:
-        cpu->PC = cpu->HL - lu->bytes;
+        cpu->PC = cpu->HL - lu->bytes ;
         break;
 
     case JP_N16:
@@ -199,13 +206,13 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     case JR_CC_E8:
         if (is_condition(cpu->F, lu->opcode)) {
-            cpu->PC += (signed char)cpu_read_addr_after_opcode(cpu);
+            cpu->PC += (signed char)cpu_read_data_after_opcode(cpu);
             cpu->idle_time += lu->xtra_cycles;
         }
         break;
 
-    case JR_E8:
-        cpu->PC = cpu->PC + (signed char)cpu_read_addr_after_opcode(cpu);
+    case JR_E8: 
+        cpu->PC += (signed char) cpu_read_data_after_opcode(cpu);
         break;
 
 
@@ -230,39 +237,29 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case RET_CC:
-        if(is_condition(cpu->F, lu->opcode)) {cpu->PC = cpu_SP_pop(cpu) - lu->bytes;}
+        if(is_condition(cpu->F, lu->opcode)) {
+            cpu->PC = cpu_SP_pop(cpu) - lu->bytes;
+            cpu->idle_time += lu->xtra_cycles;
+            }
         break;
 
     case RST_U3:
-        cpu_SP_push(cpu, cpu->PC += lu->bytes);
-        cpu->PC = extract_n3(lu->opcode) << 3u;//n3 * 8
-        return ERR_NONE;
+        cpu_SP_push(cpu, cpu->PC + lu->bytes);
+        cpu->PC = (extract_n3(lu->opcode) << 3u) - lu->bytes;//n3 * 8
         break;
 
 
     // INTERRUPT & MISC.
     case EDI:
-    //TODO comment faire plus propre ?
-    //get the bit
-        if (lu->opcode == 0xFB) {
-
-            //EI
-            cpu->IME = 1;
-        } else if (lu->opcode == 0xF3){
-            //DI
-            cpu->IME = 0;
-        }
-        return ERR_NONE;
+        cpu->IME = extract_ime(lu->opcode);
         break;
 
     case RETI:
         cpu->IME = 1;
-        cpu->PC = cpu_SP_pop(cpu);
-        return ERR_NONE;
+        cpu->PC = cpu_SP_pop(cpu) - lu->bytes;
         break;
 
     case HALT:
-    //Tant qu'il n'y a pas un bit qui vaut 1 dans IE et dans IF simultanément
         cpu->HALT = 1;
         break;
 
@@ -285,12 +282,21 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     return ERR_NONE;
 }
 
+/**
+ * @brief 
+ * 
+ * @param active_interrupt
+ * 
+ * @return 
+ */
+
 interrupt_t get_interrupt_number(uint8_t active_interrupt){
-    for (size_t i = 0; i < 5; i++)
+    for (size_t i = 0; i < INTERRUPTS; i++)
     {
-        if (bit_get(active_interrupt, i)){return i;}
+        if (bit_get(active_interrupt, i)) return i;
     }
-    return -1;
+    //interrupt_t est unsigned
+    return 5;
 }
 
 
@@ -303,21 +309,21 @@ interrupt_t get_interrupt_number(uint8_t active_interrupt){
  */
 static int cpu_do_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu);
+
     uint8_t active_interrupts = cpu->IE & cpu->IF;
     if (cpu->IME && (active_interrupts)) {
         cpu->IME  = 0;
         interrupt_t interrupt_to_handle = get_interrupt_number(active_interrupts);
-        if (interrupt_to_handle != -1){
+        //interrupt_t est unsigned
+        if (interrupt_to_handle != 5){
             bit_unset(&cpu->IF, interrupt_to_handle);
             cpu_SP_push(cpu, cpu->PC); 
             cpu->PC = 0x40 + (interrupt_to_handle<<3u);
-            cpu->idle_time += 5;
+            cpu->idle_time += 5u;
         }
-
     }
     
     data_t byte_at_PC = cpu_read_at_idx(cpu, cpu->PC);
-
     instruction_t instruction = byte_at_PC == PREFIXED ? instruction_prefixed[cpu_read_data_after_opcode(cpu)] : instruction_direct[byte_at_PC];
     cpu_dispatch(&instruction, cpu);
 
@@ -326,7 +332,7 @@ static int cpu_do_cycle(cpu_t* cpu){
 
 int cpu_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu);
-    M_REQUIRE_NON_NULL(cpu->bus);
+    //M_REQUIRE_NON_NULL(cpu->bus);
     
     cpu->write_listener = 0;
 
@@ -335,14 +341,13 @@ int cpu_cycle(cpu_t* cpu){
         if (cpu->HALT && (cpu->IF&cpu->IE)){
             cpu->HALT = 0;
             cpu_do_cycle(cpu);
-        } else if (! cpu->HALT){
+        } else if (!cpu->HALT){
             cpu_do_cycle(cpu);
         }
     }
 
     return ERR_NONE;
 }
-
 
 void cpu_request_interrupt(cpu_t* cpu, interrupt_t i){
     bit_set(&cpu->IF, i);
