@@ -23,62 +23,43 @@ static int blargg_bus_listener(gameboy_t* gameboy, addr_t addr){
 }
 #endif
 
+#define INIT_COMPONENT(X,i)({\
+    component_t c;\
+    component_create(&c, MEM_SIZE(X));\
+    gameboy->components[i] = c;\
+    bus_plug(gameboy->bus, &c, X ## _START, X ## _END);\
+})
+
 int gameboy_create(gameboy_t* gameboy, const char* filename){
     M_REQUIRE_NON_NULL(gameboy);
     
     //Initialisation du bus
     memset(&gameboy->bus, 0, (BUS_SIZE * sizeof(data_t*)));
 
-    gameboy->boot = 1u;
-
     cartridge_init(&gameboy->cartridge,filename);
     cartridge_plug(&gameboy->cartridge, gameboy->bus);
 
+    gameboy->boot = 1u;
     bootrom_init(&gameboy->bootrom);
     bootrom_plug(&gameboy->bootrom, gameboy->bus);
 
     timer_init(&gameboy->timer, &gameboy->cpu);
 
-
-    //TODO il faut vérifier ce que les fonctions retournent
-    component_t work_ram;
-    component_create(&work_ram, MEM_SIZE(WORK_RAM));
-    gameboy->components[0] = work_ram;
-    bus_plug(gameboy->bus, &work_ram, WORK_RAM_START, WORK_RAM_END);
-    //TODO voir comment améliorer ces déclaration en boucle avec les macros ?
-    //MEMSIZE macro concatener avec les # pour faire une boucle avec la macro
-
+    int i = 0;
+    //checker les retours des fonctions
+    INIT_COMPONENT(WORK_RAM, i++);
+    INIT_COMPONENT(REGISTERS, i++);
+    INIT_COMPONENT(EXTERN_RAM, i++);
+    INIT_COMPONENT(VIDEO_RAM, i++);
+    INIT_COMPONENT(GRAPH_RAM, i++);
+    INIT_COMPONENT(USELESS, i++);
+    
     component_t echo_ram;
-     /*On n'ajoute pas echo_ram à la liste components car il partage
+    /* On n'ajoute pas echo_ram à la liste components car il partage
      * la même mémoire que work_ram cela permet d'eviter de free deux fois
      * la même zone mémoire dans gameboy_free */
-    component_shared(&echo_ram, &work_ram);
+    component_shared(&echo_ram, &gameboy->components[0]);
     bus_plug(gameboy->bus, &echo_ram, ECHO_RAM_START, ECHO_RAM_END);
-
-    component_t registers;
-    component_create(&registers, MEM_SIZE(REGISTERS));
-    gameboy->components[1] = registers;
-    bus_plug(gameboy->bus, &registers, REGISTERS_START, REGISTERS_END);
-
-    component_t extern_ram;
-    component_create(&extern_ram, MEM_SIZE(EXTERN_RAM));
-    gameboy->components[2] = extern_ram;
-    bus_plug(gameboy->bus, &extern_ram, EXTERN_RAM_START, EXTERN_RAM_END);
-
-    component_t video_ram;
-    component_create(&video_ram, MEM_SIZE(VIDEO_RAM));
-    gameboy->components[3] = video_ram;
-    bus_plug(gameboy->bus, &video_ram, VIDEO_RAM_START, VIDEO_RAM_END);
-
-    component_t graph_ram;
-    component_create(&graph_ram, MEM_SIZE(GRAPH_RAM));
-    gameboy->components[4] = graph_ram;
-    bus_plug(gameboy->bus, &graph_ram, GRAPH_RAM_START, GRAPH_RAM_END);
-
-    component_t useless;
-    component_create(&useless, MEM_SIZE(USELESS));
-    gameboy->components[5] = useless;
-    bus_plug(gameboy->bus, &useless, USELESS_START, USELESS_END);
 
     cpu_init(&gameboy->cpu);
     cpu_plug(&gameboy->cpu, &gameboy->bus);
@@ -90,7 +71,10 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
 
 void gameboy_free(gameboy_t* gameboy){
     if (gameboy != NULL){
-        // TODO comment unplug quelque chose qui n'est plus accessible ? (créer echo et unplug)
+        // Unplug une copie de echo_ram 
+        component_t echo_clone = {NULL, ECHO_RAM_START, ECHO_RAM_END};
+        bus_unplug(gameboy->bus, &echo_clone);
+
         for (size_t i = 0; i < GB_NB_COMPONENTS; ++i) {
             bus_unplug(gameboy->bus, &gameboy->components[i]);
             component_free(&gameboy->components[i]);
@@ -123,6 +107,5 @@ int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
         //le nombre de cycles déjà simulés est mis à jour non?
         gameboy->cycles++;
     }
-
     return ERR_NONE;
 }
