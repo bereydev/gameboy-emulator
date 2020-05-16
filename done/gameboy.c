@@ -9,6 +9,7 @@
 #include "gameboy.h"
 #include "error.h"
 #include "bootrom.h"
+#include "cpu-storage.h"
 
 #define DRAW_IMAGE_CYCLES ((uint64_t) 17556)
 
@@ -16,7 +17,7 @@
 static int blargg_bus_listener(gameboy_t* gameboy, addr_t addr){
     M_REQUIRE_NON_NULL(gameboy);
 
-	if(addr == BLARGG_REG ) printf("%c", cpu_read_at_idx(gameboy->cpu, addr));
+	if(addr == BLARGG_REG ) printf("%c", cpu_read_at_idx(&gameboy->cpu, addr));
 	
 	return ERR_NONE;
 }
@@ -26,7 +27,7 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
     M_REQUIRE_NON_NULL(gameboy);
     
     //Initialisation du bus
-    memset(&gameboy->bus, 0, BUS_SIZE);
+    memset(&gameboy->bus, 0, (BUS_SIZE * sizeof(data_t*)));
 
     gameboy->boot = 1u;
 
@@ -38,6 +39,7 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
 
     timer_init(&gameboy->timer, &gameboy->cpu);
 
+
     //TODO il faut vérifier ce que les fonctions retournent
     component_t work_ram;
     component_create(&work_ram, MEM_SIZE(WORK_RAM));
@@ -46,10 +48,10 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
     //TODO voir comment améliorer ces déclaration en boucle avec les macros ?
     //MEMSIZE macro concatener avec les # pour faire une boucle avec la macro
 
-   /* component_t echo_ram;
-     On n'ajoute pas echo_ram à la liste components car il partage
+    component_t echo_ram;
+     /*On n'ajoute pas echo_ram à la liste components car il partage
      * la même mémoire que work_ram cela permet d'eviter de free deux fois
-     * la même zone mémoire dans gameboy_free 
+     * la même zone mémoire dans gameboy_free */
     component_shared(&echo_ram, &work_ram);
     bus_plug(gameboy->bus, &echo_ram, ECHO_RAM_START, ECHO_RAM_END);
 
@@ -76,9 +78,9 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
     component_t useless;
     component_create(&useless, MEM_SIZE(USELESS));
     gameboy->components[5] = useless;
-    bus_plug(gameboy->bus, &useless, USELESS_START, USELESS_END);*/
+    bus_plug(gameboy->bus, &useless, USELESS_START, USELESS_END);
 
-    //c-mem is null 
+    cpu_init(&gameboy->cpu);
     cpu_plug(&gameboy->cpu, &gameboy->bus);
 
     gameboy->cycles = 0;
@@ -97,7 +99,7 @@ void gameboy_free(gameboy_t* gameboy){
         bus_unplug(gameboy->bus, &gameboy->bootrom);
         component_free(&gameboy->bootrom);
         
-        bus_unplug(gameboy->bus, &gameboy->cartridge);
+        bus_unplug(gameboy->bus, &gameboy->cartridge.c);
         cartridge_free(&gameboy->cartridge);
 
     }
@@ -121,4 +123,6 @@ int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
         //le nombre de cycles déjà simulés est mis à jour non?
         gameboy->cycles++;
     }
+
+    return ERR_NONE;
 }
