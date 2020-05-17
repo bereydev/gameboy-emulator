@@ -5,15 +5,17 @@
  * @author C la vie
  * @date 2020
  */
- 
+
 #include "cpu-registers.h"
 #include "error.h"
 #include "bit.h"
 
-uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg) {
+uint8_t cpu_reg_get(const cpu_t *cpu, reg_kind reg)
+{
     M_REQUIRE_NON_NULL(cpu);
 
-    switch (reg) {
+    switch (reg)
+    {
     case REG_B_CODE:
         return cpu->B;
     case REG_C_CODE:
@@ -33,10 +35,12 @@ uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg) {
     }
 }
 
-uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg) {
+uint16_t cpu_reg_pair_get(const cpu_t *cpu, reg_pair_kind reg)
+{
     M_REQUIRE_NON_NULL(cpu);
 
-    switch (reg) {
+    switch (reg)
+    {
     case REG_AF_CODE:
         return cpu->AF;
     case REG_HL_CODE:
@@ -50,8 +54,10 @@ uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg) {
     }
 }
 
-void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value) {
-    switch (reg) {
+void cpu_reg_set(cpu_t *cpu, reg_kind reg, uint8_t value)
+{
+    switch (reg)
+    {
     case REG_B_CODE:
         cpu->B = value;
         break;
@@ -79,8 +85,10 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value) {
     }
 }
 
-void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value) {
-    switch (reg) {
+void cpu_reg_pair_set(cpu_t *cpu, reg_pair_kind reg, uint16_t value)
+{
+    switch (reg)
+    {
     case REG_BC_CODE:
         cpu->BC = value;
         break;

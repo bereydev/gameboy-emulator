@@ -338,7 +338,8 @@ static int cpu_do_cycle(cpu_t *cpu)
             cpu->PC = 0x40 + (interrupt_to_handle << 3u);
             cpu->idle_time += 5u;
         }
-        else {
+        else
+        {
             return ERR_BAD_PARAMETER;
         }
     }

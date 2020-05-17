@@ -29,12 +29,12 @@ static int blargg_bus_listener(gameboy_t *gameboy, addr_t addr)
 /**
  * @brief init the specified X component of the gameboy 
  */
-#define INIT_COMPONENT(X, i)                            \
-    do                                                  \
-    {                                                   \
-        component_t c;                                  \
+#define INIT_COMPONENT(X, i)                                           \
+    do                                                                 \
+    {                                                                  \
+        component_t c;                                                 \
         M_EXIT_IF_ERR(component_create(&c, MEM_SIZE(X)));              \
-        gameboy->components[i] = c;                     \
+        gameboy->components[i] = c;                                    \
         M_EXIT_IF_ERR(bus_plug(gameboy->bus, &c, X##_START, X##_END)); \
     } while (0)
 
@@ -79,7 +79,7 @@ int gameboy_create(gameboy_t *gameboy, const char *filename)
 void gameboy_free(gameboy_t *gameboy)
 {
     if (gameboy != NULL)
-    {   
+    {
         // Unplug a clone of echo_ram
         component_t echo_clone = {NULL, ECHO_RAM_START, ECHO_RAM_END};
         RETURN_IF_ERROR_MSG_ONLY(bus_unplug(gameboy->bus, &echo_clone));
@@ -109,11 +109,11 @@ int gameboy_run_until(gameboy_t *gameboy, uint64_t cycle)
 
         if (((gameboy->cycles) % DRAW_IMAGE_CYCLES) == 0)
             cpu_request_interrupt(&gameboy->cpu, VBLANK);
-            
-        #ifdef BLARGG
+
+#ifdef BLARGG
         M_EXIT_IF_ERR(blargg_bus_listener(gameboy, gameboy->cpu.write_listener));
-        #endif
-        
+#endif
+
         gameboy->cycles++;
     }
     return ERR_NONE;

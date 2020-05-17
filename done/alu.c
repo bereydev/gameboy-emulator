@@ -147,7 +147,7 @@ void alu_add16_option(alu_output_t *result, uint16_t x, uint16_t y, add_flag_opt
 
     result->value = merge8((uint8_t)result_low.value, (uint8_t)result_high.value);
     alu_output_t *choice = NULL;
-    
+
     switch (opt)
     {
     case LOW:
@@ -214,7 +214,7 @@ int alu_shiftR_A(alu_output_t *result, uint8_t x)
     result->value |= mask_sign_bit;
 
     handle_flag_setting(result, 0, carry, FALSE);
-    
+
     return ERR_NONE;
 }
 
@@ -250,6 +250,6 @@ int alu_carry_rotate(alu_output_t *result, uint8_t x, rot_dir_t dir, flags_t fla
 
     result->value = x;
     handle_flag_setting(result, 0, newCarry, FALSE);
-    
+
     return ERR_NONE;
 }
