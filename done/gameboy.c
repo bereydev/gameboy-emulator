@@ -33,9 +33,9 @@ static int blargg_bus_listener(gameboy_t *gameboy, addr_t addr)
     do                                                  \
     {                                                   \
         component_t c;                                  \
-        component_create(&c, MEM_SIZE(X));              \
+        M_EXIT_IF_ERR(component_create(&c, MEM_SIZE(X)));              \
         gameboy->components[i] = c;                     \
-        bus_plug(gameboy->bus, &c, X##_START, X##_END); \
+        M_EXIT_IF_ERR(bus_plug(gameboy->bus, &c, X##_START, X##_END)); \
     } while (0)
 
 int gameboy_create(gameboy_t *gameboy, const char *filename)
