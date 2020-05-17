@@ -132,7 +132,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case INC_HLR: {
-        alu_add8(&cpu->alu, cpu_read_at_HL(cpu), 1u, 0u);
+        M_EXIT_IF_ERR(alu_add8(&cpu->alu, cpu_read_at_HL(cpu), 1u, 0u));
         cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
         cpu_write_at_HL(cpu, lsb8(cpu->alu.value));
     }
@@ -140,7 +140,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     case INC_R8: {
         uint8_t reg = extract_reg(lu->opcode, 3);
-        alu_add8(&cpu->alu, cpu_reg_get(cpu, reg), 1u, 0u);
+        M_EXIT_IF_ERR(alu_add8(&cpu->alu, cpu_reg_get(cpu, reg), 1u, 0u));
         cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
         cpu_reg_set(cpu,reg, lsb8(cpu->alu.value));
     }
@@ -148,7 +148,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     case DEC_R8: {
         uint8_t reg = extract_reg(lu->opcode, 3);
-        alu_sub8(&cpu->alu, cpu_reg_get(cpu, reg), 1u, 0u);
+        M_EXIT_IF_ERR(alu_sub8(&cpu->alu, cpu_reg_get(cpu, reg), 1u, 0u));
         cpu_combine_alu_flags(cpu, DEC_FLAGS_SRC);
         cpu_reg_set(cpu,reg, lsb8(cpu->alu.value));
     }
@@ -156,7 +156,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     case ADD_HL_R16SP: {
         uint16_t reg_pair_value = extract_reg_pair(lu->opcode);
-        alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_reg_pair_SP_get(cpu, reg_pair_value));
+        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_reg_pair_SP_get(cpu, reg_pair_value)));
         cpu_combine_alu_flags(cpu, CPU, CLEAR, ALU, ALU);
         cpu_HL_set(cpu, cpu->alu.value);
     }
@@ -164,7 +164,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     case INC_R16SP: {
         uint16_t reg_pair_value = extract_reg_pair(lu->opcode);
-        alu_add16_high(&cpu->alu, cpu_reg_pair_SP_get(cpu, reg_pair_value), 1u);
+        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_reg_pair_SP_get(cpu, reg_pair_value), 1u));
         cpu_reg_pair_SP_set(cpu, reg_pair_value, cpu->alu.value);
     }
     break;
@@ -172,13 +172,13 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     // COMPARISONS
     case CP_A_R8: {
-        alu_sub8(&cpu->alu, cpu_reg_get(cpu, REG_A_CODE), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), 0);
+        M_EXIT_IF_ERR(alu_sub8(&cpu->alu, cpu_reg_get(cpu, REG_A_CODE), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), 0));
         cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC);
     }
     break;
 
     case CP_A_N8: {
-        alu_sub8(&cpu->alu, cpu_reg_get(cpu, REG_A_CODE), cpu_read_data_after_opcode(cpu), 0);
+        M_EXIT_IF_ERR(alu_sub8(&cpu->alu, cpu_reg_get(cpu, REG_A_CODE), cpu_read_data_after_opcode(cpu), 0));
         cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC);
     }
     break;
@@ -187,7 +187,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     // BIT MOVE (rotate, shift)
     case SLA_R8: {
 		uint8_t reg = extract_reg(lu->opcode, 0);
-        alu_shift(&cpu->alu, cpu_reg_get(cpu, reg), LEFT);
+        M_EXIT_IF_ERR(alu_shift(&cpu->alu, cpu_reg_get(cpu, reg), LEFT));
         cpu_reg_set(cpu, reg, lsb8(cpu->alu.value));
         cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC);
     }
@@ -196,7 +196,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     case ROT_R8: {
         rot_dir_t dir = extract_rot_dir(lu->opcode);
         uint8_t reg = extract_reg(lu->opcode, 0);
-        alu_carry_rotate(&cpu->alu, cpu_reg_get(cpu, reg),dir, cpu->F);
+        M_EXIT_IF_ERR(alu_carry_rotate(&cpu->alu, cpu_reg_get(cpu, reg),dir, cpu->F));
         cpu_reg_set(cpu, reg, lsb8(cpu->alu.value));
         cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC);
     }
@@ -221,7 +221,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     // All the others are handled elsewhere by provided library
     default:
         // uncomment this line if you have the cs212gbcpuext library
-        M_EXIT_IF_ERR(cpu_dispatch_alu_ext(lu, cpu));
+        //M_EXIT_IF_ERR(cpu_dispatch_alu_ext(lu, cpu));
         break;
     } // switch
 

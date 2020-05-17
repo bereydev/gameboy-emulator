@@ -10,19 +10,12 @@
  #include "error.h"
  #include <stdio.h>
  
- 
- //Reads a file into the memory of a component
  int cartridge_init_from_file(component_t* c, const char* filename) {
 	 M_REQUIRE_NON_NULL(c);
 	 M_REQUIRE_NON_NULL(c->mem);
-	 //TODO fermer le fichier dans tous les cas d'erreur ou il y a un return
 	 
 	FILE* fp = fopen(filename, "rb");
-	if (fp == NULL) {
-		return ERR_IO;
-	} 
-	
-	//TODO modulariser
+	if (fp == NULL) return ERR_IO;
 	
 	size_t size_read = fread(c->mem->memory, sizeof(data_t), BANK_ROM_SIZE, fp);
 	if(size_read != BANK_ROM_SIZE) {
@@ -30,7 +23,6 @@
 		return ERR_IO;
 	}else {
 		for(size_t i = 0; i<BANK_ROM_SIZE; ++i) {
-			//printf("c->mem->memory[%2zu] = %x \n ", i, c->mem->memory[i]);
 			}
 		if(c->mem->memory[CARTRIDGE_TYPE_ADDR]!=0u) {
 			fclose(fp);
@@ -47,7 +39,7 @@ int cartridge_init(cartridge_t* ct, const char* filename){
 	M_REQUIRE_NON_NULL(ct);
 	M_REQUIRE_NON_NULL(filename);
 
-	component_create(&ct->c, BANK_ROM_SIZE); //pb avec cette fonction?
+	M_EXIT_IF_ERR(component_create(&ct->c, BANK_ROM_SIZE));
 
 	return cartridge_init_from_file(&ct->c, filename);
 	}
