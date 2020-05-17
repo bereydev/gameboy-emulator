@@ -9,6 +9,7 @@
 #include "gameboy.h"
 #include "error.h"
 #include "bootrom.h"
+#include "cpu-storage.h"
 
 #define DRAW_IMAGE_CYCLES ((uint64_t)17556)
 
@@ -18,7 +19,7 @@ static int blargg_bus_listener(gameboy_t *gameboy, addr_t addr)
     M_REQUIRE_NON_NULL(gameboy);
 
     if (addr == BLARGG_REG)
-        printf("%c", cpu_read_at_idx(gameboy->cpu, addr));
+        printf("%c", cpu_read_at_idx(&gameboy->cpu, addr));
 
     return ERR_NONE;
 }
@@ -36,15 +37,18 @@ static int blargg_bus_listener(gameboy_t *gameboy, addr_t addr)
 int gameboy_create(gameboy_t *gameboy, const char *filename)
 {
     M_REQUIRE_NON_NULL(gameboy);
-    //Initialise les pointeurs du bus à NULL
-    memset(gameboy->bus, 0, BUS_SIZE);
+    
+    //Initialisation du bus
+    memset(&gameboy->bus, 0, (BUS_SIZE * sizeof(data_t*)));
+
+    cartridge_init(&gameboy->cartridge,filename);
+    cartridge_plug(&gameboy->cartridge, gameboy->bus);
 
     gameboy->boot = 1u;
     bootrom_init(&gameboy->bootrom);
     bootrom_plug(&gameboy->bootrom, gameboy->bus);
 
-    cartridge_init(&gameboy->cartridge, filename);
-    cartridge_plug(&gameboy->cartridge, gameboy->bus);
+    timer_init(&gameboy->timer, &gameboy->cpu);
 
     int i = 0;
     //checker les retours des fonctions
@@ -62,8 +66,7 @@ int gameboy_create(gameboy_t *gameboy, const char *filename)
     component_shared(&echo_ram, &gameboy->components[0]);
     bus_plug(gameboy->bus, &echo_ram, ECHO_RAM_START, ECHO_RAM_END);
 
-    timer_init(&gameboy->timer, &gameboy->cpu);
-    //c-mem is null
+    cpu_init(&gameboy->cpu);
     cpu_plug(&gameboy->cpu, &gameboy->bus);
 
     gameboy->cycles = 0;
@@ -113,6 +116,5 @@ int gameboy_run_until(gameboy_t *gameboy, uint64_t cycle)
         //le nombre de cycles déjà simulés est mis à jour non?
         gameboy->cycles++;
     }
-    // qu'est ce que cette fonction retourne normalement ?
     return ERR_NONE;
 }

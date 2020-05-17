@@ -16,18 +16,14 @@
 #include <stdio.h> // fprintf
 
 data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr){
-     //TODO est-ce qu'il faut un if cpu != NULL ?
-     M_REQUIRE_NON_NULL(cpu);
      data_t result = 0;
      //TODO verifier bus_read() si il fait une erreur ou ...
      bus_read(*(cpu->bus), addr, &result);
-     
+
      return result;
 }
 
 addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr){
-	//TODO est-ce qu'il faut un if cpu != NULL ?
-    M_REQUIRE_NON_NULL(cpu);
     addr_t result = 0;
     bus_read16(*(cpu->bus), addr, &result);
     
