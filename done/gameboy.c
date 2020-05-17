@@ -96,15 +96,14 @@ int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
         // il faudra les ajouter ici
 
         //TODO il faut check le retour des fonctions
-        timer_cycle(&gameboy->timer);
-        cpu_cycle(&gameboy->cpu);
-        bootrom_bus_listener(gameboy, gameboy->cpu.write_listener );
-        timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener);
+        M_EXIT_IF_ERR(timer_cycle(&gameboy->timer));
+        M_EXIT_IF_ERR(cpu_cycle(&gameboy->cpu));
+        M_EXIT_IF_ERR(bootrom_bus_listener(gameboy, gameboy->cpu.write_listener ));
+        M_EXIT_IF_ERR(timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener));
         if(((gameboy->cycles) % DRAW_IMAGE_CYCLES) == 0) cpu_request_interrupt(&gameboy->cpu, VBLANK);
         #ifdef BLARGG
         M_EXIT_IF_ERR(blargg_bus_listener(gameboy, gameboy->cpu.write_listener));
         #endif
-        //le nombre de cycles déjà simulés est mis à jour non?
         gameboy->cycles++;
     }
     return ERR_NONE;
