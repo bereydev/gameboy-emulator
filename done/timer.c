@@ -20,8 +20,6 @@ int timer_init(gbtimer_t* timer, cpu_t* cpu) {
     timer->counter = 0;
     //make a deep copy not sure it is all necessary
     timer->cpu = cpu;
-    //for non-pointer types
-    *timer->cpu = *cpu;
     //for pointers
     timer->cpu->bus = cpu->bus;
 

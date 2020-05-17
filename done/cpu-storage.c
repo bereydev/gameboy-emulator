@@ -46,8 +46,12 @@ int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16){
 
 int cpu_SP_push(cpu_t* cpu, addr_t data16){
 	M_REQUIRE_NON_NULL(cpu);
+    //Si il n'y a pas assez de place sur la stack SP reste inchangé 
+    //mais on stock quand même la valeur sur la stack
+	if (cpu->SP >= 2u){
+        cpu->SP = (uint16_t) (cpu->SP - 2u);
+    }
 	
-	cpu->SP = (uint16_t) (cpu->SP - 2u);
 	return cpu_write16_at_idx(cpu, cpu->SP,data16);
 }
 
