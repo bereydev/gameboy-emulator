@@ -278,7 +278,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     //met à jour l'idle time et le PC
     cpu->PC += lu->bytes;
-    cpu->idle_time = lu->cycles - 1;
+    cpu->idle_time += lu->cycles - 1;
     return ERR_NONE;
 }
 

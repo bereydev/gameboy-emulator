@@ -18,10 +18,7 @@ int timer_init(gbtimer_t* timer, cpu_t* cpu) {
     M_REQUIRE_NON_NULL(cpu);
 
     timer->counter = 0;
-    //make a deep copy not sure it is all necessary
     timer->cpu = cpu;
-    //for pointers
-    timer->cpu->bus = cpu->bus;
 
     return ERR_NONE;
 }
@@ -36,7 +33,6 @@ int timer_init(gbtimer_t* timer, cpu_t* cpu) {
 bit_t bit_get_16(uint16_t value, int index) {
     return (bit_t)((value & (0x01 << index)) >> index);
 }
-
 
 /**
  * @brief Calculates the state of the timer
