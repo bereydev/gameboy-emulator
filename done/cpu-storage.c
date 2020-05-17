@@ -17,7 +17,7 @@
 
 data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr){
      data_t result = 0;
-     //TODO verifier bus_read() si il fait une erreur ou ...
+
      bus_read(*(cpu->bus), addr, &result);
 
      return result;
@@ -25,6 +25,7 @@ data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr){
 
 addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr){
     addr_t result = 0;
+    
     bus_read16(*(cpu->bus), addr, &result);
     
     return result;
@@ -46,8 +47,7 @@ int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16){
 
 int cpu_SP_push(cpu_t* cpu, addr_t data16){
 	M_REQUIRE_NON_NULL(cpu);
-    //Si il n'y a pas assez de place sur la stack SP reste inchangé 
-    //mais on stock quand même la valeur sur la stack
+    
 	if (cpu->SP >= 2u){
         cpu->SP = (uint16_t) (cpu->SP - 2u);
     }
@@ -56,7 +56,6 @@ int cpu_SP_push(cpu_t* cpu, addr_t data16){
 }
 
 addr_t cpu_SP_pop(cpu_t* cpu){
-	//TODO est-ce qu'il faut un if cpu != NULL ?
     addr_t result = cpu_read16_at_idx(cpu, cpu->SP);
 	cpu->SP = (uint16_t) (cpu->SP + 2u);
 	

@@ -30,6 +30,7 @@ int bootrom_bus_listener(gameboy_t* gameboy, addr_t addr){
 	M_REQUIRE_NON_NULL(gameboy);
 
 	if(addr == REG_BOOT_ROM_DISABLE && gameboy->boot == 1) {
+		
 		M_EXIT_IF_ERR(bus_unplug(gameboy->bus, &gameboy->bootrom)); 
 		M_EXIT_IF_ERR(cartridge_plug(&gameboy->cartridge, gameboy->bus)); 
 		gameboy->boot = 0;

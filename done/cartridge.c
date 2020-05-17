@@ -47,6 +47,7 @@ int cartridge_init(cartridge_t* ct, const char* filename){
 int cartridge_plug(cartridge_t* ct, bus_t bus){
 	M_REQUIRE_NON_NULL(ct);
 	M_REQUIRE_NON_NULL(ct->c.mem);
+	
 	return bus_forced_plug(bus,&ct->c, BANK_ROM0_START, BANK_ROM1_END, 0);
 	}
 	

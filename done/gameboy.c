@@ -42,7 +42,6 @@ int gameboy_create(gameboy_t *gameboy, const char *filename)
 {
     M_REQUIRE_NON_NULL(gameboy);
 
-    //Initialisation du bus
     memset(&gameboy->bus, 0, (BUS_SIZE * sizeof(data_t *)));
 
     M_EXIT_IF_ERR(cartridge_init(&gameboy->cartridge, filename));
@@ -55,7 +54,6 @@ int gameboy_create(gameboy_t *gameboy, const char *filename)
     M_EXIT_IF_ERR(timer_init(&gameboy->timer, &gameboy->cpu));
 
     int i = 0;
-    //checker les retours des fonctions
     INIT_COMPONENT(WORK_RAM, i++);
     INIT_COMPONENT(REGISTERS, i++);
     INIT_COMPONENT(EXTERN_RAM, i++);
@@ -82,7 +80,7 @@ void gameboy_free(gameboy_t *gameboy)
 {
     if (gameboy != NULL)
     {   
-        // Unplug un clone de echo_ram
+        // Unplug a clone of echo_ram
         component_t echo_clone = {NULL, ECHO_RAM_START, ECHO_RAM_END};
         RETURN_IF_ERROR_MSG_ONLY(bus_unplug(gameboy->bus, &echo_clone));
 
@@ -108,8 +106,10 @@ int gameboy_run_until(gameboy_t *gameboy, uint64_t cycle)
         M_EXIT_IF_ERR(cpu_cycle(&gameboy->cpu));
         M_EXIT_IF_ERR(bootrom_bus_listener(gameboy, gameboy->cpu.write_listener));
         M_EXIT_IF_ERR(timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener));
+
         if (((gameboy->cycles) % DRAW_IMAGE_CYCLES) == 0)
             cpu_request_interrupt(&gameboy->cpu, VBLANK);
+            
         #ifdef BLARGG
         M_EXIT_IF_ERR(blargg_bus_listener(gameboy, gameboy->cpu.write_listener));
         #endif

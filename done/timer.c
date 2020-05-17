@@ -51,7 +51,6 @@ bit_t timer_state(gbtimer_t* timer) {
     bit_t bit_main_counter = 0;
     if(bit_1_tac) bit_main_counter = bit_0_tac ? bit_get_16(timer->counter, 7) : bit_get_16(timer->counter, 5);
     else bit_main_counter = bit_0_tac ? bit_get_16(timer->counter, 3) : bit_get_16(timer->counter, 9);
-    
 
     return (bit_2_tac && bit_main_counter);
 }
@@ -64,14 +63,16 @@ bit_t timer_state(gbtimer_t* timer) {
  */
 void timer_incr_if_state_change(gbtimer_t* timer, bit_t old_state) {
     if(old_state && !timer_state(timer)) {
+
         data_t second_timer_value = cpu_read_at_idx((const cpu_t*)timer->cpu, REG_TIMA);
         if(second_timer_value == 0xFF) {
+
             cpu_request_interrupt(timer->cpu, TIMER);
             second_timer_value = cpu_read_at_idx((const cpu_t*)timer->cpu, REG_TMA);
+
         } else {
             second_timer_value++;
         }
-        
         cpu_write_at_idx(timer->cpu, REG_TIMA, second_timer_value);
     }
 }
@@ -91,6 +92,7 @@ int timer_cycle(gbtimer_t* timer) {
 
 int timer_bus_listener(gbtimer_t* timer, addr_t addr) {
     M_REQUIRE_NON_NULL(timer);
+    
     if(addr == REG_DIV) {
         bit_t old_state = timer_state(timer);
         timer->counter = 0u;
