@@ -11,34 +11,6 @@
 #include "bootrom.h"
 #include "cpu-storage.h"
 
-// ----------------------------------------------------------------------
-/**
- * @brief returns with error code only if function does not return ERR_NONE
- */
-#define RETURN_IF_ERROR(func)                         \
-    do                                                \
-    {                                                 \
-        int ret_error = func;                         \
-        if (ret_error != ERR_NONE)                    \
-        {                                             \
-            M_EXIT(ret_error, "Function has failed"); \
-        }                                             \
-    } while (0)
-
-// ----------------------------------------------------------------------
-/**
- * @brief returns a message without error code only if function does not return ERR_NONE (designed for void functions)
- */
-#define RETURN_IF_ERROR_MSG_ONLY(func)                \
-    do                                                \
-    {                                                 \
-        int ret_error = func;                         \
-        if (ret_error != ERR_NONE)                    \
-        {                                             \
-            debug_print("Function has failed"); \
-        }                                             \
-    } while (0)
-
 #define DRAW_IMAGE_CYCLES ((uint64_t)17556)
 
 #ifdef BLARGG
@@ -73,14 +45,14 @@ int gameboy_create(gameboy_t *gameboy, const char *filename)
     //Initialisation du bus
     memset(&gameboy->bus, 0, (BUS_SIZE * sizeof(data_t *)));
 
-    RETURN_IF_ERROR(cartridge_init(&gameboy->cartridge, filename));
-    RETURN_IF_ERROR(cartridge_plug(&gameboy->cartridge, gameboy->bus));
+    M_EXIT_IF_ERR(cartridge_init(&gameboy->cartridge, filename));
+    M_EXIT_IF_ERR(cartridge_plug(&gameboy->cartridge, gameboy->bus));
 
     gameboy->boot = 1u;
-    RETURN_IF_ERROR(bootrom_init(&gameboy->bootrom));
-    RETURN_IF_ERROR(bootrom_plug(&gameboy->bootrom, gameboy->bus));
+    M_EXIT_IF_ERR(bootrom_init(&gameboy->bootrom));
+    M_EXIT_IF_ERR(bootrom_plug(&gameboy->bootrom, gameboy->bus));
 
-    RETURN_IF_ERROR(timer_init(&gameboy->timer, &gameboy->cpu));
+    M_EXIT_IF_ERR(timer_init(&gameboy->timer, &gameboy->cpu));
 
     int i = 0;
     //checker les retours des fonctions
@@ -95,11 +67,11 @@ int gameboy_create(gameboy_t *gameboy, const char *filename)
     /* On n'ajoute pas echo_ram à la liste components car il partage
      * la même mémoire que work_ram cela permet d'eviter de free deux fois
      * la même zone mémoire dans gameboy_free */
-    RETURN_IF_ERROR(component_shared(&echo_ram, &gameboy->components[0]));
-    RETURN_IF_ERROR(bus_plug(gameboy->bus, &echo_ram, ECHO_RAM_START, ECHO_RAM_END));
+    M_EXIT_IF_ERR(component_shared(&echo_ram, &gameboy->components[0]));
+    M_EXIT_IF_ERR(bus_plug(gameboy->bus, &echo_ram, ECHO_RAM_START, ECHO_RAM_END));
 
-    RETURN_IF_ERROR(cpu_init(&gameboy->cpu));
-    RETURN_IF_ERROR(cpu_plug(&gameboy->cpu, &gameboy->bus));
+    M_EXIT_IF_ERR(cpu_init(&gameboy->cpu));
+    M_EXIT_IF_ERR(cpu_plug(&gameboy->cpu, &gameboy->bus));
 
     gameboy->cycles = 0;
 
@@ -132,10 +104,10 @@ int gameboy_run_until(gameboy_t *gameboy, uint64_t cycle)
 {
     while (gameboy->cycles < cycle)
     {
-        RETURN_IF_ERROR(timer_cycle(&gameboy->timer));
-        RETURN_IF_ERROR(cpu_cycle(&gameboy->cpu));
-        RETURN_IF_ERROR(bootrom_bus_listener(gameboy, gameboy->cpu.write_listener));
-        RETURN_IF_ERROR(timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener));
+        M_EXIT_IF_ERR(timer_cycle(&gameboy->timer));
+        M_EXIT_IF_ERR(cpu_cycle(&gameboy->cpu));
+        M_EXIT_IF_ERR(bootrom_bus_listener(gameboy, gameboy->cpu.write_listener));
+        M_EXIT_IF_ERR(timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener));
         if (((gameboy->cycles) % DRAW_IMAGE_CYCLES) == 0)
             cpu_request_interrupt(&gameboy->cpu, VBLANK);
 #ifdef BLARGG

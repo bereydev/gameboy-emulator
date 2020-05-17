@@ -238,6 +238,20 @@ typedef enum {
 #define M_REQUIRE_NON_NULL(arg) \
     M_REQUIRE_NON_NULL_CUSTOM_ERR(arg, ERR_BAD_PARAMETER)
 
+// ----------------------------------------------------------------------
+/**
+ * @brief returns a message without error code only if function does not return ERR_NONE (designed for void functions)
+ */
+#define RETURN_IF_ERROR_MSG_ONLY(func)                \
+    do                                                \
+    {                                                 \
+        int ret_error = func;                         \
+        if (ret_error != ERR_NONE)                    \
+        {                                             \
+            debug_print("Function erro while calling : %s", #func); \
+        }                                             \
+    } while (0)
+
 // ======================================================================
 /**
 * @brief internal error messages. defined in error.c

@@ -219,14 +219,14 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     // CALLS
     case CALL_CC_N16:
         if(is_condition(cpu->F, lu->opcode)) {
-            cpu_SP_push(cpu, cpu->PC + lu->bytes);
+            M_EXIT_IF_ERR(cpu_SP_push(cpu, cpu->PC + lu->bytes));
             cpu->PC = cpu_read_addr_after_opcode(cpu) - lu->bytes;
             cpu->idle_time += lu->xtra_cycles;
         }
         break;
 
     case CALL_N16:
-        cpu_SP_push(cpu, cpu->PC + lu->bytes);
+        M_EXIT_IF_ERR(cpu_SP_push(cpu, cpu->PC + lu->bytes));
         cpu->PC = cpu_read_addr_after_opcode(cpu) - lu->bytes;
         break;
 
@@ -244,7 +244,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case RST_U3:
-        cpu_SP_push(cpu, cpu->PC + lu->bytes);
+        M_EXIT_IF_ERR(cpu_SP_push(cpu, cpu->PC + lu->bytes));
         cpu->PC = (extract_n3(lu->opcode) << 3u) - lu->bytes;//n3 * 8
         break;
 
@@ -317,7 +317,7 @@ static int cpu_do_cycle(cpu_t* cpu){
         //interrupt_t est unsigned
         if (interrupt_to_handle != 5){
             bit_unset(&cpu->IF, interrupt_to_handle);
-            cpu_SP_push(cpu, cpu->PC); 
+            M_EXIT_IF_ERR(cpu_SP_push(cpu, cpu->PC)); 
             cpu->PC = 0x40 + (interrupt_to_handle<<3u);
             cpu->idle_time += 5u;
         }
@@ -325,14 +325,13 @@ static int cpu_do_cycle(cpu_t* cpu){
     
     data_t byte_at_PC = cpu_read_at_idx(cpu, cpu->PC);
     instruction_t instruction = byte_at_PC == PREFIXED ? instruction_prefixed[cpu_read_data_after_opcode(cpu)] : instruction_direct[byte_at_PC];
-    cpu_dispatch(&instruction, cpu);
+    M_EXIT_IF_ERR(cpu_dispatch(&instruction, cpu));
 
     return ERR_NONE;
 }
 
 int cpu_cycle(cpu_t* cpu){
     M_REQUIRE_NON_NULL(cpu);
-    //M_REQUIRE_NON_NULL(cpu->bus);
     
     cpu->write_listener = 0;
 

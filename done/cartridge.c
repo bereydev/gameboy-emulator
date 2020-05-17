@@ -47,7 +47,7 @@ int cartridge_init(cartridge_t* ct, const char* filename){
 	M_REQUIRE_NON_NULL(ct);
 	M_REQUIRE_NON_NULL(filename);
 
-	component_create(&ct->c, BANK_ROM_SIZE); //pb avec cette fonction?
+	M_EXIT_IF_ERR(component_create(&ct->c, BANK_ROM_SIZE));
 
 	return cartridge_init_from_file(&ct->c, filename);
 	}
