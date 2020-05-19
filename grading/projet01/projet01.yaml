@@ -10,15 +10,15 @@
   - merge4(): 1                      # max 1, 
   - merge8(): 1                      # max 1, 
   - bit_get(): 1                     # max 1, 
-  - bit_set(): 0                     # max 1, -1 il ne faut pas utiliser M_REQUIRE dans les fonctions ne retournant pas de code d'erreur
+  - bit_set(): 1                     # max 1, -0 il ne faut pas utiliser M_REQUIRE dans les fonctions ne retournant pas de code d'erreur
   - bit_unset(): 1                   # max 1, 
-  - bit_edit(): 1                    # max 2, M_REQUIRE inutile, pareil pour bit_rotate
+  - bit_edit(): 2                    # max 2, M_REQUIRE inutile, pareil pour bit_rotate
   - bit_rotate(): 5                      # max 5,
 - alu.h: # NE PAS REMPLIR CETTE LIGNE
       alu_output_t_t: 3                  # max 3, 
 - alu.c: # NE PAS REMPLIR CETTE LIGNE
   - get_flag(): 6                        # max 6, 
-  - set_flag(): 5                        # max 6, M_EXIT_ERR_NO_MSG inutile
+  - set_flag(): 6                        # max 6, M_EXIT_ERR_NO_MSG inutile
   - alu_add8(): # NE PAS REMPLIR CETTE LIGNE
       vérification d'usage: 1         # max 1, 
       modularisation: 5               # max 5, bien modularisé, bravo !
@@ -104,4 +104,4 @@
   - cpu_reg_set(): 2.5                        # max 2.5, 
   - cpu_reg_pair_set(): 5                   # max 5, 
 - style: 1.5        # max 2, min -2, (normal = 0), style agréable à lire, parfois un peu compact (e.g. alu.c)
-- bonus/malus: -0.5  # max 5, min -5, (normal = 0), attention de ne pas utiliser M_REQUIRE (et similaires) dans les fonctions ne retournant pas de code d'erreur
+- bonus/malus: 0  # max 5, min -5, (normal = 0), 
