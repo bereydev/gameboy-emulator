@@ -11,8 +11,6 @@
 #include "bootrom.h"
 #include "cpu-storage.h"
 
-#define DRAW_IMAGE_CYCLES ((uint64_t)17556)
-
 #ifdef BLARGG
 static int blargg_bus_listener(gameboy_t *gameboy, addr_t addr)
 {
@@ -106,9 +104,6 @@ int gameboy_run_until(gameboy_t *gameboy, uint64_t cycle)
         M_EXIT_IF_ERR(cpu_cycle(&gameboy->cpu));
         M_EXIT_IF_ERR(bootrom_bus_listener(gameboy, gameboy->cpu.write_listener));
         M_EXIT_IF_ERR(timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener));
-
-        if (((gameboy->cycles) % DRAW_IMAGE_CYCLES) == 0)
-            cpu_request_interrupt(&gameboy->cpu, VBLANK);
 
 #ifdef BLARGG
         M_EXIT_IF_ERR(blargg_bus_listener(gameboy, gameboy->cpu.write_listener));

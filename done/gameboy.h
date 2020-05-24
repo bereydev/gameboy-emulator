@@ -31,15 +31,15 @@ extern "C" {
  */
 typedef struct {
     bus_t bus;
-    component_t components[GB_NB_COMPONENTS];
     cpu_t cpu;
+    uint64_t cycles;
+    gbtimer_t timer,
+    cartridge_t cartridge;  
+    component_t components[GB_NB_COMPONENTS]; //TODO dans l'étape 13 p 2 il dit qu'on doit avoir nb_components
     component_t bootrom;
     bit_t boot;
-    gbtimer_t timer;
-    cartridge_t cartridge;
-    //nombre de cycles déjà exécutés
-    uint64_t cycles;
-
+    lcdc_t screen;
+    joypad_t pad;
 } gameboy_t;
 
 // Number of Game Boy cycles per second (= 2^20)

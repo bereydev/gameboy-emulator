@@ -22,7 +22,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := unit-test-alu_ext
+CHECK_TARGETS := gbsimulator
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -153,11 +153,11 @@ unit-test-cpu-dispatch-week09: unit-test-cpu-dispatch-week09.o error.o alu.o bit
 unit-test-timer: unit-test-timer.o error.o timer.o component.o memory.o bit.o alu.o bus.o cpu-storage.o cpu-registers.o cpu.o opcode.o cpu-alu.o
 unit-test-cartridge: unit-test-cartridge.o error.o cartridge.o component.o component.o memory.o bus.o alu.o bit.o 
 unit-test-cpu-dispatch: unit-test-cpu-dispatch.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o alu.o component.o memory.o bus.o bit.o error.o
-	gcc -L . unit-test-cpu-dispatch.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o alu.o component.o memory.o bus.o bit.o error.o -lcs212gbcpuext  -lcheck -lm -lrt -pthread -lsubunit  -o unit-test-cpu-dispatch
+	gcc -L . unit-test-cpu-dispatch.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o alu.o component.o memory.o bus.o bit.o error.o --lcs212gbfinalext  -lcheck -lm -lrt -pthread -lsubunit  -o unit-test-cpu-dispatch
 unit-test-alu_ext: unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o alu.o bus.o bit.o error.o
-	gcc -L . unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o alu.o bus.o bit.o error.o -lcs212gbcpuext -lcheck -lm -lrt -pthread -lsubunit -o unit-test-alu_ext
+	gcc -L . unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o alu.o bus.o bit.o error.o -lcs212gbfinalext -lcheck -lm -lrt -pthread -lsubunit -o unit-test-alu_ext
 test-gameboy: LDFLAGS += -L.
-test-gameboy: LDLIBS += -lcs212gbcpuext
+test-gameboy: LDLIBS += -lcs212gbfinalext
 test-gameboy: test-gameboy.o gameboy.o cpu.o alu.o bit.o bus.o memory.o component.o timer.o cartridge.o error.o bootrom.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o
 
 
