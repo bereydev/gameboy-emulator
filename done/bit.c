@@ -6,7 +6,7 @@
  * @date 2020
  */
 
-#include <stdint.h>   // for uint8_t and uint16_t types
+#include <stdint.h> // for uint8_t and uint16_t types
 #include "bit.h"
 #include "error.h"
 #include <stdio.h>
@@ -21,33 +21,44 @@ typedef uint8_t bit_t;
 const uint8_t mask_lsb4 = 0x0f;
 const uint8_t mask_msb4 = 0xf0;
 
-uint8_t lsb4(uint8_t value) {
+uint8_t lsb4(uint8_t value)
+{
     return value & mask_lsb4;
 }
 
-uint8_t msb4(uint8_t value) {
+uint8_t msb4(uint8_t value)
+{
     return (value & mask_msb4) >> 4;
 }
 
-bit_t bit_get(uint8_t value, int index) {
+bit_t bit_get(uint8_t value, int index)
+{
     index = CLAMP07(index);
     return (bit_t)((value & (0x01 << index)) >> index);
 }
 
-void bit_set(uint8_t* value, int index) {
-    if (value != NULL) {
+void bit_set(uint8_t *value, int index)
+{
+    if (value != NULL)
+    {
         index = CLAMP07(index);
         *value = (uint8_t)((*value) | (0x01 << index));
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
     }
 }
 
-void bit_unset(uint8_t* value, int index) {
-    if (value != NULL) {
+void bit_unset(uint8_t *value, int index)
+{
+    if (value != NULL)
+    {
         index = CLAMP07(index);
         *value = (uint8_t)((*value) & ~(0x01 << index));
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
     }
 }
@@ -55,19 +66,23 @@ void bit_unset(uint8_t* value, int index) {
 const uint16_t mask_lsb8 = 0x00ff;
 const uint16_t mask_msb8 = 0xff00;
 
-uint8_t lsb8(uint16_t value) {
+uint8_t lsb8(uint16_t value)
+{
     return (uint8_t)(value & mask_lsb8);
 }
 
-uint8_t msb8(uint16_t value) {
+uint8_t msb8(uint16_t value)
+{
     return (uint8_t)((value & mask_msb8) >> 8);
 }
 
-uint8_t merge4(uint8_t value, uint8_t value2) {
-    return (uint8_t)(lsb4(value) | (value2<<4));
+uint8_t merge4(uint8_t value, uint8_t value2)
+{
+    return (uint8_t)(lsb4(value) | (value2 << 4));
 }
 
-uint16_t merge8(uint8_t value, uint8_t value2) {
+uint16_t merge8(uint8_t value, uint8_t value2)
+{
     return (uint16_t)(value | (value2 << 8));
 }
 
@@ -77,8 +92,9 @@ uint16_t merge8(uint8_t value, uint8_t value2) {
  * @param num pointer to the number to rotate
  * @param rotation number of rotation steps to execute
  */
-void rotateLeft(uint8_t* num, int rotation) {
-    *num = ((*num) >> (UINT8_T_SIZE-rotation)) | ((*num) << rotation);
+void rotateLeft(uint8_t *num, int rotation)
+{
+    *num = ((*num) >> (UINT8_T_SIZE - rotation)) | ((*num) << rotation);
 }
 
 /**
@@ -87,35 +103,47 @@ void rotateLeft(uint8_t* num, int rotation) {
  * @param num pointer to the number to rotate
  * @param rotation number of rotation steps to execute
  */
-void rotateRight(uint8_t* num, int rotation) {
-    if (num != NULL) {
-        *num = (uint8_t)(((*num) << (UINT8_T_SIZE-rotation)) | ((*num) >> rotation));
-    } else {
+void rotateRight(uint8_t *num, int rotation)
+{
+    if (num != NULL)
+    {
+        *num = (uint8_t)(((*num) << (UINT8_T_SIZE - rotation)) | ((*num) >> rotation));
+    }
+    else
+    {
         fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
     }
-
 }
 
-void bit_rotate(uint8_t* value, rot_dir_t dir, int d) {
-    if (value != NULL) {
+void bit_rotate(uint8_t *value, rot_dir_t dir, int d)
+{
+    if (value != NULL)
+    {
         d = CLAMP07(d);
-        switch (dir) {
-            case LEFT:
-                rotateLeft(value, d);
-                break;
-            case RIGHT:
-                rotateRight(value, d);
-                break;
+        switch (dir)
+        {
+        case LEFT:
+            rotateLeft(value, d);
+            break;
+        case RIGHT:
+            rotateRight(value, d);
+            break;
         }
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
     }
 }
 
-void bit_edit(uint8_t* value, int index, uint8_t v) {
-    if (value != NULL) {
-        v == 0 ? bit_unset(value, index) :  bit_set(value, index);
-    } else {
+void bit_edit(uint8_t *value, int index, uint8_t v)
+{
+    if (value != NULL)
+    {
+        v == 0 ? bit_unset(value, index) : bit_set(value, index);
+    }
+    else
+    {
         fprintf(stderr, "Error - NULLpointer the given uint8_t pointer is NULL");
     }
 }

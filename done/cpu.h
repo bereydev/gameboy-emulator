@@ -29,6 +29,16 @@ typedef enum {
 #define HIGH_RAM_START   0xFF80
 #define HIGH_RAM_END     0xFFFE
 #define HIGH_RAM_SIZE ((HIGH_RAM_END - HIGH_RAM_START)+1)
+// Initialise la structure des pairs de registres
+#define REG_PAIR_INIT(X, Y) \
+    union {                 \
+        struct              \
+        {                   \
+            uint8_t Y;      \
+            uint8_t X;      \
+        };                  \
+        uint16_t X##Y;      \
+    }
 
 //=========================================================================
 /**
@@ -36,34 +46,10 @@ typedef enum {
  */
 
 typedef struct{
-    union {
-        struct{
-            uint8_t F;
-            uint8_t A;
-        };
-        uint16_t AF;
-    };
-    union {
-        struct{
-            uint8_t C;
-            uint8_t B;
-        };
-        uint16_t BC;
-    };
-    union {
-        struct{
-            uint8_t E;
-            uint8_t D;
-        };
-        uint16_t DE;
-    };
-    union {
-        struct{
-            uint8_t L;
-            uint8_t H;
-        };
-        uint16_t HL;
-    };
+    REG_PAIR_INIT(A, F);
+    REG_PAIR_INIT(B, C);
+    REG_PAIR_INIT(D, E);
+    REG_PAIR_INIT(H, L);
     uint16_t PC;
     uint16_t SP;
     alu_output_t alu;
@@ -73,7 +59,9 @@ typedef struct{
     uint8_t IF;
     bit_t HALT;
     component_t high_ram;
+    addr_t write_listener;
     uint8_t idle_time;
+
 } cpu_t;
 
 //=========================================================================

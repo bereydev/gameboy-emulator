@@ -18,12 +18,11 @@
 
 const opcode_t instructions[] = {
 
-     // suite de Fibonacci
-
     0x31, 0xFF, 0xFF, // LD SP, $FFFF
     0x3E, 0x0B,       // LD A, 11
     0xCD, 0x0A, 0x00, // CALL $000A
     0x76,             // HALT
+    
     0x00,             // NOP
     0xFE, 0x02,       // CP A, 2
     0xD8,             // RET C
@@ -76,7 +75,7 @@ void cpu_dump(FILE* file, cpu_t* cpu)
             cpu->AF, cpu->BC,  cpu->DE, cpu->HL);
     fprintf(file, "PC: %" PRIu16 "\n", cpu->PC);
     fprintf(file, "SP: %" PRIu16 "\n", cpu->SP);
-    fprintf(file, "IME: %u, IE: %u, IF: %u, HALT: %u\n", cpu->IME, cpu->IE, cpu->IF, cpu->HALT);
+    fprintf(file,"IME: %u, IE: %u, IF: %u, HALT: %u \n", cpu->IME, cpu->IE, cpu->IF, cpu->HALT );
 }
 
 // ======================================================================

@@ -14,6 +14,10 @@
 
 #include "bus.h"
 #include "component.h"
+#include "timer.h"
+#include "cartridge.h"
+
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,8 +33,13 @@ typedef struct {
     bus_t bus;
     component_t components[GB_NB_COMPONENTS];
     cpu_t cpu;
+    component_t bootrom;
+    bit_t boot;
+    gbtimer_t timer;
+    cartridge_t cartridge;
     //nombre de cycles déjà exécutés
     uint64_t cycles;
+
 } gameboy_t;
 
 // Number of Game Boy cycles per second (= 2^20)
