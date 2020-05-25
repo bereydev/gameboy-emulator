@@ -22,7 +22,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := gbsimulator
+CHECK_TARGETS := unit-test-bit-vector
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -104,6 +104,8 @@ main.o: main.c cpu-storage.h memory.h opcode.h bit.h cpu.h alu.h bus.h \
 memory.o: memory.c memory.h error.h
 opcode.o: opcode.c opcode.h bit.h
 sidlib.o: sidlib.c sidlib.h
+bit_vector.o: bit_vector.c bit_vector.h bit.h
+image.o: image.c image.h error.h bit_vector.h
 test-cpu-week08.o: test-cpu-week08.c opcode.h bit.h cpu.h alu.h bus.h \
  memory.h component.h cpu-storage.h util.h error.h
 test-gameboy.o: test-gameboy.c gameboy.h cpu.h alu.h bit.h bus.h memory.h \
@@ -138,6 +140,8 @@ unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
 unit-test-timer.o: unit-test-timer.c util.h tests.h error.h timer.h \
  component.h memory.h bit.h cpu.h alu.h bus.h
 util.o: util.c
+test-cpu-week08.o: test-cpu-week08.c opcode.h bit.h cpu.h alu.h bus.h \
+ memory.h component.h cpu-storage.h util.h error.h
 
 
 
@@ -159,6 +163,6 @@ unit-test-alu_ext: unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o a
 test-gameboy: LDFLAGS += -L.
 test-gameboy: LDLIBS += -lcs212gbfinalext
 test-gameboy: test-gameboy.o gameboy.o cpu.o alu.o bit.o bus.o memory.o component.o timer.o cartridge.o error.o bootrom.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o
-
+unit-test-bit-vector: unit-test-bit-vector.o bit_vector.o image.o 
 
 
