@@ -172,11 +172,8 @@ bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index
 bit_vector_t *bit_vector_extract_wrap_ext(const bit_vector_t *pbv, int64_t index, size_t size)
 {
     if (size <= 0 || pbv == NULL) {return NULL;}
-    //crer un vecteur remplit de 0
     bit_vector_t *result = bit_vector_create(size, 0u); 
-    //calculer l'index de départ de la copie
     size_t start_index = index % pbv->size;
-    //puis itterer de 0 à size en utilisant des modulos de pbv->size pour acceder au bon bit
     for (size_t i = 0; i < size; i++)
     {
         uint32_t bit_to_set = bit_vector_get(pbv, (start_index + i) % pbv->size);
@@ -192,7 +189,8 @@ bit_vector_t *bit_vector_shift(const bit_vector_t *pbv, int64_t shift)
 {
     if (pbv == NULL){return NULL;}
     bit_vector_println("Avant shift :", pbv);
-    bit_vector_t * result = bit_vector_extract_zero_ext(pbv, shift, pbv->size);
+    //TODO c'est normal que ce soit un - ici ? ou ça veut dire que mon ext zero est faux ?
+    bit_vector_t * result = bit_vector_extract_zero_ext(pbv, -shift, pbv->size);
     fprintf(stderr, "Shift de : %"PRId64"\n", shift);
     bit_vector_println("Après shift :", result);
 
@@ -237,7 +235,7 @@ int bit_vector_println(const char *prefix, const bit_vector_t *pbv)
 
 void bit_vector_free(bit_vector_t **pbv)
 {
-    // la je dois louper quelque chose
+    // TODO pas sur ...
     free(*pbv);
     pbv = NULL;
 }
