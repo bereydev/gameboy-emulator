@@ -12,6 +12,8 @@
 
 //nb of bit in one content in the struct bit_vector_t
 #define VECTOR_SIZE 32
+//nb of vector of 32 bit in a bit_vector_t
+#define VECTORS_IN(pbv) (pbv->size % VECTOR_SIZE == 0 ? pbv->size / VECTOR_SIZE : pbv->size / VECTOR_SIZE + 1)
 
 bit_vector_t *bit_vector_create(size_t size, bit_t value)
 {
@@ -70,7 +72,7 @@ bit_t bit_vector_get(const bit_vector_t *pbv, size_t index)
     {
         return 0;
     }
-    
+
     size_t index_of_the_vector = index / VECTOR_SIZE ;
     size_t index_in_vector = (index % VECTOR_SIZE);
 
@@ -83,20 +85,16 @@ bit_vector_t *bit_vector_not(bit_vector_t *pbv)
     {
         return NULL;
     }
-    for (size_t i = 0; i < pbv->size / VECTOR_SIZE; i++)
+    //size_t nb = pbv->size % VECTOR_SIZE == 0 ? pbv->size / VECTOR_SIZE : pbv->size / VECTOR_SIZE + 1;
+    for (size_t i = 0; i < VECTORS_IN(pbv); i++)
     {
-        fprintf(stderr, "valeur avant négation %"PRIu32"\n", pbv->content[i]);
         pbv->content[i] = ~pbv->content[i];
-        fprintf(stderr, "valeur après négation %"PRIu32"\n", pbv->content[i]);
     }
     //set the last bits that are not considered to be in the content to 0
     if (pbv->size % VECTOR_SIZE != 0) {
         size_t nb_element_to_reset = VECTOR_SIZE - (pbv->size % VECTOR_SIZE);
-        fprintf(stderr, "Nombre de shift à faire %zu \n", nb_element_to_reset);
         pbv->content[pbv->size/VECTOR_SIZE - 1] = (pbv->content[pbv->size/VECTOR_SIZE - 1] << nb_element_to_reset) >> nb_element_to_reset;
     }
-    
-
     return pbv;
 }
 
@@ -108,7 +106,7 @@ bit_vector_t *bit_vector_and(bit_vector_t *pbv1, const bit_vector_t *pbv2)
         return NULL;
     }
 
-    for (size_t i = 0; i < pbv1->size / VECTOR_SIZE; i++)
+    for (size_t i = 0; i < VECTORS_IN(pbv1); i++)
     {
         pbv1->content[i] = pbv1->content[i] & pbv2->content[i];
     }
@@ -123,7 +121,7 @@ bit_vector_t *bit_vector_or(bit_vector_t *pbv1, const bit_vector_t *pbv2)
         return NULL;
     }
 
-    for (size_t i = 0; i < pbv1->size / VECTOR_SIZE; i++)
+    for (size_t i = 0; i < VECTORS_IN(pbv1); i++)
     {
         pbv1->content[i] = pbv1->content[i] | pbv2->content[i];
     }
@@ -138,7 +136,7 @@ bit_vector_t *bit_vector_xor(bit_vector_t *pbv1, const bit_vector_t *pbv2)
         return NULL;
     }
 
-    for (size_t i = 0; i < pbv1->size / VECTOR_SIZE; i++)
+    for (size_t i = 0; i < VECTORS_IN(pbv1); i++)
     {
         pbv1->content[i] = pbv1->content[i] ^ pbv2->content[i];
     }
@@ -148,6 +146,42 @@ bit_vector_t *bit_vector_xor(bit_vector_t *pbv1, const bit_vector_t *pbv2)
 
 bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index, size_t size)
 {
+    int64_t start_copy_index = 0;
+    int64_t end_copy_index = 0;
+    if (size >= 0) { return NULL;}
+    bit_vector_t * result = bit_vector_create(size, 0u);
+    if (pbv == NULL || index + size <= 0 || index >= pbv->size) {
+        return result;
+    } else
+    {
+        if (index < 0) {
+            start_copy_index = 0;
+        }
+        else
+        {
+            start_copy_index = index;
+        }
+        end_copy_index = index + size - 1 < pbv->size ? index + size - 1 : pbv->size ;
+    }
+    int64_t size_of_original_copy = (end_copy_index - start_copy_index + 1);
+    int64_t start_replacement_index = index > 0 ? 0 : (0-index)-1 ;
+    int64_t end_replacement_index = start_replacement_index + size_of_original_copy;
+    size_t nb_of_vector_copied = size_of_original_copy % VECTOR_SIZE == 0 ? size_of_original_copy/VECTOR_SIZE : size_of_original_copy/VECTOR_SIZE +1;
+    for (size_t i = 0; i < nb_of_vector_copied; i++)
+    {
+        if (size_of_original_copy % VECTOR_SIZE != 0 && i == nb_of_vector_copied){
+
+        } else {
+            result->content[i] = pbv->content[i];
+        } 
+    }
+    
+    for (size_t i = start_replacement_index; i < end_replacement_index; i++)
+    {
+        
+    }
+    
+    
 }
 
 bit_vector_t *bit_vector_extract_wrap_ext(const bit_vector_t *pbv, int64_t index, size_t size)
@@ -160,6 +194,24 @@ bit_vector_t *bit_vector_shift(const bit_vector_t *pbv, int64_t shift)
 
 bit_vector_t *bit_vector_join(const bit_vector_t *pbv1, const bit_vector_t *pbv2, int64_t shift)
 {
+    if (pbv1 == NULL || pbv2 == NULL || pbv1->size != pbv2->size || pbv1->size < shift || shift < 0 ) {return NULL;}
+    size_t middle_case_index = shift%VECTOR_SIZE == 0 && shift != 0? shift/VECTOR_SIZE - 1 : shift/VECTOR_SIZE;
+    bit_vector_t* result = bit_vector_create(pbv1->size, 0);
+    for (size_t i = 0; i < shift/VECTOR_SIZE; i++)
+    {
+        result->content[i] = pbv1->content[i];
+    }
+    for (size_t i =  shift/VECTOR_SIZE; i < VECTORS_IN(pbv1); i++)
+    {
+        result->content[i] = pbv2->content[i];
+    }
+    //handle the midle case
+    uint32_t pbv1_part = (pbv1->content[shift/VECTOR_SIZE] << (VECTOR_SIZE - shift % VECTOR_SIZE)) >> (VECTOR_SIZE - shift % VECTOR_SIZE);
+    uint32_t pbv2_part = (pbv2->content[shift/VECTOR_SIZE] >> shift % VECTOR_SIZE) << shift % VECTOR_SIZE;
+    result->content[shift/VECTOR_SIZE] = pbv1_part | pbv2_part;
+    return result;
+
+    
 }
 
 int bit_vector_print(const bit_vector_t *pbv)
