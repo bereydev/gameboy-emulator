@@ -159,7 +159,6 @@ bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index
         
         for (size_t i = 0; i < size_of_copy; i++)
         {
-            //le problème vient d'ici parce que je confond index de vector et index de bit
             uint32_t bit_to_set = bit_vector_get(pbv, start_copy_index + i);
             bit_to_set = bit_to_set << (start_replacement_index + i) % VECTOR_SIZE;
             result->content[(start_replacement_index + i)/VECTOR_SIZE] = result->content[(start_replacement_index + i)/VECTOR_SIZE] | bit_to_set;
@@ -174,12 +173,30 @@ bit_vector_t *bit_vector_extract_wrap_ext(const bit_vector_t *pbv, int64_t index
 {
     if (size <= 0 || pbv == NULL) {return NULL;}
     //crer un vecteur remplit de 0
+    bit_vector_t *result = bit_vector_create(size, 0u); 
     //calculer l'index de départ de la copie
+    size_t start_index = index % pbv->size;
     //puis itterer de 0 à size en utilisant des modulos de pbv->size pour acceder au bon bit
+    for (size_t i = 0; i < size; i++)
+    {
+        uint32_t bit_to_set = bit_vector_get(pbv, (start_index + i) % pbv->size);
+        bit_to_set = bit_to_set << i % VECTOR_SIZE;
+        result->content[i/VECTOR_SIZE] = result->content[i/VECTOR_SIZE] | bit_to_set;
+    }
+
+    return result;
+    
 }
 
 bit_vector_t *bit_vector_shift(const bit_vector_t *pbv, int64_t shift)
 {
+    if (pbv == NULL){return NULL;}
+    bit_vector_println("Avant shift :", pbv);
+    bit_vector_t * result = bit_vector_extract_zero_ext(pbv, shift, pbv->size);
+    fprintf(stderr, "Shift de : %"PRId64"\n", shift);
+    bit_vector_println("Après shift :", result);
+
+    return bit_vector_extract_zero_ext(pbv, shift, pbv->size);
 }
 
 bit_vector_t *bit_vector_join(const bit_vector_t *pbv1, const bit_vector_t *pbv2, int64_t shift)
