@@ -22,9 +22,8 @@ bit_vector_t *bit_vector_create(size_t size, bit_t value)
         return NULL;
     }
 
-    bit_vector_t *pbv = NULL;
     size_t nb = size % VECTOR_SIZE == 0 ? size / VECTOR_SIZE : size / VECTOR_SIZE + 1;
-    pbv = malloc(sizeof(bit_vector_t) + (nb - 1) * sizeof(uint32_t));
+    bit_vector_t *pbv  = malloc(sizeof(bit_vector_t) + (nb - 1) * sizeof(uint32_t));
     const size_t N_MAX = (SIZE_MAX - sizeof(bit_vector_t)) / sizeof(uint32_t) + 1;
     if (nb <= N_MAX)
     {
@@ -146,46 +145,37 @@ bit_vector_t *bit_vector_xor(bit_vector_t *pbv1, const bit_vector_t *pbv2)
 
 bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index, size_t size)
 {
-    int64_t start_copy_index = 0;
-    int64_t end_copy_index = 0;
-    if (size >= 0) { return NULL;}
+    if (size <= 0) { return NULL;}
     bit_vector_t * result = bit_vector_create(size, 0u);
-    if (pbv == NULL || index + size <= 0 || index >= pbv->size) {
+    if (pbv == NULL || index + size <= 0 || index >= 0 && (size_t)index >= pbv->size) {
         return result;
-    } else
+    }else
     {
-        if (index < 0) {
-            start_copy_index = 0;
-        }
-        else
-        {
-            start_copy_index = index;
-        }
-        end_copy_index = index + size - 1 < pbv->size ? index + size - 1 : pbv->size ;
-    }
-    int64_t size_of_original_copy = (end_copy_index - start_copy_index + 1);
-    int64_t start_replacement_index = index > 0 ? 0 : (0-index)-1 ;
-    int64_t end_replacement_index = start_replacement_index + size_of_original_copy;
-    size_t nb_of_vector_copied = size_of_original_copy % VECTOR_SIZE == 0 ? size_of_original_copy/VECTOR_SIZE : size_of_original_copy/VECTOR_SIZE +1;
-    for (size_t i = 0; i < nb_of_vector_copied; i++)
-    {
-        if (size_of_original_copy % VECTOR_SIZE != 0 && i == nb_of_vector_copied){
-
-        } else {
-            result->content[i] = pbv->content[i];
-        } 
-    }
-    
-    for (size_t i = start_replacement_index; i < end_replacement_index; i++)
-    {
+        // copy is done from start(included) to end(excluded)
+        int64_t start_copy_index = index < 0 ? 0 : index;
+        int64_t end_copy_index = index + size <= pbv->size ? index + size : pbv->size ;
+        int64_t size_of_copy = (end_copy_index - start_copy_index);
+        int64_t start_replacement_index = index > 0 ? 0 : (0-index);
         
+        for (size_t i = 0; i < size_of_copy; i++)
+        {
+            //le problème vient d'ici parce que je confond index de vector et index de bit
+            uint32_t bit_to_set = bit_vector_get(pbv, start_copy_index + i);
+            bit_to_set = bit_to_set << (start_replacement_index + i) % VECTOR_SIZE;
+            result->content[(start_replacement_index + i)/VECTOR_SIZE] = result->content[(start_replacement_index + i)/VECTOR_SIZE] | bit_to_set;
+        }
     }
-    
+
+    return result;
     
 }
 
 bit_vector_t *bit_vector_extract_wrap_ext(const bit_vector_t *pbv, int64_t index, size_t size)
 {
+    if (size <= 0 || pbv == NULL) {return NULL;}
+    //crer un vecteur remplit de 0
+    //calculer l'index de départ de la copie
+    //puis itterer de 0 à size en utilisant des modulos de pbv->size pour acceder au bon bit
 }
 
 bit_vector_t *bit_vector_shift(const bit_vector_t *pbv, int64_t shift)
@@ -210,20 +200,27 @@ bit_vector_t *bit_vector_join(const bit_vector_t *pbv1, const bit_vector_t *pbv2
     uint32_t pbv2_part = (pbv2->content[shift/VECTOR_SIZE] >> shift % VECTOR_SIZE) << shift % VECTOR_SIZE;
     result->content[shift/VECTOR_SIZE] = pbv1_part | pbv2_part;
     return result;
-
-    
 }
 
 int bit_vector_print(const bit_vector_t *pbv)
 {
+    for (size_t i = pbv->size; i-- > 0;)
+    {
+        fprintf(stdout, "%"PRIu8, bit_vector_get(pbv,i));
+    }
+    
 }
 
 int bit_vector_println(const char *prefix, const bit_vector_t *pbv)
 {
+    fprintf(stdout, "%s", prefix);
+    bit_vector_print(pbv);
+    fprintf(stdout, "\n");
 }
 
 void bit_vector_free(bit_vector_t **pbv)
 {
+    // la je dois louper quelque chose
     free(*pbv);
     pbv = NULL;
 }
