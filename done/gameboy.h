@@ -16,6 +16,8 @@
 #include "component.h"
 #include "timer.h"
 #include "cartridge.h"
+#include "lcdc.h"
+#include "joypad.h"
 
 
 
@@ -29,18 +31,19 @@ extern "C" {
  * @brief Game Boy data structure.
  *        Regroups everything needed to simulate the Game Boy.
  */
-typedef struct {
+struct gameboy_{
     bus_t bus;
     cpu_t cpu;
     uint64_t cycles;
-    gbtimer_t timer,
+    gbtimer_t timer;
     cartridge_t cartridge;  
-    component_t components[GB_NB_COMPONENTS]; //TODO dans l'étape 13 p 2 il dit qu'on doit avoir nb_components
+    component_t components[GB_NB_COMPONENTS]; 
+    component_t nb_components;
     component_t bootrom;
     bit_t boot;
     lcdc_t screen;
     joypad_t pad;
-} gameboy_t;
+};
 
 // Number of Game Boy cycles per second (= 2^20)
 #define GB_CYCLES_PER_S  (((uint64_t) 1) << 20)
