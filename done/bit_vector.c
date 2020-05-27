@@ -13,7 +13,7 @@
 //nb of bit in one content in the struct bit_vector_t
 #define VECTOR_SIZE 32
 //nb of vector of 32 bit in a bit_vector_t
-#define VECTORS_IN(pbv) (pbv->size % VECTOR_SIZE == 0 ? pbv->size / VECTOR_SIZE : pbv->size / VECTOR_SIZE + 1)
+#define VECTORS_IN(pbv) (pbv->size % VECTOR_SIZE == 0 ? pbv->size/VECTOR_SIZE : pbv->size/VECTOR_SIZE + 1)
 
 bit_vector_t *bit_vector_create(size_t size, bit_t value)
 {
@@ -58,7 +58,7 @@ bit_vector_t *bit_vector_cpy(const bit_vector_t *pbv)
         return NULL;
     }
     bit_vector_t *copy = bit_vector_create(pbv->size, 0u);
-    for (size_t i = 0; i < pbv->size / VECTOR_SIZE; i++)
+    for (size_t i = 0; i < VECTORS_IN(pbv); i++)
     {
         copy->content[i] = pbv->content[i];
     }
@@ -84,7 +84,7 @@ bit_vector_t *bit_vector_not(bit_vector_t *pbv)
     {
         return NULL;
     }
-    //size_t nb = pbv->size % VECTOR_SIZE == 0 ? pbv->size / VECTOR_SIZE : pbv->size / VECTOR_SIZE + 1;
+
     for (size_t i = 0; i < VECTORS_IN(pbv); i++)
     {
         pbv->content[i] = ~pbv->content[i];
@@ -188,13 +188,10 @@ bit_vector_t *bit_vector_extract_wrap_ext(const bit_vector_t *pbv, int64_t index
 bit_vector_t *bit_vector_shift(const bit_vector_t *pbv, int64_t shift)
 {
     if (pbv == NULL){return NULL;}
-    bit_vector_println("Avant shift :", pbv);
     //TODO c'est normal que ce soit un - ici ? ou ça veut dire que mon ext zero est faux ?
     bit_vector_t * result = bit_vector_extract_zero_ext(pbv, -shift, pbv->size);
-    fprintf(stderr, "Shift de : %"PRId64"\n", shift);
-    bit_vector_println("Après shift :", result);
 
-    return bit_vector_extract_zero_ext(pbv, shift, pbv->size);
+    return result;
 }
 
 bit_vector_t *bit_vector_join(const bit_vector_t *pbv1, const bit_vector_t *pbv2, int64_t shift)
@@ -211,9 +208,12 @@ bit_vector_t *bit_vector_join(const bit_vector_t *pbv1, const bit_vector_t *pbv2
         result->content[i] = pbv2->content[i];
     }
     //handle the midle case
-    uint32_t pbv1_part = (pbv1->content[shift/VECTOR_SIZE] << (VECTOR_SIZE - shift % VECTOR_SIZE)) >> (VECTOR_SIZE - shift % VECTOR_SIZE);
-    uint32_t pbv2_part = (pbv2->content[shift/VECTOR_SIZE] >> shift % VECTOR_SIZE) << shift % VECTOR_SIZE;
-    result->content[shift/VECTOR_SIZE] = pbv1_part | pbv2_part;
+    if (shift % VECTOR_SIZE != 0) {
+        uint32_t pbv1_part = (pbv1->content[shift/VECTOR_SIZE] << (VECTOR_SIZE - shift % VECTOR_SIZE)) >> (VECTOR_SIZE - shift % VECTOR_SIZE);
+        uint32_t pbv2_part = (pbv2->content[shift/VECTOR_SIZE] >> shift % VECTOR_SIZE) << shift % VECTOR_SIZE;
+        result->content[shift/VECTOR_SIZE] = pbv1_part | pbv2_part;
+    }
+    
     return result;
 }
 

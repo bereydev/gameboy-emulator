@@ -23,7 +23,7 @@ extern "C" {
  */
 typedef struct {
     size_t size; //nombre de bit
-    uint32_t content[1] //premier verteur de 32 bit stocké
+    uint32_t content[1]; //premier verteur de 32 bit stocké
 } bit_vector_t;
 
 //=========================================================================
