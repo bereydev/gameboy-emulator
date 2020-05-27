@@ -10,9 +10,12 @@ CFLAGS += -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wc
 
 CFLAGS += -Wuninitialized -Wcast-qual -Winit-self -Wmissing-declarations 
 
+CFLAGS += $(GTK_INCLUDE)
+
 CPPFLAGS += -DDEBUG
 
 CPPFLAGS += -D_DEFAULT_SOURCE
+
 
 # ----------------------------------------------------------------------
 # feel free to update/modifiy this part as you wish
@@ -159,6 +162,14 @@ unit-test-timer.o: unit-test-timer.c util.h tests.h error.h timer.h \
  component.h memory.h bit.h cpu.h alu.h bus.h
 util.o: util.c
 
+
+
+test-cpu-week08.o: test-cpu-week08.c opcode.h bit.h cpu.h alu.h bus.h \
+ memory.h component.h cpu-storage.h util.h error.h
+test-image.o: test-image.c util.h bit_vector.h util.h image.h bit.h 
+test-image: LDFLAGS += -L.
+test-image: LDLIBS += $(GTK_LIBS) -lsid
+test-image: test-image.o image.o util.o bit_vector.o bit.o error.o libsid.so
 
 
 

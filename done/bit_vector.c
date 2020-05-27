@@ -13,7 +13,7 @@
 //nb of bit in one content in the struct bit_vector_t
 #define VECTOR_SIZE 32
 //nb of vector of 32 bit in a bit_vector_t
-#define VECTORS_IN(pbv) (pbv->size % VECTOR_SIZE == 0 ? pbv->size / VECTOR_SIZE : pbv->size / VECTOR_SIZE + 1)
+#define VECTORS_IN(pbv) (pbv->size % VECTOR_SIZE == 0 ? pbv->size/VECTOR_SIZE : pbv->size/VECTOR_SIZE + 1)
 
 bit_vector_t *bit_vector_create(size_t size, bit_t value)
 {
@@ -58,7 +58,7 @@ bit_vector_t *bit_vector_cpy(const bit_vector_t *pbv)
         return NULL;
     }
     bit_vector_t *copy = bit_vector_create(pbv->size, 0u);
-    for (size_t i = 0; i < pbv->size / VECTOR_SIZE; i++)
+    for (size_t i = 0; i < VECTORS_IN(pbv); i++)
     {
         copy->content[i] = pbv->content[i];
     }
@@ -84,7 +84,7 @@ bit_vector_t *bit_vector_not(bit_vector_t *pbv)
     {
         return NULL;
     }
-    //size_t nb = pbv->size % VECTOR_SIZE == 0 ? pbv->size / VECTOR_SIZE : pbv->size / VECTOR_SIZE + 1;
+
     for (size_t i = 0; i < VECTORS_IN(pbv); i++)
     {
         pbv->content[i] = ~pbv->content[i];
@@ -159,7 +159,6 @@ bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index
         
         for (size_t i = 0; i < size_of_copy; i++)
         {
-            //le problème vient d'ici parce que je confond index de vector et index de bit
             uint32_t bit_to_set = bit_vector_get(pbv, start_copy_index + i);
             bit_to_set = bit_to_set << (start_replacement_index + i) % VECTOR_SIZE;
             result->content[(start_replacement_index + i)/VECTOR_SIZE] = result->content[(start_replacement_index + i)/VECTOR_SIZE] | bit_to_set;
@@ -173,13 +172,26 @@ bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index
 bit_vector_t *bit_vector_extract_wrap_ext(const bit_vector_t *pbv, int64_t index, size_t size)
 {
     if (size <= 0 || pbv == NULL) {return NULL;}
-    //crer un vecteur remplit de 0
-    //calculer l'index de départ de la copie
-    //puis itterer de 0 à size en utilisant des modulos de pbv->size pour acceder au bon bit
+    bit_vector_t *result = bit_vector_create(size, 0u); 
+    size_t start_index = index % pbv->size;
+    for (size_t i = 0; i < size; i++)
+    {
+        uint32_t bit_to_set = bit_vector_get(pbv, (start_index + i) % pbv->size);
+        bit_to_set = bit_to_set << i % VECTOR_SIZE;
+        result->content[i/VECTOR_SIZE] = result->content[i/VECTOR_SIZE] | bit_to_set;
+    }
+
+    return result;
+    
 }
 
 bit_vector_t *bit_vector_shift(const bit_vector_t *pbv, int64_t shift)
 {
+    if (pbv == NULL){return NULL;}
+    //TODO c'est normal que ce soit un - ici ? ou ça veut dire que mon ext zero est faux ?
+    bit_vector_t * result = bit_vector_extract_zero_ext(pbv, -shift, pbv->size);
+
+    return result;
 }
 
 bit_vector_t *bit_vector_join(const bit_vector_t *pbv1, const bit_vector_t *pbv2, int64_t shift)
@@ -196,9 +208,12 @@ bit_vector_t *bit_vector_join(const bit_vector_t *pbv1, const bit_vector_t *pbv2
         result->content[i] = pbv2->content[i];
     }
     //handle the midle case
-    uint32_t pbv1_part = (pbv1->content[shift/VECTOR_SIZE] << (VECTOR_SIZE - shift % VECTOR_SIZE)) >> (VECTOR_SIZE - shift % VECTOR_SIZE);
-    uint32_t pbv2_part = (pbv2->content[shift/VECTOR_SIZE] >> shift % VECTOR_SIZE) << shift % VECTOR_SIZE;
-    result->content[shift/VECTOR_SIZE] = pbv1_part | pbv2_part;
+    if (shift % VECTOR_SIZE != 0) {
+        uint32_t pbv1_part = (pbv1->content[shift/VECTOR_SIZE] << (VECTOR_SIZE - shift % VECTOR_SIZE)) >> (VECTOR_SIZE - shift % VECTOR_SIZE);
+        uint32_t pbv2_part = (pbv2->content[shift/VECTOR_SIZE] >> shift % VECTOR_SIZE) << shift % VECTOR_SIZE;
+        result->content[shift/VECTOR_SIZE] = pbv1_part | pbv2_part;
+    }
+    
     return result;
 }
 
@@ -220,7 +235,7 @@ int bit_vector_println(const char *prefix, const bit_vector_t *pbv)
 
 void bit_vector_free(bit_vector_t **pbv)
 {
-    // la je dois louper quelque chose
+    // TODO pas sur ...
     free(*pbv);
     pbv = NULL;
 }
