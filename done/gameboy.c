@@ -70,6 +70,12 @@ int gameboy_create(gameboy_t *gameboy, const char *filename)
     M_EXIT_IF_ERR(cpu_plug(&gameboy->cpu, &gameboy->bus));
 
     gameboy->cycles = 0;
+    gameboy->nb_components = 0; //TODO à quelle valeur l'initialiser, 6?
+
+    M_EXIT_IF_ERR(joypad_init_and_plug(&gameboy->pad, &gameboy->cpu));
+
+    M_EXIT_IF_ERR(lcdc_init(gameboy));
+    M_EXIT_IF_ERR(lcdc_plug(&gameboy->screen, gameboy->bus));
 
     return ERR_NONE;
 }
@@ -93,6 +99,11 @@ void gameboy_free(gameboy_t *gameboy)
 
         RETURN_IF_ERROR_MSG_ONLY(bus_unplug(gameboy->bus, &gameboy->cartridge.c));
         cartridge_free(&gameboy->cartridge);
+
+        lcdc_free(&gameboy->screen);
+
+        //TODO il faut faire qqch avec le pad?
+
     }
 }
 
@@ -101,15 +112,19 @@ int gameboy_run_until(gameboy_t *gameboy, uint64_t cycle)
     while (gameboy->cycles < cycle)
     {
         M_EXIT_IF_ERR(timer_cycle(&gameboy->timer));
+        M_EXIT_IF_ERR(lcdc_cycle(&gameboy->screen, gameboy->cycles));
         M_EXIT_IF_ERR(cpu_cycle(&gameboy->cpu));
-        M_EXIT_IF_ERR(bootrom_bus_listener(gameboy, gameboy->cpu.write_listener));
-        M_EXIT_IF_ERR(timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener));
 
+        M_EXIT_IF_ERR(timer_bus_listener(&gameboy->timer, gameboy->cpu.write_listener));
+        M_EXIT_IF_ERR(bootrom_bus_listener(gameboy, gameboy->cpu.write_listener));
+        M_EXIT_IF_ERR(lcdc_bus_listener(&gameboy->screen, gameboy->cpu.write_listener));
 #ifdef BLARGG
         M_EXIT_IF_ERR(blargg_bus_listener(gameboy, gameboy->cpu.write_listener));
 #endif
+ 
+       M_EXIT_IF_ERR(joypad_bus_listener(&gameboy->pad, gameboy->cpu.write_listener));
 
-        gameboy->cycles++;
+       gameboy->cycles++;
     }
     return ERR_NONE;
 }

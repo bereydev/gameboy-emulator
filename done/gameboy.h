@@ -38,7 +38,7 @@ struct gameboy_{
     gbtimer_t timer;
     cartridge_t cartridge;  
     component_t components[GB_NB_COMPONENTS]; 
-    component_t nb_components;
+    size_t nb_components;
     component_t bootrom;
     bit_t boot;
     lcdc_t screen;

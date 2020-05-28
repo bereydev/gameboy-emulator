@@ -1,6 +1,8 @@
 #include "sidlib.h"
 #include "lcdc.h"
 #include "util.h"  // for zero_init_var()
+#include "error.h"
+#include "gameboy.h"
 #include <stdint.h>
 #include <sys/time.h>
 
@@ -16,19 +18,26 @@ struct timeval paused;
 #define MY_KEY_RIGHT_BIT 0x04
 #define MY_KEY_LEFT_BIT  0x08
 #define MY_KEY_A_BIT     0x10
+
+// image display scale factor
+#define SCALE 2
+
 // ======================================================================
 uint64_t get_time_in_GB_cycles_since(struct timeval* from)
 {
-    struct timeval* current_time = {0};
-    int err = gettimeofday(current_time, NULL);
+    struct timeval current_time;
+    int err = gettimeofday(&current_time, NULL);
+    //gettimeofday() returns 0 for success, or -1 for failure
     if(err == 0) {
-        int greater = timercmp(current_time, from, >);
+        //timercmp returns true (nonzero) or false (0)
+        int greater = timercmp(&current_time, from, >);
         if(!greater) return 0; //from is in the past
 
-        struct timeval* res = 0;
-        timersub(current_time,from, res);
-        return delta.tv_sec * GB_CYCLES_PER_S + (delta.tv_usec * GB_CYCLES_PER_S)/1000000;
+        struct timeval delta;
+        timersub(&current_time,from, &delta);
+        return (delta.tv_sec * GB_CYCLES_PER_S + (delta.tv_usec * GB_CYCLES_PER_S)/1000000);
     }
+    else {return 0;} //TODO what should I return otherwise?
 }
 
 // ======================================================================
@@ -41,20 +50,14 @@ static void set_grey(guchar* pixels, int row, int col, int width, guchar grey)
 // ======================================================================
 static void generate_image(guchar* pixels, int height, int width)
 {
-    int err = gameboy_run_until(&gb, get_time_in_GB_cycles_since(&start));
-    if (err == ERR_NONE) {
+    int err = gameboy_run_until(&gb,get_time_in_GB_cycles_since(&start)); 
+    
+    for (int x = 0; x < width; ++x) {
+        for (int y = 0; y < height; ++y) {
 
-        for(int i=0; i<height, ++i) {
-            for (int j=0; j<width, ++j){
-
-                uint8_t output = 0;
-                err=image_get_pixel(&output, gb.screen.display, (size_t) i, (size_t) j);
-
-                if(err == ERR_NONE) {
-                    guchar color = 255 - 85*output;
-                    set_grey(pixels, i, j, width, color);
-                }
-            }
+            uint8_t pixel = 0;
+            if (image_get_pixel(&pixel, &gb.screen.display, (size_t) x / SCALE, (size_t) y / SCALE) != ERR_NONE) pixel = 0;
+            set_grey(pixels, y, x, width, 255 - 85 * pixel);
         }
     }
 }
@@ -144,16 +147,6 @@ static gboolean keyrelease_handler(guint keyval, gpointer data)
 // ======================================================================
 int main(int argc, char *argv[])
 {
-    //initialize start and paused
-    int failure = gettimeofday(&start, NULL);
-    if (failure) return failure;
-    timerclear(paused);
-
-
-    sd_launch(&argc, &argv,
-                  sd_init("demo", LCD_WIDTH, LCD_HEIGHT, 40,
-                          generate_image, keypress_handler, keyrelease_handler));
-
     if (argc < 2) {
         error(argv[0], "please provide input_file");
         return 1;
@@ -168,8 +161,19 @@ int main(int argc, char *argv[])
         return err;
     }
 
-     gameboy_free(&gb);
+    //initialize start and paused
+    int failure = gettimeofday(&start, NULL);
+    if (failure) return failure;
+    timerclear(&paused);
 
-     return err;
+    sd_launch(&argc, &argv,
+                  sd_init("Gameboy Simulator", LCD_WIDTH * SCALE, LCD_HEIGHT * SCALE, 40,
+                          generate_image, keypress_handler, keyrelease_handler));
+
+
+    gameboy_free(&gb);
+
+    return 0;
+
 
 }
