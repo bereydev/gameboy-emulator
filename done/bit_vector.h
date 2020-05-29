@@ -22,7 +22,7 @@ extern "C" {
  * @brief Type to represent image lines
  */
 typedef struct {
-    size_t size; //nombre de bit
+    size_t size; //nombre de bits
     uint32_t content[1]; //premier verteur de 32 bit stocké
 } bit_vector_t;
 

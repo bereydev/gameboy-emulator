@@ -7,17 +7,21 @@
 #include <sys/time.h>
 
 
+
 //global variables 
 gameboy_t gb;
 struct timeval start;
 struct timeval paused;
 
 // Key press bits
-#define MY_KEY_UP_BIT    0x01
-#define MY_KEY_DOWN_BIT  0x02
-#define MY_KEY_RIGHT_BIT 0x04
-#define MY_KEY_LEFT_BIT  0x08
-#define MY_KEY_A_BIT     0x10
+#define MY_KEY_UP_BIT        0x01
+#define MY_KEY_DOWN_BIT      0x02
+#define MY_KEY_RIGHT_BIT     0x04
+#define MY_KEY_LEFT_BIT      0x08
+#define MY_KEY_A_BIT         0x10
+#define MY_KEY_B_BIT         0x20
+#define MY_KEY_PAGE_UP_BIT   0x40
+#define MY_KEY_PAGE_DOWN_BIT 0x80
 
 // image display scale factor
 #define SCALE 2
@@ -51,7 +55,7 @@ static void set_grey(guchar* pixels, int row, int col, int width, guchar grey)
 static void generate_image(guchar* pixels, int height, int width)
 {
     int err = gameboy_run_until(&gb,get_time_in_GB_cycles_since(&start)); 
-    
+    if (err != ERR_NONE) return;
     for (int x = 0; x < width; ++x) {
         for (int y = 0; y < height; ++y) {
 
@@ -77,26 +81,61 @@ static gboolean keypress_handler(guint keyval, gpointer data)
     if (psd == NULL) return FALSE;
 
     switch(keyval) {
-    case GDK_KEY_Up:
+    case GDK_KEY_Up:{
         do_key(UP);
-        return TRUE;
+        int err = joypad_key_pressed(&gb.pad, UP_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+    }
+        
 
-    case GDK_KEY_Down:
+    case GDK_KEY_Down:{
         do_key(DOWN);
-        return TRUE;
+        int err = joypad_key_pressed(&gb.pad, DOWN_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+    }
+        
 
-    case GDK_KEY_Right:
+    case GDK_KEY_Right:{
         do_key(RIGHT);
-        return TRUE;
+        int err = joypad_key_pressed(&gb.pad, RIGHT_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+    }
+        
 
-    case GDK_KEY_Left:
+    case GDK_KEY_Left:{
         do_key(LEFT);
-        return TRUE;
+        int err = joypad_key_pressed(&gb.pad, LEFT_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+    }
 
     case 'A':
-    case 'a':
+    case 'a':{
         do_key(A);
-        return TRUE;
+        int err = joypad_key_pressed(&gb.pad, A_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+        }
+
+
+    case 'B':
+    case 'b': {
+        do_key(B);
+        int err = joypad_key_pressed(&gb.pad, B_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+        }
+
+
+    case GDK_KEY_Page_Up: {
+        do_key(PAGE_UP);
+        int err = joypad_key_pressed(&gb.pad, SELECT_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+        }
+
+    case GDK_KEY_Page_Down: {
+        do_key(PAGE_DOWN);
+        int err = joypad_key_pressed(&gb.pad, START_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+        }
+        
     }
 
     return ds_simple_key_handler(keyval, data);
@@ -118,26 +157,59 @@ static gboolean keyrelease_handler(guint keyval, gpointer data)
     if (psd == NULL) return FALSE;
 
     switch(keyval) {
-    case GDK_KEY_Up:
+     case GDK_KEY_Up:{
         do_key(UP);
-        return TRUE;
+        int err = joypad_key_released(&gb.pad, UP_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+    }
+        
 
-    case GDK_KEY_Down:
+    case GDK_KEY_Down:{
         do_key(DOWN);
-        return TRUE;
+        int err = joypad_key_released(&gb.pad, DOWN_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+    }
+        
 
-    case GDK_KEY_Right:
+    case GDK_KEY_Right:{
         do_key(RIGHT);
-        return TRUE;
+        int err = joypad_key_released(&gb.pad, RIGHT_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+    }
+        
 
-    case GDK_KEY_Left:
+    case GDK_KEY_Left:{
         do_key(LEFT);
-        return TRUE;
+        int err = joypad_key_released(&gb.pad, LEFT_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+    }
 
     case 'A':
-    case 'a':
+    case 'a':{
         do_key(A);
-        return TRUE;
+        int err = joypad_key_released(&gb.pad, A_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+        }
+
+    case 'B':
+    case 'b': {
+        do_key(B);
+        int err = joypad_key_released(&gb.pad, B_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+        }
+
+
+    case GDK_KEY_Page_Up: {
+        do_key(PAGE_UP);
+        int err = joypad_key_released(&gb.pad, SELECT_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+        }
+
+    case GDK_KEY_Page_Down: {
+        do_key(PAGE_DOWN);
+        int err = joypad_key_released(&gb.pad, START_KEY);
+        return err == ERR_NONE ? TRUE : FALSE;
+        }
     }
 
     return FALSE;

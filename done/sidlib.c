@@ -98,6 +98,9 @@ static gboolean keypress_handler_(GtkWidget* widget __attribute__((unused)),
 {
     simple_image_displayer_t* const psd = data;
     if ((psd == NULL) || psd->keys_p == NULL) return FALSE;
+
+
+
     return psd->keys_p(event->keyval, data);
 }
 

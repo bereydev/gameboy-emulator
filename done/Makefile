@@ -4,7 +4,7 @@ GTK_INCLUDE := `pkg-config --cflags gtk+-3.0`
 
 .PHONY: clean new style feedback submit1 submit2 submit
 
-CFLAGS += -std=c11 -Wall -pedantic -g 
+CFLAGS += -std=c11 -Wall -pedantic -g
 
 CFLAGS += -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code
 
@@ -28,7 +28,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := gbsimulator
+CHECK_TARGETS := unit-test-bit-vector
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 

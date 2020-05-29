@@ -99,6 +99,7 @@ START_TEST(bit_vector_create_exec)
     const uint32_t pv2_5[] = PV2_5_VALUE;
 
     pbv = bit_vector_create(PV1_SIZE * IMAGE_LINE_WORD_BITS, 1);
+    printf("%d \n", IMAGE_LINE_WORD_BITS);
     ck_assert_ptr_nonnull(pbv);
     ck_assert(pbv->size == PV1_SIZE * IMAGE_LINE_WORD_BITS);
     vector_match_tab(pbv, pv1_1, PV1_SIZE);
@@ -511,6 +512,8 @@ START_TEST(bit_vector_extract_zero_exec)
     bit_vector_free(&pbv1_0);
     bit_vector_free(&pbv2_5);
 
+    printf("deadboss \n");
+    printf("---------------------- \n");
     fill_vector_with(pbv, deadboss, PV2_SIZE);
     bit_vector_t* pba_p5 = bit_vector_extract_zero_ext(pbv, 5, PV2_SIZE * IMAGE_LINE_WORD_BITS);
     bit_vector_t* pba_m5 = bit_vector_extract_zero_ext(pbv, -5, PV2_SIZE * IMAGE_LINE_WORD_BITS);
