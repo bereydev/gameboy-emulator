@@ -15,16 +15,17 @@
 //nb of vector of 32 bit in a bit_vector_t
 #define VECTORS_IN(pbv) (pbv->size % VECTOR_SIZE == 0 ? pbv->size/VECTOR_SIZE : pbv->size/VECTOR_SIZE + 1)
 
+#define BV_1_VALUE (0xFFFFFFFF)
+#define BV_0_VALUE (0x00000000)
+
 bit_vector_t *bit_vector_create(size_t size, bit_t value)
 {
-    if (size <= 0)
-    {
-        return NULL;
-    }
-
+    if (size == 0)return NULL;
+    
     size_t nb = size % VECTOR_SIZE == 0 ? size / VECTOR_SIZE : size / VECTOR_SIZE + 1;
-    bit_vector_t *pbv  = malloc(sizeof(bit_vector_t) + (nb - 1) * sizeof(uint32_t));
+    bit_vector_t *pbv  = NULL;
     const size_t N_MAX = (SIZE_MAX - sizeof(bit_vector_t)) / sizeof(uint32_t) + 1;
+
     if (nb <= N_MAX)
     {
         pbv = malloc(sizeof(bit_vector_t) + (nb - 1) * sizeof(uint32_t));
@@ -35,14 +36,14 @@ bit_vector_t *bit_vector_create(size_t size, bit_t value)
             {
                 for (size_t i = 0; i < nb; i++)
                 {
-                    pbv->content[i] = value == 1u ? 0xFFFFFFFF : 0x00000000;
+                    pbv->content[i] = value == 1u ? BV_1_VALUE : BV_0_VALUE;
                 }
             } else
             {
-                pbv->content[nb - 1 ] = value == 1u ? 0xFFFFFFFF >> 32 - (size - (nb-1)*VECTOR_SIZE) : 0x00000000;
+                pbv->content[nb - 1] = value == 1u ? (BV_1_VALUE >> 32 - (size - (nb-1)*VECTOR_SIZE)) : BV_0_VALUE;
                 for (size_t i = 0; i < nb-1; i++)
                 {
-                     pbv->content[i] = value == 1u ? 0xFFFFFFFF : 0x00000000;
+                     pbv->content[i] = value == 1u ? BV_1_VALUE : BV_0_VALUE;
                 }
             }
             
@@ -53,10 +54,8 @@ bit_vector_t *bit_vector_create(size_t size, bit_t value)
 
 bit_vector_t *bit_vector_cpy(const bit_vector_t *pbv)
 {
-    if (pbv == NULL)
-    {
-        return NULL;
-    }
+    if (pbv == NULL) return NULL;
+    
     bit_vector_t *copy = bit_vector_create(pbv->size, 0u);
     for (size_t i = 0; i < VECTORS_IN(pbv); i++)
     {
@@ -67,24 +66,18 @@ bit_vector_t *bit_vector_cpy(const bit_vector_t *pbv)
 
 bit_t bit_vector_get(const bit_vector_t *pbv, size_t index)
 {
-    if (pbv == NULL || index >= pbv->size || index < 0u)
-    {
-        return 0;
-    }
-
+    if (pbv == NULL || index >= pbv->size) return 0;
+    
     size_t index_of_the_vector = index / VECTOR_SIZE ;
-    size_t index_in_vector = (index % VECTOR_SIZE);
+    size_t index_in_vector = index % VECTOR_SIZE;
 
     return (bit_t)((pbv->content[index_of_the_vector] & ( 1u << index_in_vector)) >> index_in_vector );
 }
 
 bit_vector_t *bit_vector_not(bit_vector_t *pbv)
 {
-    if (pbv == NULL)
-    {
-        return NULL;
-    }
-
+    if (pbv == NULL) return NULL;
+    
     for (size_t i = 0; i < VECTORS_IN(pbv); i++)
     {
         pbv->content[i] = ~pbv->content[i];
@@ -145,7 +138,7 @@ bit_vector_t *bit_vector_xor(bit_vector_t *pbv1, const bit_vector_t *pbv2)
 
 bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index, size_t size)
 {
-    if (size <= 0) { return NULL;}
+    if (size == 0) { return NULL;}
     bit_vector_t * result = bit_vector_create(size, 0u);
     if (pbv == NULL || index + size <= 0 || index >= 0 && (size_t)index >= pbv->size) {
         return result;
@@ -171,7 +164,7 @@ bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index
 
 bit_vector_t *bit_vector_extract_wrap_ext(const bit_vector_t *pbv, int64_t index, size_t size)
 {
-    if (size <= 0 || pbv == NULL) {return NULL;}
+    if (size == 0 || pbv == NULL) {return NULL;}
     bit_vector_t *result = bit_vector_create(size, 0u); 
     size_t start_index = index % pbv->size;
     for (size_t i = 0; i < size; i++)
