@@ -4,7 +4,6 @@
  * @file gameboy.h
  * @brief Gameboy Header for GameBoy Emulator
  *
- * @author C. Hölzl, EPFL
  * @date 2019
  */
 
@@ -16,8 +15,6 @@
 #include "component.h"
 #include "timer.h"
 #include "cartridge.h"
-#include "lcdc.h"
-#include "joypad.h"
 
 
 
@@ -31,19 +28,18 @@ extern "C" {
  * @brief Game Boy data structure.
  *        Regroups everything needed to simulate the Game Boy.
  */
-struct gameboy_{
+typedef struct {
     bus_t bus;
+    component_t components[GB_NB_COMPONENTS];
     cpu_t cpu;
-    uint64_t cycles;
-    gbtimer_t timer;
-    cartridge_t cartridge;  
-    component_t components[GB_NB_COMPONENTS]; 
-    size_t nb_components;
     component_t bootrom;
     bit_t boot;
-    lcdc_t screen;
-    joypad_t pad;
-};
+    gbtimer_t timer;
+    cartridge_t cartridge;
+    //nombre de cycles déjà exécutés
+    uint64_t cycles;
+
+} gameboy_t;
 
 // Number of Game Boy cycles per second (= 2^20)
 #define GB_CYCLES_PER_S  (((uint64_t) 1) << 20)

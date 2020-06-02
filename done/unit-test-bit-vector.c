@@ -12,7 +12,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <stdio.h>
 
 #include <check.h>
 #include <inttypes.h>
@@ -100,6 +99,7 @@ START_TEST(bit_vector_create_exec)
     const uint32_t pv2_5[] = PV2_5_VALUE;
 
     pbv = bit_vector_create(PV1_SIZE * IMAGE_LINE_WORD_BITS, 1);
+    printf("%d \n", IMAGE_LINE_WORD_BITS);
     ck_assert_ptr_nonnull(pbv);
     ck_assert(pbv->size == PV1_SIZE * IMAGE_LINE_WORD_BITS);
     vector_match_tab(pbv, pv1_1, PV1_SIZE);
@@ -512,6 +512,8 @@ START_TEST(bit_vector_extract_zero_exec)
     bit_vector_free(&pbv1_0);
     bit_vector_free(&pbv2_5);
 
+    printf("deadboss \n");
+    printf("---------------------- \n");
     fill_vector_with(pbv, deadboss, PV2_SIZE);
     bit_vector_t* pba_p5 = bit_vector_extract_zero_ext(pbv, 5, PV2_SIZE * IMAGE_LINE_WORD_BITS);
     bit_vector_t* pba_m5 = bit_vector_extract_zero_ext(pbv, -5, PV2_SIZE * IMAGE_LINE_WORD_BITS);
@@ -658,7 +660,6 @@ START_TEST(bit_vector_shift_exec)
     bit_vector_t* pbv2_01 = bit_vector_shift(pbv, -2 * IMAGE_LINE_WORD_BITS);
     bit_vector_t* pbv2_5f = bit_vector_shift(pbv, -IMAGE_LINE_WORD_BITS / 2);
     bit_vector_t* pbv2_5 = bit_vector_shift(pbv2_5f, 0);
-
 
     ck_assert_ptr_nonnull(pbv2_1);
     ck_assert_ptr_nonnull(pbv2_00);
@@ -825,6 +826,8 @@ START_TEST(bit_vector_deadboss)
     bit_vector_t* pv1_8 = bit_vector_extract_zero_ext(pvb_1, -3, 4);
     ck_assert_ptr_nonnull(pv1_8);
     bit_vector_t* pv4_8888 = bit_vector_extract_wrap_ext(pv1_8, 0, 16);
+    #define VECTORS_IN(pbv) (pbv->size % 32 == 0 ? pbv->size/32 : pbv->size/32 + 1)
+    for(size_t i = 0; i < VECTORS_IN(pv4_8888); ++i)printf("pv4_8888: 0x%X \n" ,pv4_8888->content[i]);
     ck_assert_ptr_nonnull(pv4_8888);
     bit_vector_t* pv4_2222 = bit_vector_shift(pv4_8888, -2);
     ck_assert_ptr_nonnull(pv4_2222);
@@ -855,6 +858,10 @@ START_TEST(bit_vector_deadboss)
 
     bit_vector_t* pv4_D0A0 = bit_vector_or(bit_vector_and(bit_vector_extract_zero_ext(pv1_A, -4, 16), pv4_AAAA),
                                            interm = bit_vector_extract_zero_ext(pv1_D, -12, 16)) ;
+
+    
+
+
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv4_D0A0);
     bit_vector_t* pv4_0E0D = bit_vector_or(bit_vector_extract_zero_ext(pv1_E, -8, 16),
@@ -876,6 +883,12 @@ START_TEST(bit_vector_deadboss)
     bit_vector_free(&interm);
     bit_vector_free(&interm2);
     ck_assert_ptr_nonnull(pv8_DEADBOSS);
+
+    
+    for(size_t i = 0; i < VECTORS_IN(pv4_0E0D); ++i)printf("0e0d: 0x%X \n" ,pv4_0E0D->content[i]);
+    for(size_t i = 0; i < VECTORS_IN(pv4_DEAD); ++i)printf("dead: 0x%X \n" ,pv4_DEAD->content[i]);
+    for(size_t i = 0; i < VECTORS_IN(pv8_DEADBOSS); ++i)printf("Deadboss: 0x%X \n" ,pv8_DEADBOSS->content[i] );
+    printf("-------------------\n");
 
     bit_vector_t* pv12_AAAADEADBOSS = bit_vector_extract_zero_ext(
                                       interm = bit_vector_join(interm2 = bit_vector_extract_wrap_ext(pv8_DEADBOSS, -IMAGE_LINE_WORD_BITS, 2 * IMAGE_LINE_WORD_BITS),
