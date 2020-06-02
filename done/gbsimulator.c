@@ -135,7 +135,20 @@ static gboolean keypress_handler(guint keyval, gpointer data)
         int err = joypad_key_pressed(&gb.pad, START_KEY);
         return err == ERR_NONE ? TRUE : FALSE;
         }
-        
+
+    case GDK_KEY_space: {
+        if(psd->timeout_id > 0) {
+            int failure = gettimeofday(&paused, NULL);
+            if (failure) return FALSE;
+        }else {
+            struct timeval current_time;
+            int failure = gettimeofday(&current_time, NULL);
+            if (failure) return FALSE;
+            timersub(&current_time, &paused, &paused);
+            timeradd(&start, &paused, &start);
+            timerclear(&paused);
+        }
+    }  
     }
 
     return ds_simple_key_handler(keyval, data);
