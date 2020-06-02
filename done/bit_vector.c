@@ -8,6 +8,7 @@
 
 #include "bit_vector.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <inttypes.h>
 
 //nb of bit in one content in the struct bit_vector_t
@@ -219,23 +220,25 @@ bit_vector_t *bit_vector_join(const bit_vector_t *pbv1, const bit_vector_t *pbv2
 
 int bit_vector_print(const bit_vector_t *pbv)
 {
+    int nb_of_char = 0;
     for (size_t i = pbv->size; i-- > 0;)
     {
-        fprintf(stdout, "%"PRIu8, bit_vector_get(pbv,i));
+        nb_of_char += printf("%"PRIu8, bit_vector_get(pbv,i));
     }
-    
+    return nb_of_char;
 }
 
 int bit_vector_println(const char *prefix, const bit_vector_t *pbv)
 {
-    fprintf(stdout, "%s", prefix);
-    bit_vector_print(pbv);
-    fprintf(stdout, "\n");
+    int nb_of_char = 0;
+    nb_of_char += printf(stdout, "%s", prefix);
+    nb_of_char += bit_vector_print(pbv);
+    nb_of_char += printf(stdout, "\n");
+    return nb_of_char;
 }
 
 void bit_vector_free(bit_vector_t **pbv)
 {
-    // TODO pas sur ...
     free(*pbv);
     pbv = NULL;
 }
