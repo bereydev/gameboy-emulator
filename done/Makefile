@@ -25,7 +25,7 @@ CPPFLAGS += -D_DEFAULT_SOURCE
 # all those libs are required on Debian, feel free to adapt it to your box
 LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 
-all:: 
+all:: unit-test-alu unit-test-bit unit-test-bit-vector unit-test-bus unit-test-cartridge unit-test-component unit-test-cpu unit-test-cpu-dispatch-week08 unit-test-cpu-dispatch-week09 unit-test-memory unit-test-timer test-cpu-week08 test-cpu-week09 test-gameboy gbsimulator
 
 TARGETS := 
 CHECK_TARGETS := unit-test-bit-vector
