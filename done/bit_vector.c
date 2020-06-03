@@ -175,6 +175,7 @@ bit_vector_t *extract(const bit_vector_t *pbv, int64_t index, size_t size, exten
     int64_t index_in_vector = index % VECTOR_SIZE;
     if (index_in_vector < 0)
         index_in_vector += VECTOR_SIZE;
+
     for (size_t i = 0; i < VECTORS_IN(result); i++)
     {
         switch (type)

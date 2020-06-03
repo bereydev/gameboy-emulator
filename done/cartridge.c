@@ -48,8 +48,11 @@ int cartridge_init(cartridge_t *ct, const char *filename)
 	M_REQUIRE_NON_NULL(filename);
 
 	M_EXIT_IF_ERR(component_create(&ct->c, BANK_ROM_SIZE));
-
-	return cartridge_init_from_file(&ct->c, filename);
+	if (cartridge_init_from_file(&ct->c, filename) != ERR_NONE) {
+		component_free(&ct->c);
+	} else {
+		return ERR_NONE;
+	}
 }
 
 int cartridge_plug(cartridge_t *ct, bus_t bus)
@@ -62,5 +65,7 @@ int cartridge_plug(cartridge_t *ct, bus_t bus)
 
 void cartridge_free(cartridge_t *ct)
 {
-	component_free(&ct->c);
+	if (ct != NULL) {
+		component_free(&ct->c);
+	}
 }

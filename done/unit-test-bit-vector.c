@@ -804,15 +804,18 @@ START_TEST(bit_vector_deadboss)
     ck_assert_ptr_nonnull(pvb_1);
     bit_vector_t* pv1_8 = bit_vector_extract_zero_ext(pvb_1, -3, 4);
     ck_assert_ptr_nonnull(pv1_8);
+    bit_vector_println("8 :", pv1_8);
     bit_vector_t* pv4_8888 = bit_vector_extract_wrap_ext(pv1_8, 0, 16);
     #define VECTORS_IN(pbv) (pbv->size % 32 == 0 ? pbv->size/32 : pbv->size/32 + 1)
     ck_assert_ptr_nonnull(pv4_8888);
+    bit_vector_println("8888 :", pv4_8888);
     bit_vector_t* pv4_2222 = bit_vector_shift(pv4_8888, -2);
     ck_assert_ptr_nonnull(pv4_2222);
     bit_vector_t* pv4_AAAA = bit_vector_or(bit_vector_cpy(pv4_2222), pv4_8888);
     ck_assert_ptr_nonnull(pv4_AAAA);
     bit_vector_t* pv8_0000AAAA = bit_vector_extract_zero_ext(pv4_AAAA, 0, IMAGE_LINE_WORD_BITS);
     ck_assert_ptr_nonnull(pv8_0000AAAA);
+    bit_vector_println("0000AAAA :", pv8_0000AAAA);
 
     bit_vector_t* interm = NULL;
     bit_vector_t* interm2 = NULL;
@@ -821,39 +824,49 @@ START_TEST(bit_vector_deadboss)
     bit_vector_free(&interm);
     bit_vector_free(&interm2);
     ck_assert_ptr_nonnull(pv1_D);
+    bit_vector_println("D :", pv1_D);
     bit_vector_t* pv1_E = bit_vector_or(bit_vector_cpy(pv1_8), bit_vector_or(interm  = bit_vector_shift(pv1_8, -1),
                                         interm2 = bit_vector_shift(pv1_8, -2)));
     bit_vector_free(&interm);
     bit_vector_free(&interm2);
     ck_assert_ptr_nonnull(pv1_E);
+    bit_vector_println("E :", pv1_E);
     bit_vector_t* pv1_A = bit_vector_or(bit_vector_cpy(pv1_8), interm = bit_vector_shift(pv1_8, -2));
     ck_assert_ptr_nonnull(pv1_A);
+    bit_vector_println("A :", pv1_A);
     bit_vector_t* pv1_B = bit_vector_or(bit_vector_cpy(pv1_A), interm = bit_vector_shift(pv1_8, -3)); 
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv1_B);
+    bit_vector_println("B :", pv1_B);
     bit_vector_t* pv1_5 = bit_vector_not(bit_vector_cpy(pv1_A));
     ck_assert_ptr_nonnull(pv1_5);
-
+    bit_vector_println("00A0 :", bit_vector_extract_zero_ext(pv1_A, -4, 16));
+    bit_vector_println("AAAA :", pv4_AAAA);
     bit_vector_t* pv4_D0A0 = bit_vector_or(bit_vector_and(bit_vector_extract_zero_ext(pv1_A, -4, 16), pv4_AAAA),
                                            interm = bit_vector_extract_zero_ext(pv1_D, -12, 16)) ;
-
+    bit_vector_println("D000 :", interm);
     
 
 
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv4_D0A0);
+    bit_vector_println("D0A0 :", pv4_D0A0);
     bit_vector_t* pv4_0E0D = bit_vector_or(bit_vector_extract_zero_ext(pv1_E, -8, 16),
                                            interm = bit_vector_extract_zero_ext(pv1_D, 0, 16)) ;
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv4_0E0D);
+    bit_vector_println("0E0D :", pv4_0E0D);
     bit_vector_t* pv4_DEAD = bit_vector_or(pv4_D0A0, pv4_0E0D);
     ck_assert_ptr_nonnull(pv4_DEAD);
+    bit_vector_println("DEAD :", pv4_DEAD);
 
     bit_vector_t* pv4_00SS = bit_vector_extract_zero_ext(interm = bit_vector_extract_wrap_ext(pv1_5, -64, 8), 0, 16);
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv4_00SS);
+    bit_vector_println("00SS :", pv4_00SS);
     bit_vector_t* pv4_BOSS = bit_vector_or(bit_vector_extract_zero_ext(pv1_B, -12, 16), pv4_00SS);
     ck_assert_ptr_nonnull(pv4_BOSS);
+    bit_vector_println("B0SS :", pv4_BOSS);
 
     bit_vector_t* interm3 = NULL;
     bit_vector_t* pv8_DEADBOSS = bit_vector_join(interm  = bit_vector_extract_wrap_ext(pv4_BOSS, 0, IMAGE_LINE_WORD_BITS),
@@ -861,6 +874,7 @@ START_TEST(bit_vector_deadboss)
     bit_vector_free(&interm);
     bit_vector_free(&interm2);
     ck_assert_ptr_nonnull(pv8_DEADBOSS);
+    bit_vector_println("DEADBOSS :", pv8_DEADBOSS);
 
     bit_vector_t* pv12_AAAADEADBOSS = bit_vector_extract_zero_ext(
                                       interm = bit_vector_join(interm2 = bit_vector_extract_wrap_ext(pv8_DEADBOSS, -IMAGE_LINE_WORD_BITS, 2 * IMAGE_LINE_WORD_BITS),
@@ -870,6 +884,7 @@ START_TEST(bit_vector_deadboss)
     bit_vector_free(&interm2);
     bit_vector_free(&interm3);
     ck_assert_ptr_nonnull(pv12_AAAADEADBOSS);
+    bit_vector_println("AAAADEADBOSS :", pv12_AAAADEADBOSS);
 
 
     const uint32_t pve[] = PV_DEADBOSS_AAAA_VALUE;

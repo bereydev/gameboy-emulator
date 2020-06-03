@@ -40,7 +40,7 @@ int gameboy_create(gameboy_t *gameboy, const char *filename)
 {
     M_REQUIRE_NON_NULL(gameboy);
 
-    memset(&gameboy->bus, 0, (BUS_SIZE * sizeof(data_t *)));
+    memset(&gameboy, 0, sizeof(gameboy_t));
 
     M_EXIT_IF_ERR(cartridge_init(&gameboy->cartridge, filename));
     M_EXIT_IF_ERR(cartridge_plug(&gameboy->cartridge, gameboy->bus));
@@ -99,6 +99,8 @@ void gameboy_free(gameboy_t *gameboy)
 
         RETURN_IF_ERROR_MSG_ONLY(bus_unplug(gameboy->bus, &gameboy->cartridge.c));
         cartridge_free(&gameboy->cartridge);
+
+        cpu_free(&gameboy->cpu);
 
         lcdc_free(&gameboy->screen);
 

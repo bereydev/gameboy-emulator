@@ -18,8 +18,10 @@
 data_t cpu_read_at_idx(const cpu_t *cpu, addr_t addr)
 {
     data_t result = 0;
-
-    bus_read(*(cpu->bus), addr, &result);
+    
+    if (cpu != NULL) {
+        bus_read(*(cpu->bus), addr, &result);
+    }
 
     return result;
 }

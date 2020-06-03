@@ -58,7 +58,7 @@ int cpu_plug(cpu_t *cpu, bus_t *bus)
     M_REQUIRE_NON_NULL(bus);
 
     cpu->bus = bus;
-    bus_plug(*cpu->bus, &cpu->high_ram, HIGH_RAM_START, HIGH_RAM_END);
+    M_EXIT_IF_ERR(bus_plug(*cpu->bus, &cpu->high_ram, HIGH_RAM_START, HIGH_RAM_END));
 
     (*cpu->bus)[REG_IE] = &cpu->IE;
     (*cpu->bus)[REG_IF] = &cpu->IF;
@@ -72,6 +72,10 @@ void cpu_free(cpu_t *cpu)
     {
         bus_unplug(*cpu->bus, &cpu->high_ram);
         component_free(&cpu->high_ram);
+        //unplug IE and IF
+        (*cpu->bus)[REG_IE] = NULL;
+        (*cpu->bus)[REG_IF] = NULL;
+        
         cpu->bus = NULL;
     }
 }
@@ -117,6 +121,9 @@ static int cpu_dispatch(const instruction_t *lu, cpu_t *cpu)
     //remet à 0 l'ALU du CPU
     cpu->alu.value = 0u;
     cpu->alu.flags = 0u;
+
+    //recupere les adresse interessante pour le PC
+    addr_t next_PC = cpu->PC + lu->bytes;
 
     //exécution de l'instruction reçue
     switch (lu->family)
@@ -232,14 +239,14 @@ static int cpu_dispatch(const instruction_t *lu, cpu_t *cpu)
     case CALL_CC_N16:
         if (is_condition(cpu->F, lu->opcode))
         {
-            M_EXIT_IF_ERR(cpu_SP_push(cpu, cpu->PC + lu->bytes));
+            M_EXIT_IF_ERR(cpu_SP_push(cpu, next_PC));
             cpu->PC = cpu_read_addr_after_opcode(cpu) - lu->bytes;
             cpu->idle_time += lu->xtra_cycles;
         }
         break;
 
     case CALL_N16:
-        M_EXIT_IF_ERR(cpu_SP_push(cpu, cpu->PC + lu->bytes));
+        M_EXIT_IF_ERR(cpu_SP_push(cpu, next_PC));
         cpu->PC = cpu_read_addr_after_opcode(cpu) - lu->bytes;
         break;
 
@@ -257,7 +264,7 @@ static int cpu_dispatch(const instruction_t *lu, cpu_t *cpu)
         break;
 
     case RST_U3:
-        M_EXIT_IF_ERR(cpu_SP_push(cpu, cpu->PC + lu->bytes));
+        M_EXIT_IF_ERR(cpu_SP_push(cpu, next_PC));
         cpu->PC = (extract_n3(lu->opcode) << 3u) - lu->bytes; //n3 * 8
         break;
 
