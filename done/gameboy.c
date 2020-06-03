@@ -105,7 +105,6 @@ void gameboy_free(gameboy_t *gameboy)
         lcdc_free(&gameboy->screen);
 
         //TODO il faut faire qqch avec le pad?
-
     }
 }
 
@@ -123,10 +122,10 @@ int gameboy_run_until(gameboy_t *gameboy, uint64_t cycle)
 #ifdef BLARGG
         M_EXIT_IF_ERR(blargg_bus_listener(gameboy, gameboy->cpu.write_listener));
 #endif
- 
-       M_EXIT_IF_ERR(joypad_bus_listener(&gameboy->pad, gameboy->cpu.write_listener));
 
-       gameboy->cycles++;
+        M_EXIT_IF_ERR(joypad_bus_listener(&gameboy->pad, gameboy->cpu.write_listener));
+
+        gameboy->cycles++;
     }
     return ERR_NONE;
 }

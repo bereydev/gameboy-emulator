@@ -9,17 +9,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+
 //nb of bit in one content in the struct bit_vector_t
 #define VECTOR_SIZE 32
 //nb of vector of 32 bit in a bit_vector_t
 #define VECTORS_IN(pbv) (pbv->size % VECTOR_SIZE == 0 ? pbv->size / VECTOR_SIZE : pbv->size / VECTOR_SIZE + 1)
 #define BV_1_VALUE (0xFFFFFFFF)
 #define BV_0_VALUE (0x00000000)
+
 typedef enum
 {
     ZERO,
     WRAPPED
 } extention_t;
+
 bit_vector_t *bit_vector_create(size_t size, bit_t value)
 {
     if (size == 0)
@@ -53,6 +56,7 @@ bit_vector_t *bit_vector_create(size_t size, bit_t value)
     }
     return pbv;
 }
+
 bit_vector_t *bit_vector_cpy(const bit_vector_t *pbv)
 {
     if (pbv == NULL)
@@ -65,6 +69,7 @@ bit_vector_t *bit_vector_cpy(const bit_vector_t *pbv)
     }
     return copy;
 }
+
 bit_t bit_vector_get(const bit_vector_t *pbv, size_t index)
 {
     if (pbv == NULL || index >= pbv->size)
@@ -74,6 +79,7 @@ bit_t bit_vector_get(const bit_vector_t *pbv, size_t index)
     size_t index_in_vector = index % VECTOR_SIZE;
     return (bit_t)((pbv->content[index_of_the_vector] & (1u << index_in_vector)) >> index_in_vector);
 }
+
 bit_vector_t *bit_vector_not(bit_vector_t *pbv)
 {
     if (pbv == NULL)
@@ -100,10 +106,11 @@ bit_vector_t *bit_vector_and(bit_vector_t *pbv1, const bit_vector_t *pbv2)
     }
     for (size_t i = 0; i < VECTORS_IN(pbv1); i++)
     {
-        pbv1->content[i] = pbv1->content[i] & pbv2->content[i];
+        pbv1->content[i] &= pbv2->content[i];
     }
     return pbv1;
 }
+
 bit_vector_t *bit_vector_or(bit_vector_t *pbv1, const bit_vector_t *pbv2)
 {
     if (pbv1 == NULL || pbv2 == NULL || pbv1->size != pbv2->size)
@@ -112,10 +119,11 @@ bit_vector_t *bit_vector_or(bit_vector_t *pbv1, const bit_vector_t *pbv2)
     }
     for (size_t i = 0; i < VECTORS_IN(pbv1); i++)
     {
-        pbv1->content[i] = pbv1->content[i] | pbv2->content[i];
+        pbv1->content[i] |= pbv2->content[i];
     }
     return pbv1;
 }
+
 bit_vector_t *bit_vector_xor(bit_vector_t *pbv1, const bit_vector_t *pbv2)
 {
     if (pbv1 == NULL || pbv2 == NULL || pbv1->size != pbv2->size)
@@ -124,11 +132,19 @@ bit_vector_t *bit_vector_xor(bit_vector_t *pbv1, const bit_vector_t *pbv2)
     }
     for (size_t i = 0; i < VECTORS_IN(pbv1); i++)
     {
-        pbv1->content[i] = pbv1->content[i] ^ pbv2->content[i];
+        pbv1->content[i] ^= pbv2->content[i];
     }
     return pbv1;
 }
 
+//=========================================================================
+/**
+ * @brief Helper function that combine a part of the vector for wrap extraction
+ * @param pbv, pointer to bit_vector
+ * @param index_in_vector index from where to take the value in given part of the vector
+ * @param index_of_the_vector index of the content to consider
+ * @return value of the combined bit string (32 bits)
+ */
 uint32_t combine_wrap(const bit_vector_t *pbv, int64_t index_in_vector, int64_t index_of_the_vector)
 {
     uint32_t result = 0;
@@ -147,6 +163,14 @@ uint32_t combine_wrap(const bit_vector_t *pbv, int64_t index_in_vector, int64_t 
     return result;
 }
 
+//=========================================================================
+/**
+ * @brief Helper function that combine a part of the vector for zero extraction
+ * @param pbv, pointer to bit_vector
+ * @param index_in_vector index from where to take the value in given part of the vector
+ * @param index_of_the_vector index of the content to consider
+ * @return value of the combined bit string (32 bits)
+ */
 uint32_t combine_zero(const bit_vector_t *pbv, int64_t index_in_vector, int64_t index_of_the_vector)
 {
 
@@ -168,7 +192,15 @@ uint32_t combine_zero(const bit_vector_t *pbv, int64_t index_in_vector, int64_t 
     return result;
 }
 
-//TODO comment this function
+//=========================================================================
+/**
+ * @brief Helper function that perform either wrap or zero infinite extraction
+ * @param pbv, pointer to bit_vector
+ * @param index index from where to start extraction
+ * @param size size in bit of new bit vector
+ * @param type, type of the extention
+ * @return pointer new bit vector
+ */
 bit_vector_t *extract(const bit_vector_t *pbv, int64_t index, size_t size, extention_t type)
 {
     bit_vector_t *result = bit_vector_create(size, 0u);
@@ -191,6 +223,7 @@ bit_vector_t *extract(const bit_vector_t *pbv, int64_t index, size_t size, exten
     }
     return result;
 }
+
 bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index, size_t size)
 {
     if (size == 0)
@@ -200,24 +233,27 @@ bit_vector_t *bit_vector_extract_zero_ext(const bit_vector_t *pbv, int64_t index
     else
         return extract(pbv, index, size, ZERO);
 }
+
 bit_vector_t *bit_vector_extract_wrap_ext(const bit_vector_t *pbv, int64_t index, size_t size)
 {
     if (size == 0 || pbv == NULL)
         return NULL;
 
+    bit_vector_t *result = extract(pbv, index, size, WRAPPED);
+
     if (pbv->size % VECTOR_SIZE == 0)
     {
-        return extract(pbv, index, size, WRAPPED);
+        return result;
     }
     else
     {
-        bit_vector_t *result = bit_vector_create(size, 0u);
+        result = bit_vector_create(size, 0u);
         size_t start_index = index % pbv->size;
         for (size_t i = 0; i < size; i++)
         {
             uint32_t bit_to_set = bit_vector_get(pbv, (start_index + i) % pbv->size);
-            bit_to_set = bit_to_set << i % VECTOR_SIZE;
-            result->content[i / VECTOR_SIZE] = result->content[i / VECTOR_SIZE] | bit_to_set;
+            bit_to_set <<= i % VECTOR_SIZE;
+            result->content[i / VECTOR_SIZE] |= bit_to_set;
         }
         return result;
     }
@@ -254,6 +290,7 @@ bit_vector_t *bit_vector_join(const bit_vector_t *pbv1, const bit_vector_t *pbv2
     }
     return result;
 }
+
 int bit_vector_print(const bit_vector_t *pbv)
 {
     for (size_t i = pbv->size; i-- > 0;)
@@ -262,6 +299,7 @@ int bit_vector_print(const bit_vector_t *pbv)
     }
     return (int)pbv->size;
 }
+
 int bit_vector_println(const char *prefix, const bit_vector_t *pbv)
 {
     int nb_of_char = 0;
@@ -270,6 +308,7 @@ int bit_vector_println(const char *prefix, const bit_vector_t *pbv)
     nb_of_char += fprintf(stdout, "\n");
     return nb_of_char;
 }
+
 void bit_vector_free(bit_vector_t **pbv)
 {
     free(*pbv);
