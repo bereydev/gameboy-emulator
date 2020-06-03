@@ -7,6 +7,7 @@
  */
 #include "bit_vector.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <inttypes.h>
 //nb of bit in one content in the struct bit_vector_t
 #define VECTOR_SIZE 32
@@ -203,9 +204,25 @@ bit_vector_t *bit_vector_extract_wrap_ext(const bit_vector_t *pbv, int64_t index
 {
     if (size == 0 || pbv == NULL)
         return NULL;
-    else
+
+    if (pbv->size % VECTOR_SIZE == 0)
+    {
         return extract(pbv, index, size, WRAPPED);
+    }
+    else
+    {
+        bit_vector_t *result = bit_vector_create(size, 0u);
+        size_t start_index = index % pbv->size;
+        for (size_t i = 0; i < size; i++)
+        {
+            uint32_t bit_to_set = bit_vector_get(pbv, (start_index + i) % pbv->size);
+            bit_to_set = bit_to_set << i % VECTOR_SIZE;
+            result->content[i / VECTOR_SIZE] = result->content[i / VECTOR_SIZE] | bit_to_set;
+        }
+        return result;
+    }
 }
+
 bit_vector_t *bit_vector_shift(const bit_vector_t *pbv, int64_t shift)
 {
     if (pbv == NULL)
@@ -243,12 +260,15 @@ int bit_vector_print(const bit_vector_t *pbv)
     {
         fprintf(stdout, "%" PRIu8, bit_vector_get(pbv, i));
     }
+    return (int)pbv->size;
 }
 int bit_vector_println(const char *prefix, const bit_vector_t *pbv)
 {
-    fprintf(stdout, "%s", prefix);
-    bit_vector_print(pbv);
-    fprintf(stdout, "\n");
+    int nb_of_char = 0;
+    nb_of_char += fprintf(stdout, "%s", prefix);
+    nb_of_char += bit_vector_print(pbv);
+    nb_of_char += fprintf(stdout, "\n");
+    return nb_of_char;
 }
 void bit_vector_free(bit_vector_t **pbv)
 {
