@@ -12,7 +12,9 @@
 /done/unit-test-cpu-dispatch-week09
 /done/unit-test-cpu-dispatch
 /done/unit-test-memory
+/done/unit-test-bit-vector
 /done/test-gameboy
+/done/test-image
 /done/unit-test-timer
 /done/unit-test-cartridge
 /done/unit-test-alu_ext
@@ -24,3 +26,5 @@
 /done/util
 .idea
 done/cmake-build-debug/
+done/.vscode/
+done/gbsimulator
