@@ -6,7 +6,7 @@ GTK_INCLUDE := `pkg-config --cflags gtk+-3.0`
 
 CFLAGS += -std=c11 -Wall -pedantic -g
 
-CFLAGS += -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code
+CFLAGS += -Wextra -Wfloat-equal -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Wconversion -Wunreachable-code 
 
 CFLAGS += -Wuninitialized -Wcast-qual -Winit-self -Wmissing-declarations 
 
@@ -16,7 +16,7 @@ CPPFLAGS += -DDEBUG
 
 CPPFLAGS += -D_DEFAULT_SOURCE
 
-#CPPFLAGS += -DBLARGG
+CPPFLAGS += -DBLARGG
 
 
 # ----------------------------------------------------------------------
@@ -25,10 +25,10 @@ CPPFLAGS += -D_DEFAULT_SOURCE
 # all those libs are required on Debian, feel free to adapt it to your box
 LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 
-all:: unit-test-alu unit-test-bit unit-test-bit-vector unit-test-bus unit-test-cartridge unit-test-component unit-test-cpu unit-test-cpu-dispatch-week08 unit-test-cpu-dispatch-week09 unit-test-memory unit-test-timer test-cpu-week08 test-cpu-week09 test-gameboy gbsimulator
+all:: unit-test-alu unit-test-bit unit-test-bit-vector unit-test-bus unit-test-cartridge unit-test-component unit-test-cpu unit-test-cpu-dispatch-week08 unit-test-cpu-dispatch-week09 unit-test-memory unit-test-timer unit-test-cartridge test-cpu-week08 test-cpu-week09 test-gameboy gbsimulator
 
 TARGETS := 
-CHECK_TARGETS := unit-test-bit-vector
+CHECK_TARGETS := 
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -133,6 +133,8 @@ opcode.o: opcode.c opcode.h bit.h
 sidlib.o: sidlib.c sidlib.h
 test-cpu-week08.o: test-cpu-week08.c opcode.h bit.h cpu.h alu.h bus.h \
  memory.h component.h cpu-storage.h util.h error.h
+test-cpu-week09.o: test-cpu-week09.c opcode.h bit.h cpu.h alu.h bus.h \
+ memory.h component.h cpu-storage.h util.h error.h
 test-gameboy.o: test-gameboy.c gameboy.h cpu.h alu.h bit.h bus.h memory.h \
  component.h timer.h cartridge.h lcdc.h image.h bit_vector.h joypad.h \
  util.h error.h
@@ -178,17 +180,31 @@ unit-test-component: unit-test-component.o error.o component.o memory.o
 unit-test-memory: unit-test-memory.o error.o bus.o memory.o component.o bit.o
 unit-test-bus: unit-test-bus.o error.o bus.o component.o bit.o memory.o
 unit-test-cpu: unit-test-cpu.o alu.o bit.o error.o cpu.o cpu-registers.o cpu-storage.o cpu-alu.o bus.o component.o memory.o opcode.c
-unit-test-cpu-dispatch-week08: unit-test-cpu-dispatch-week08.o error.o alu.o bit.o  bus.o memory.o component.o opcode.o gameboy.o cpu-alu.o cpu-registers.o cpu-storage.o timer.o cartridge.o bootrom.o
-test-cpu-week08: test-cpu-week08.o opcode.o bit.o alu.o bus.o memory.o component.o cpu-storage.o error.o cpu-alu.o cpu.o cpu-registers.o
-unit-test-cpu-dispatch-week09: unit-test-cpu-dispatch-week09.o error.o alu.o bit.o bus.o memory.o component.o opcode.o  cpu-alu.o cpu-registers.o cpu-storage.o
-unit-test-timer: unit-test-timer.o error.o timer.o component.o memory.o bit.o alu.o bus.o cpu-storage.o cpu-registers.o cpu.o opcode.o cpu-alu.o
+	gcc -L . unit-test-cpu.o alu.o bit.o error.o cpu.o cpu-registers.o cpu-storage.o cpu-alu.o bus.o component.o memory.o opcode.c -lcs212gbcpuext -lcheck -lm -lrt -pthread -lsubunit -o unit-test-cpu
+unit-test-cpu-dispatch-week08:LDFLAGS += -L.
+unit-test-cpu-dispatch-week08:LDLIBS += -lcs212gbfinalext
+unit-test-cpu-dispatch-week08: unit-test-cpu-dispatch-week08.o error.o alu.o bit.o  bus.o memory.o component.o opcode.o gameboy.o cpu-alu.o cpu-registers.o cpu-storage.o timer.o cartridge.o bootrom.o bit_vector.o image.o
+test-cpu-week08: LDFLAGS += -L.
+test-cpu-week08: LDLIBS += -lcs212gbfinalext
+test-cpu-week08: test-cpu-week08.o opcode.o bit.o alu.o bus.o memory.o component.o cpu-storage.o error.o cpu-alu.o cpu.o cpu-registers.o bit_vector.o image.o
+unit-test-cpu-dispatch-week09:LDFLAGS += -L.
+unit-test-cpu-dispatch-week09:LDLIBS += -lcs212gbfinalext
+unit-test-cpu-dispatch-week09: unit-test-cpu-dispatch-week09.o error.o alu.o bit.o bus.o memory.o component.o opcode.o  cpu-alu.o cpu-registers.o cpu-storage.o bit_vector.o image.o
+test-cpu-week09: LDFLAGS += -L.
+test-cpu-week09: LDLIBS += -lcs212gbfinalext
+test-cpu-week09: test-cpu-week09.o opcode.o bit.o alu.o bus.o memory.o component.o cpu-storage.o error.o cpu-alu.o cpu.o cpu-registers.o bit_vector.o image.o
+unit-test-timer: LDFLAGS += -L.
+unit-test-timer: LDLIBS += -lcs212gbfinalext
+unit-test-timer: unit-test-timer.o error.o timer.o component.o memory.o bit.o alu.o bus.o cpu-storage.o cpu-registers.o cpu.o opcode.o cpu-alu.o bit_vector.o image.o
+unit-test-cartridge: LDFLAGS += -L.
+unit-test-cartridge: LDLIBS += -lcs212gbfinalext
 unit-test-cartridge: unit-test-cartridge.o error.o cartridge.o component.o component.o memory.o bus.o alu.o bit.o 
 unit-test-cpu-dispatch: unit-test-cpu-dispatch.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o alu.o component.o memory.o bus.o bit.o error.o
-	gcc -L . unit-test-cpu-dispatch.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o alu.o component.o memory.o bus.o bit.o error.o --lcs212gbfinalext  -lcheck -lm -lrt -pthread -lsubunit  -o unit-test-cpu-dispatch
+	gcc -L . unit-test-cpu-dispatch.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o alu.o component.o memory.o bus.o bit.o error.o -lcs212gbcpuext  -lcheck -lm -lrt -pthread -lsubunit  -o unit-test-cpu-dispatch
 unit-test-alu_ext: unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o alu.o bus.o bit.o error.o
-	gcc -L . unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o alu.o bus.o bit.o error.o -lcs212gbfinalext -lcheck -lm -lrt -pthread -lsubunit -o unit-test-alu_ext
+	gcc -L . unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o alu.o bus.o bit.o error.o -lcs212gbcpuext -lcheck -lm -lrt -pthread -lsubunit -o unit-test-alu_ext
 test-gameboy: LDFLAGS += -L.
-test-gameboy: LDLIBS += -lcs212gbfinalext-debug
+test-gameboy: LDLIBS += -lcs212gbfinalext
 test-gameboy: test-gameboy.o gameboy.o cpu.o alu.o bit.o bus.o memory.o component.o timer.o cartridge.o image.o error.o bootrom.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o bit_vector.o 
 unit-test-bit-vector: unit-test-bit-vector.o bit_vector.o image.o 
 

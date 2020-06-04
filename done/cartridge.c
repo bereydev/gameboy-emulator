@@ -50,7 +50,7 @@ int cartridge_init(cartridge_t *ct, const char *filename)
 	M_EXIT_IF_ERR(component_create(&ct->c, BANK_ROM_SIZE));
 	if (cartridge_init_from_file(&ct->c, filename) != ERR_NONE) {
 		component_free(&ct->c);
-		return ERR_MEM;
+		return ERR_IO;
 	} else {
 		return ERR_NONE;
 	}

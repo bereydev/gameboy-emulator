@@ -73,8 +73,8 @@ void cpu_free(cpu_t *cpu)
         bus_unplug(*cpu->bus, &cpu->high_ram);
         component_free(&cpu->high_ram);
         //unplug IE and IF
-        (*cpu->bus)[REG_IE] = NULL;
-        (*cpu->bus)[REG_IF] = NULL;
+        //(*cpu->bus)[REG_IE] = NULL;
+        //(*cpu->bus)[REG_IF] = NULL;
         
         cpu->bus = NULL;
     }
@@ -337,19 +337,14 @@ static int cpu_do_cycle(cpu_t *cpu)
     {
         cpu->IME = 0;
         interrupt_t interrupt_to_handle = get_interrupt_number(active_interrupts);
-        //interrupt_t est unsigned
-        if (interrupt_to_handle <= 5u)
-        {
-            bit_unset(&cpu->IF, interrupt_to_handle);
-            M_EXIT_IF_ERR(cpu_SP_push(cpu, cpu->PC));
-            cpu->PC = 0x40 + (interrupt_to_handle << 3u);
-            cpu->idle_time += 5u;
-        }
-        else
-        {
-            return ERR_BAD_PARAMETER;
-        }
+    
+        bit_unset(&cpu->IF, interrupt_to_handle);
+        M_EXIT_IF_ERR(cpu_SP_push(cpu, cpu->PC));
+        cpu->PC = 0x40 + (interrupt_to_handle << 3u);
+        cpu->idle_time += 5u;
     }
+    
+    while (cpu->idle_time > 0) cpu->idle_time--;
 
     data_t byte_at_PC = cpu_read_at_idx(cpu, cpu->PC);
     instruction_t instruction = byte_at_PC == PREFIXED ? instruction_prefixed[cpu_read_data_after_opcode(cpu)] : instruction_direct[byte_at_PC];
