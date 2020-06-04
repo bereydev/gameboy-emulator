@@ -91,9 +91,8 @@ int timer_cycle(gbtimer_t *timer)
     M_REQUIRE_NON_NULL(timer);
 
     bit_t old_state = timer_state(timer);
-    timer->counter = (uint16_t)(timer->counter + ONE_CYCLE); //TODO conversion to ‘uint16_t {aka short unsigned int}’ from ‘int’
-
-    //cpu_write_at_idx(timer->cpu, REG_DIV, msb8(timer->counter));
+    timer->counter = (uint16_t)(timer->counter + ONE_CYCLE); 
+    M_EXIT_IF_ERR(cpu_write_at_idx(timer->cpu, REG_DIV, msb8(timer->counter)));
     timer_incr_if_state_change(timer, old_state);
 
     return ERR_NONE;
@@ -107,7 +106,7 @@ int timer_bus_listener(gbtimer_t *timer, addr_t addr)
     {
         bit_t old_state = timer_state(timer);
         timer->counter = 0u;
-        M_EXIT_IF_ERR(cpu_write_at_idx(timer->cpu, REG_DIV, msb8(timer->counter)));
+        //M_EXIT_IF_ERR(cpu_write_at_idx(timer->cpu, REG_DIV, msb8(timer->counter)));
         timer_incr_if_state_change(timer, old_state);
     }
     else if (addr == REG_TAC)

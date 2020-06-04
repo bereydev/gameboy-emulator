@@ -70,6 +70,7 @@ int gameboy_create(gameboy_t *gameboy, const char *filename)
     M_EXIT_IF_ERR(cpu_plug(&gameboy->cpu, &gameboy->bus));
 
     gameboy->cycles = 0;
+    gameboy->nb_components = GB_NB_COMPONENTS;
 
     M_EXIT_IF_ERR(joypad_init_and_plug(&gameboy->pad, &gameboy->cpu));
 
