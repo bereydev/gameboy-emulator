@@ -28,7 +28,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: unit-test-alu unit-test-bit unit-test-bit-vector unit-test-bus unit-test-cartridge unit-test-component unit-test-cpu unit-test-cpu-dispatch-week08 unit-test-cpu-dispatch-week09 unit-test-memory unit-test-timer unit-test-cartridge test-cpu-week08 test-cpu-week09 test-gameboy gbsimulator
 
 TARGETS := 
-CHECK_TARGETS := 
+CHECK_TARGETS := unit-test-cpu
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
